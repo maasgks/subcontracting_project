@@ -1142,10 +1142,10 @@ function recTable(head,rows){
 }
 
 /* ══ DEAL PANEL ═══════════════════════════════════════════════════════════  */
-/* Logs before Workflow: the log is where an action is taken, the workflow is
-   where it is read back afterwards. */
-var DEAL_TABS=[{id:'details',label:'Details'},{id:'logs',label:'Logs'},
-               {id:'workflow',label:'Workflow'},{id:'attachments',label:'Attachments'}];
+/* Logs and Workflow always close the tab row, Logs first: the log is where
+   an action is taken, the workflow is where it is read back afterwards. */
+var DEAL_TABS=[{id:'details',label:'Details'},{id:'attachments',label:'Attachments'},
+               {id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
 var ORDER_TABS=[{id:'details',label:'Details'},{id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
 function dealPanelHTML(){
   if(state.dealSel!==LIVE_ID)return samplePanelHTML(sampleDeal(state.dealSel));
