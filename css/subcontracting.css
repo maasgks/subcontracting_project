@@ -132,11 +132,13 @@
 .sc-draft-file b{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc-draft-file>span:not(.att-kind){color:var(--gray);font-size:11.5px}
 
-/* ── FIELD SHAPES (main.css :root) ────────────────────────────────────────
-   Typed into, single line → --r-input (rounded). Picked → --r-control.
-   A multi-line box stays square: a pill radius eats into the text, and
-   main.css says so, but .ep-form-input carries the pill to every textarea. */
-.ct-modal textarea.ep-form-input,.ep-form-card textarea.ep-form-input{border-radius:var(--r-control)}
+/* ── FIELD SHAPES ─────────────────────────────────────────────────────────
+   One corner for every field in this module, typed or picked: --r-control,
+   the 8px the dropdowns already have. main.css gives typed fields a pill
+   (--r-input), which beside a square dropdown reads as two different forms. */
+.ct-modal .ep-form-input,.ct-modal textarea.ep-form-input,
+.ct-modal .sc-rec-table .ep-form-input,.ep-form-card .ep-form-input,
+.lp-isb .ep-form-input{border-radius:var(--r-control)}
 .ct-modal .ep-form-group{display:flex;flex-direction:column;gap:7px;min-width:0}
 
 /* ── DOCUMENTS ────────────────────────────────────────────────────────────
@@ -194,7 +196,7 @@
    .ct-modal at 42px, which is right for a labelled form field and far too tall
    for a cell in a twelve-column item table — the row would be half padding.
    Scoped to this module's record table, so no form field anywhere else moves. */
-.ct-modal .sc-rec-table .ep-form-input{height:34px;padding:0 12px;font-size:12.5px;border-radius:var(--r-input);min-width:110px}
+.ct-modal .sc-rec-table .ep-form-input{height:34px;padding:0 10px;font-size:12.5px;min-width:110px}
 .ct-modal .sc-rec-table .cs-wrap{min-width:170px}
 .ct-modal .sc-rec-table .cs-trigger{height:34px;padding:0 10px;font-size:12.5px;gap:8px}
 .ct-modal .sc-rec-table .cs-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
