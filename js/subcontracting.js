@@ -477,7 +477,7 @@ function csField(id,opts,value,placeholder,hook){
   }).join('');
   if(!opts.length)optStr='<div class="cs-option" style="color:#9ca3af;cursor:default">No action available for your role</div>';
   return '<div class="cs-wrap" id="csw-'+id+'"'+(hook?' data-cshook="'+hook+'"':'')+'>'
-    +'<button type="button" class="cs-trigger'+(sel?'':' cs-placeholder')+'" onclick="csToggle(this,event)" data-csid="'+id+'">'
+    +'<button type="button" class="cs-trigger'+(sel?'':' cs-placeholder')+'" onclick="csToggle(this,event)" data-csid="'+id+'" title="'+esc(sel||placeholder||'Select')+'">'
     +'<span class="cs-value">'+esc(sel||placeholder||'Select')+'</span>'
     +'<svg class="cs-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'
     +'</button><div class="cs-dropdown" id="csd-'+id+'">'+optStr+'</div></div>';
@@ -514,7 +514,7 @@ function csSelect(opt,val,id){
   drop.querySelectorAll('.cs-option').forEach(function(o){o.classList.remove('cs-selected');});
   opt.classList.add('cs-selected');
   var trigger=document.querySelector('[data-csid="'+id+'"]');
-  if(trigger){trigger.querySelector('.cs-value').textContent=val;trigger.classList.remove('cs-placeholder','cs-open');}
+  if(trigger){trigger.querySelector('.cs-value').textContent=val;trigger.title=val;trigger.classList.remove('cs-placeholder','cs-open');}
   drop.classList.remove('cs-open');
   csValues[id]=val;
   var wrap=document.getElementById('csw-'+id);
@@ -890,6 +890,19 @@ function paginationHTML(total,page,noun,fn){
 }
 function scDealPage(n){state.dealPage=n;state.dealOpen=false;scRender();}
 function scOrderPage(n){state.orderPage=n;state.orderOpen=false;scRender();}
+/* Reset appears only when there is something to reset: a filter applied to
+   the listing, a stage card's filter, or a value typed or picked and not yet
+   searched. */
+function filtersActive(){
+  var d=state.dealFilter,o=state.orderFilter;
+  return !!(state.stageFilter||d.q||d.process||d.scr||d.ship||o.q||o.status||o.buyer);
+}
+function scSyncReset(){
+  var btn=document.getElementById('sc-reset');if(!btn)return;
+  var typed=document.querySelector('.sc-filters .lp-search-input');
+  var picked=document.querySelectorAll('.sc-filters .cs-trigger:not(.cs-placeholder)').length;
+  btn.hidden=!(filtersActive()||(typed&&typed.value.trim())||picked);
+}
 function scSearchKey(e,fn){if(e.key==='Enter')window[fn]();}
 function emptyRow(cols,title,sub){
   return '<tr><td colspan="'+cols+'" style="padding:0"><div class="sc-empty"><div class="sc-empty-ico">'+ICO.search+'</div>'
@@ -936,12 +949,12 @@ function dealsPageHTML(){
     +'<div class="listing-top">'
       +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
         +'<div class="lp-filter-bar-label">Select Filter</div>'
-        +'<div class="lp-filter-bar-row">'
-          +'<input class="lp-search-input" id="sc-deal-q" type="text" value="'+esc(f.q)+'" placeholder="Search Deal ID, title, vendor" onkeydown="scSearchKey(event,\'scSearchDeals\')">'
-          +csField('sc-f-process',['Job Work','Processing','Repair'],f.process,'Sub-Contracting Process')
-          +csField('sc-f-scr',['Sent for Approval','Approved','Closed'],f.scr,'SCR Status')
-          +csField('sc-f-ship',['Not Started','Created','Freezed Outbound Release','Challan Generated','Closed'],f.ship,'Shipment Status')
-          +'<button class="lp-pill-clear" onclick="scResetFilters()">'+ICO.close+' Reset</button>'
+        +'<div class="lp-filter-bar-row sc-filters">'
+          +'<input class="lp-search-input" id="sc-deal-q" type="text" value="'+esc(f.q)+'" placeholder="Search Deal ID, title, vendor" title="Search Deal ID, title, vendor" oninput="scSyncReset()" onkeydown="scSearchKey(event,\'scSearchDeals\')">'
+          +csField('sc-f-process',['Job Work','Processing','Repair'],f.process,'Sub-Contracting Process','scSyncReset')
+          +csField('sc-f-scr',['Sent for Approval','Approved','Closed'],f.scr,'SCR Status','scSyncReset')
+          +csField('sc-f-ship',['Not Started','Created','Freezed Outbound Release','Challan Generated','Closed'],f.ship,'Shipment Status','scSyncReset')
+          +'<button class="lp-pill-clear" id="sc-reset" onclick="scResetFilters()"'+(filtersActive()?'':' hidden')+'>'+ICO.close+' Reset</button>'
           +'<button class="lp-pill-search" onclick="scSearchDeals()">Search</button>'
         +'</div>'
       +'</div>'
@@ -994,11 +1007,11 @@ function ordersPageHTML(){
     +'<div class="listing-top">'
       +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
         +'<div class="lp-filter-bar-label">Select Filter</div>'
-        +'<div class="lp-filter-bar-row">'
-          +'<input class="lp-search-input" id="sc-order-q" type="text" value="'+esc(f.q)+'" placeholder="Search PO No., SCR No., vendor" onkeydown="scSearchKey(event,\'scSearchOrders\')">'
-          +csField('sc-f-pos',['Draft','Created','Approved','Closed'],f.status,'Status')
-          +csField('sc-f-buyer',['Madan Mohan','Gagan Tej'],f.buyer,'Buyer')
-          +'<button class="lp-pill-clear" onclick="scResetFilters()">'+ICO.close+' Reset</button>'
+        +'<div class="lp-filter-bar-row sc-filters">'
+          +'<input class="lp-search-input" id="sc-order-q" type="text" value="'+esc(f.q)+'" placeholder="Search PO No., SCR No., vendor" title="Search PO No., SCR No., vendor" oninput="scSyncReset()" onkeydown="scSearchKey(event,\'scSearchOrders\')">'
+          +csField('sc-f-pos',['Draft','Created','Approved','Closed'],f.status,'Status','scSyncReset')
+          +csField('sc-f-buyer',['Madan Mohan','Gagan Tej'],f.buyer,'Buyer','scSyncReset')
+          +'<button class="lp-pill-clear" id="sc-reset" onclick="scResetFilters()"'+(filtersActive()?'':' hidden')+'>'+ICO.close+' Reset</button>'
           +'<button class="lp-pill-search" onclick="scSearchOrders()">Search</button>'
         +'</div>'
       +'</div>'

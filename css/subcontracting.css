@@ -200,3 +200,15 @@
    The file count reads as a chip above the table, as in ADT's panels. */
 .att-count{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;
   background:var(--light);border:1px solid var(--border)}
+
+/* ── LISTING FILTERS ──────────────────────────────────────────────────────
+   Search and every select share one width, so the row reads as a set. A
+   label longer than the box ends in an ellipsis; the title attribute gives
+   the full text on hover. */
+.sc-filters .lp-search-input,
+.sc-filters .cs-wrap{flex:0 0 190px;width:190px;min-width:0}
+.sc-filters .cs-trigger{min-width:0;gap:8px}
+.sc-filters .cs-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-filters .cs-chevron{flex-shrink:0}
+.sc-filters .lp-search-input{text-overflow:ellipsis}
+.sc-filters [hidden]{display:none}
