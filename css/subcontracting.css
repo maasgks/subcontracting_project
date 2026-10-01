@@ -67,23 +67,21 @@
 .sc-banner-clear{margin-left:auto}
 
 /* ── WORKFLOW ─────────────────────────────────────────────────────────────
-   The shared timeline (.lp-wf-*) with two additions: the lifecycle is long
-   enough to need section heads, and a stage here has a STATE, which the dot
-   carries by re-pointing the timeline's own three variables. */
-.sc-wf-note{display:flex;gap:10px;align-items:flex-start;background:#f8f9fb;border:1px solid var(--border);
-  border-radius:var(--r-control);padding:11px 13px;font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:18px}
-.sc-wf-note b{color:var(--navy)}
-.sc-wf-note svg{flex-shrink:0;width:15px;height:15px;color:var(--gray);margin-top:1px}
+   The timeline is ADT's own, unchanged: .lp-wf-row / .lp-wf-card / .lp-wf-dot,
+   one dot style the whole way down, "who and when" in the meta row and the
+   stage's own state appended to its title. This module adds exactly two things
+   to it — a gap between the lifecycle's four groups, which are headed with the
+   shared .lp-sb-view-header, and a footer row for the documents a stage has to
+   open, which is what wfTimelineHTML's own `extra` slot is for.
+
+   WHAT WAS REMOVED AND WHY. An earlier version gave each card a status badge,
+   coloured its dot per state and headed each group with a bar-and-title of its
+   own. All three were second shapes for jobs ADT already had one shape for,
+   and side by side with any other Workflow tab in the product the difference
+   read as a different product. The rules for them are gone rather than left
+   unused, so they cannot drift back in. */
 .sc-wf-group{margin-bottom:22px}
 .sc-wf-group:last-child{margin-bottom:0}
-.sc-wf-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.sc-wf-group-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
-.sc-wf-group-title::before{content:'';width:3px;height:13px;border-radius:2px;background:var(--orange)}
-.sc-wf .lp-wf-row.is-done{--wf-dot:var(--st-ok-fg);--wf-ring:var(--st-ok-bd);--wf-halo:var(--st-ok-bg)}
-.sc-wf .lp-wf-row.is-current{--wf-dot:var(--st-wait-fg);--wf-ring:var(--st-wait-bd);--wf-halo:var(--st-wait-bg)}
-.sc-wf .lp-wf-row.is-idle{--wf-dot:#cbd5e1;--wf-ring:#e2e8f0;--wf-halo:#f1f5f9}
-.sc-wf-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
-.sc-wf-card-head .lp-wf-title{margin-bottom:0}
 .sc-wf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
 
 /* ── RECORD TABLES ────────────────────────────────────────────────────────

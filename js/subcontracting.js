@@ -896,7 +896,7 @@ function wfNote(text){
     +'<span class="ib-icon">'+ICO.info+'</span><div>'+text+'</div></div>';
 }
 function dealWorkflowHTML(){
-  var html=wfNote('<strong>Workflow is read-only.</strong>Every operational update is recorded from the Logs tab, '
+  var html=wfNote('<b>Workflow is read-only.</b> Every operational update is recorded from the Logs tab, '
     +'so this timeline only ever reports what has already happened.');
 
   html+=wfGroup('SCR',[
@@ -1119,12 +1119,12 @@ function orderDetailsHTML(){
 }
 function orderWorkflowHTML(){
   if(state.po==='none'){
-    return wfNote('The Purchase Order is created automatically in <strong>Draft</strong> once the SCR is approved; '
+    return wfNote('The Purchase Order is created automatically in <b>Draft</b> once the SCR is approved; '
       +'its workflow begins there.');
   }
   var created=state.po==='created'||state.po==='approved'||state.po==='closed';
   var approved=state.po==='approved'||state.po==='closed';
-  return wfNote('<strong>Workflow is read-only.</strong>Purchase Order actions are recorded from the Logs tab.')
+  return wfNote('<b>Workflow is read-only.</b> Purchase Order actions are recorded from the Logs tab.')
     +wfGroup('Purchase Order',[
       wfRow('Draft',wfMeta('PO Auto-Created','System'),
         'PO <b>37741</b> created automatically against SCR-2026-50123 on approval.',viewBtn('View PO','po')),
