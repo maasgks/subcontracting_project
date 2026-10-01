@@ -117,17 +117,27 @@
 .sc-split .lp-split-sb.open{min-height:max(500px,calc(100vh - 300px))}
 
 /* ── CREATE SCR: the yes/no header switches ───────────────────────────────
-   Five one-word answers that belong together; as five labelled form fields
-   they ate half the popup, so they share one strip. */
-.sc-radio-row{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px}
-.sc-radio-group{display:flex;align-items:center;gap:10px;background:#f8f9fb;border:1px solid var(--border);
-  border-radius:var(--r-control);padding:8px 12px}
-.sc-radio-group>span{font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap}
-.sc-seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-control);overflow:hidden;background:#fff}
-.sc-seg button{border:none;background:#fff;padding:5px 12px;font-family:inherit;font-size:11.5px;font-weight:600;
-  color:var(--gray);cursor:pointer;transition:background .14s ease,color .14s ease}
-.sc-seg button+button{border-left:1px solid var(--border)}
-.sc-seg button.on{background:var(--orange);color:#fff}
+   Five one-word answers that belong together, so they share one row of ADT
+   .segmented strips. The active segment is drawn here: ADT draws it with the
+   travelling marker from js/tab-slide.js, which this module does not load. */
+.sc-yn-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px 14px}
+.sc-yn-grid .ep-form-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-modal .segmented .seg-btn{min-height:36px}
+.ct-modal .segmented .seg-btn.active{background:var(--card);color:var(--navy);box-shadow:0 1px 4px rgba(15,23,42,.08)}
+@media (max-width:760px){.sc-yn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Files picked on the form, before the SCR exists. */
+.sc-draft-file{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);
+  border-radius:10px;background:#fff;margin-bottom:8px;font-size:12.5px;color:var(--navy)}
+.sc-draft-file b{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-draft-file>span:not(.att-kind){color:var(--gray);font-size:11.5px}
+
+/* ── FIELD SHAPES (main.css :root) ────────────────────────────────────────
+   Typed into, single line → --r-input (rounded). Picked → --r-control.
+   A multi-line box stays square: a pill radius eats into the text, and
+   main.css says so, but .ep-form-input carries the pill to every textarea. */
+.ct-modal textarea.ep-form-input,.ep-form-card textarea.ep-form-input{border-radius:var(--r-control)}
+.ct-modal .ep-form-group{display:flex;flex-direction:column;gap:7px;min-width:0}
 
 /* ── DOCUMENTS ────────────────────────────────────────────────────────────
    Outbound Key, Delivery Note and Challan are printed paper that happens to be
@@ -184,11 +194,10 @@
    .ct-modal at 42px, which is right for a labelled form field and far too tall
    for a cell in a twelve-column item table — the row would be half padding.
    Scoped to this module's record table, so no form field anywhere else moves. */
-.ct-modal .sc-rec-table .ep-form-input,
-.ct-modal .sc-rec-table .ep-form-select,
-.ct-modal .sc-rec-table select.ep-form-select,
-.ct-modal .sc-rec-table input[type="date"].ep-form-input{height:34px;padding:0 10px;font-size:12.5px;border-radius:var(--r-control)}
-.ct-modal .sc-rec-table select.ep-form-select{padding:0 26px 0 10px}
+.ct-modal .sc-rec-table .ep-form-input{height:34px;padding:0 12px;font-size:12.5px;border-radius:var(--r-input);min-width:110px}
+.ct-modal .sc-rec-table .cs-wrap{min-width:170px}
+.ct-modal .sc-rec-table .cs-trigger{height:34px;padding:0 10px;font-size:12.5px;gap:8px}
+.ct-modal .sc-rec-table .cs-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── LOG FORM FOOTER ──────────────────────────────────────────────────────
    Cancel and Submit side by side, equal width, as every ADT logs panel. */

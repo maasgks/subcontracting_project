@@ -1839,18 +1839,20 @@ function readonlyField(label,value,full){
     +'<label class="ep-form-label">'+esc(label)+'</label>'
     +'<div class="sc-ro">'+esc(value)+'</div></div>';
 }
-function select(id,opts){
-  return '<select class="ep-form-select" id="'+id+'">'+opts.map(function(o){return '<option>'+esc(o)+'</option>';}).join('')+'</select>';
-}
+/* ADT's custom select, never a native one (form-system.css §3): a native
+   list is painted by the operating system. Pre-selects the first option, as
+   the native control did. */
+function select(id,opts){return csField(id,opts,opts[0]);}
+/* A Yes/No answer is ADT's .segmented strip, labelled like every field. */
 function segField(label,yes){
-  return '<div class="sc-radio-group"><span>'+esc(label)+'</span>'
-    +'<span class="sc-seg"><button type="button" class="'+(yes?'on':'')+'" onclick="scSeg(this,0)">Yes</button>'
-    +'<button type="button" class="'+(yes?'':'on')+'" onclick="scSeg(this,1)">No</button></span></div>';
+  return '<div class="ep-form-group"><label class="ep-form-label">'+esc(label)+'</label>'
+    +'<div class="segmented">'
+    +'<button type="button" class="seg-btn'+(yes?' active':'')+'" onclick="scSeg(this)">Yes</button>'
+    +'<button type="button" class="seg-btn'+(yes?'':' active')+'" onclick="scSeg(this)">No</button>'
+    +'</div></div>';
 }
 function scSeg(btn){
-  var group=btn.parentElement;
-  group.querySelectorAll('button').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');
+  btn.parentElement.querySelectorAll('.seg-btn').forEach(function(b){b.classList.toggle('active',b===btn);});
 }
 
 /* ── CREATE SCR ───────────────────────────────────────────────────────────  */
@@ -1861,12 +1863,12 @@ function scOpenCreateSCR(){
     +field('SCR Base',select('f-base',['Production Order','Project']),true)
     +field('Nature of SCR / Work Type',input('f-nature','Job'),true)
     +field('Purchase Office',select('f-office',['PUR-121 — Manufacturing Procurement']),true)
-    +'<div class="sc-radio-row">'
+    +field('Buyer',select('f-buyer',['Madan Mohan','Gagan Tej']))
+    +field('Approver',select('f-approver',['PMG Approver']))
+    +'<div class="sc-yn-grid ep-form-full">'
       +segField('SCR Unpeg',true)+segField('Inter-Unit',false)+segField('Partial Material as FIM',true)
       +segField('Billable',true)+segField('Logistics Required',true)
     +'</div>'
-    +field('Buyer',select('f-buyer',['Madan Mohan','Gagan Tej']))
-    +field('Approver',select('f-approver',['PMG Approver']))
     +field('Remarks','<textarea class="ep-form-input" id="f-remarks" style="min-height:76px">For urgent processing</textarea>',false,true)
     +field('Header Text','<textarea class="ep-form-input" id="f-headtext" style="min-height:76px">Additional header information</textarea>',false,true)
     +'</div>');
@@ -1901,10 +1903,8 @@ function scOpenCreateSCR(){
       +'<td>Zone A</td><td>Yes</td><td>GST-05</td><td>0202</td><td>1:1</td></tr>')
     +'<button class="btn-outline btn-sm" style="margin-top:10px" onclick="scAddIssue()">'+ICO.plus+' Add Issue Item</button>');
 
-  var attach=section('Attachments',
-    '<div class="ct-upload-area" onclick="scToast(\'Upload is not wired in this prototype\',\'info\')">'
-    +'<b style="font-size:13px;color:var(--navy)">Choose files</b> or drop them here'
-    +'<p>PDF, Excel, CSV or Word. Up to 10 MB each.</p></div>');
+  scrDraftFiles=[];
+  var attach=section('Attachments','<div id="sc-scr-att">'+scrAttachHTML()+'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Submitting sends the SCR to the PMG Approver.</span>'
     +'<div class="ct-modal-btns">'
@@ -1915,6 +1915,34 @@ function scOpenCreateSCR(){
 
   document.getElementById('sc-modal-root').innerHTML=
     modalShell('Create SCR','Sub-Contracting Request',header+base+vendor+recv+issue+attach,foot,true);
+}
+/* Files picked on the form travel with the SCR: on submit they become the
+   deal's Attachments tab. */
+var scrDraftFiles=[];
+function scrAttachHTML(){
+  var dz=' onclick="document.getElementById(\'sc-scr-file\').click()" ondragover="event.preventDefault();this.classList.add(\'is-over\')"'
+    +' ondragleave="this.classList.remove(\'is-over\')" ondrop="event.preventDefault();this.classList.remove(\'is-over\');scScrFiles(event.dataTransfer.files)"';
+  var list=scrDraftFiles.map(function(f,i){
+    return '<div class="sc-draft-file"><span class="att-kind">'+attKind(f.name)+'</span><b>'+esc(f.name)+'</b><span>'+esc(f.size)+'</span>'
+      +'<button class="att-row-btn is-danger" title="Remove" onclick="scScrFileRemove('+i+')">'+ATT_ICO.trash+'</button></div>';
+  }).join('');
+  return '<input type="file" id="sc-scr-file" multiple hidden onchange="scScrFiles(this.files);this.value=\'\'">'
+    +(scrDraftFiles.length
+      ?list+'<div class="att-zone att-zone-sm" style="margin:10px 0 0"'+dz+'><span class="att-zone-ico-sm">'+ATT_ICO.upload+'</span>Add more files</div>'
+      :'<div class="att-zone att-zone-lg"'+dz+'><span class="att-zone-ico">'+ATT_ICO.upload+'</span>'
+        +'<div class="att-zone-title">Drop files here, or click to browse</div>'
+        +'<div class="att-zone-hint">PDF, images, documents and spreadsheets · up to 10 MB each</div></div>');
+}
+function scScrFiles(fileList){
+  Array.prototype.forEach.call(fileList||[],function(f){
+    if(f.size>10*1048576){scToast(f.name+' is over 10 MB','error');return;}
+    scrDraftFiles.push({name:f.name,size:attSize(f.size),url:URL.createObjectURL(f)});
+  });
+  document.getElementById('sc-scr-att').innerHTML=scrAttachHTML();
+}
+function scScrFileRemove(i){
+  var f=scrDraftFiles.splice(i,1)[0];if(f&&f.url)URL.revokeObjectURL(f.url);
+  document.getElementById('sc-scr-att').innerHTML=scrAttachHTML();
 }
 function scAddReceivable(){
   var tb=document.querySelector('#sc-recv-row-1').parentElement;
@@ -1938,7 +1966,7 @@ function scAddIssue(){
 }
 function scSaveDraftSCR(){scCloseModal();scToast('SCR saved as Draft','info');}
 function scSubmitSCR(){
-  var v=function(id){var el=document.getElementById(id);return el?String(el.value).trim():'';};
+  var v=function(id){var el=document.getElementById(id);return el?String(el.value).trim():csValue(id);};
   var title=v('f-title'),qty=parseInt(v('r1-qty'),10),price=parseFloat(v('r1-price'));
   if(!title){scToast('SCR Title is mandatory','error');return;}
   if(!(qty>0)||!(price>0)){scToast('Enter the receivable quantity and price','error');return;}
@@ -1946,6 +1974,10 @@ function scSubmitSCR(){
   state.scrData={title:title,base:v('f-base'),nature:v('f-nature')||'Job',buyer:v('f-buyer'),
     remarks:v('f-remarks'),headText:v('f-headtext'),item:{name:v('r1-item'),qty:qty,price:price,date:due}};
   EXPECTED_QTY=qty;
+  attStore[LIVE_ID]=scrDraftFiles.map(function(f){
+    return {name:f.name,size:f.size,by:who(),source:'Uploaded with the SCR',url:f.url};
+  });
+  scrDraftFiles=[];
   state.scr='sent';
   addDealLog('SCR Submitted','SCR raised against '+v('f-po').split(' — ')[0]+' and sent for approval.');
   scCloseModal();
