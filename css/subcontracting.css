@@ -149,14 +149,6 @@
 .sc-doc-sig-name{font-size:12.5px;font-weight:700;color:var(--navy)}
 .sc-doc-sig-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
 
-/* ── ATTACHMENTS ──────────────────────────────────────────────────────────  */
-.sc-att-row{display:flex;align-items:center;gap:12px;background:#f8f9fb;border:1px solid #eef0f3;
-  border-radius:10px;padding:12px 14px}
-.sc-att-ico{width:34px;height:34px;border-radius:8px;background:#fff;border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;color:var(--gray);flex-shrink:0}
-.sc-att-ico svg{width:16px;height:16px}
-.sc-att-name{font-size:13px;font-weight:600;color:var(--navy)}
-.sc-att-meta{font-size:11px;color:#9ca3af;margin-top:2px}
 
 /* ── EMPTY STATE ──────────────────────────────────────────────────────────  */
 .sc-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:44px 20px;text-align:center}
@@ -203,3 +195,8 @@
 .sc-logs-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sc-logs-btns .btn-outline{height:40px;justify-content:center}
 .sc-logs-btns button:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── ATTACHMENTS COUNT ────────────────────────────────────────────────────
+   The file count reads as a chip above the table, as in ADT's panels. */
+.att-count{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;
+  background:var(--light);border:1px solid var(--border)}

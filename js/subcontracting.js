@@ -48,6 +48,9 @@ var ICO={
   plus:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   hamburger:'<svg width="16" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="2" x2="17" y2="2"/><line x1="1" y1="7" x2="17" y2="7"/><line x1="1" y1="12" x2="17" y2="12"/></svg>',
   eye:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  sitemap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-5h14v5"/></svg>',
+  sliders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="15" y1="4" x2="15" y2="8"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="13" y1="16" x2="13" y2="20"/></svg>',
+  headset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>',
   store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>',
   cube:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>',
   handshake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7l3-3 6 6-3 3"/><path d="M12 7L9 4 3 10l3 3"/><path d="M6 13l4 4 2-2 3 3"/></svg>',
@@ -58,20 +61,17 @@ var ICO={
    Mirrors the source prototype's nav. Same data shape as ADT's sidebarItems,
    so swapping in the real structure is an edit to this array alone. */
 var SC_NAV=[
-  {section:'Overview'},
   {id:'dashboard',label:'Dashboard',icon:ICO.grid},
-
-  {section:'Sub-Contracting'},
+  {id:'stores',label:'Stores & Management',icon:ICO.store,placeholder:true},
   {dropdown:'Transactions',icon:ICO.file,children:[
     {id:'deals',label:'Deals',icon:ICO.file},
     {id:'orders',label:'Purchase Orders',icon:ICO.cart}
   ]},
-
-  {section:'Management'},
-  {id:'stores',label:'Stores & Management',icon:ICO.store,placeholder:true},
-  {id:'products',label:'Products & Inventory',icon:ICO.cube,placeholder:true},
-  {id:'vendors',label:'Vendors',icon:ICO.handshake,placeholder:true},
-  {id:'security',label:'Gate & Security',icon:ICO.shield,placeholder:true}
+  {id:'products',label:'Product & Inventory',icon:ICO.cube,placeholder:true},
+  {id:'category',label:'Category',icon:ICO.sitemap,placeholder:true},
+  {id:'masters',label:'Masters',icon:ICO.sliders,placeholder:true},
+  {id:'support',label:'Support & Help Desk',icon:ICO.headset,placeholder:true},
+  {id:'location',label:'Location control',icon:ICO.globe,placeholder:true}
 ];
 
 var SC_ROLES=['Planner','PMG Approver','Buyer','PO Approver','Stores User',
@@ -136,7 +136,10 @@ var state={
   stageFilter:null,
   stageLabel:'',
 
-  scr:'sent',
+  /* 'none' until Create SCR is submitted — the demo starts from the form. */
+  scr:'none',
+  scrData:null,
+  poPrice:null,
   po:'none',
   shipment:'none',
   outboundKey:false,
@@ -153,14 +156,11 @@ var state={
   fullReceipt:false,
   closed:false,
 
-  /* Seeded with the submission that put the live SCR in front of the PMG
-     Approver, so its log opens with the step that already happened. */
-  dealLogs:[{status:'SCR Submitted',comment:'SCR raised against Production Order PO-100045 and sent for approval.',
-    by:'Kinjal Sisodiya',role:'Planner',date:'29 Sep 2026',time:'10:42:15',portal:'Web'}],
+  dealLogs:[],
   poLogs:[],
 
-  dealSel:'SCR-2026-50123',
-  orderSel:'37741',
+  dealSel:null,
+  orderSel:null,
   dealFilter:{q:'',process:'',scr:'',ship:''},
   dealPage:1,
   orderPage:1,
@@ -176,13 +176,22 @@ var state={
 var pendingAction=null;   // the business popup currently on screen
 
 /* ══ SAMPLE DEALS ═════════════════════════════════════════════════════════
-   SCR-2026-50123 is the one LIVE deal: its state above is what every role
+   The SCR created from the form is the one LIVE deal: its state is what every role
    walks through the log forms. The records below are read-only sample data
    that fill the listings, the stage cards and the side panel, so the module
    reads like a populated workspace. Each record names the stage it sits at;
    its logs, workflow and PO status are derived from that one key. */
-var LIVE_ID='SCR-2026-50123';
-var LIVE_PO='37741';
+var LIVE_ID='SCR-2026-50132';
+var LIVE_PO='37756';
+/* What the Create SCR form captured. The defaults are the form's own, so a
+   reader of any view sees exactly what was submitted. */
+var LIVE_DEFAULT={title:'Sub-contracting for shaft machining',base:'Production Order',nature:'Job',
+  buyer:'Madan Mohan',remarks:'For urgent processing',headText:'Additional header information',
+  item:{name:'Fabricated End Frame',qty:10,price:250,date:'30 Oct 2026'}};
+function L(){return state.scrData||LIVE_DEFAULT;}
+function liveExists(){return state.scr!=='none';}
+function poPrice(){return state.poPrice!=null?state.poPrice:L().item.price;}
+function poValue(){return L().item.qty*poPrice();}
 var STAGE_ORDER=['scr','po','shipment','outbound','asn','imr','reconciliation','closure','closed'];
 
 var SAMPLE_DEALS=[
@@ -361,6 +370,7 @@ function sampleMilestones(d){
 
 /* Where the live deal sits, read off its state. */
 function liveStage(){
+  if(!liveExists())return 'none';
   if(state.closed)return 'closed';
   if(state.scr==='sent')return 'scr';
   if(state.po!=='approved')return 'po';
@@ -374,7 +384,7 @@ function liveStage(){
 
 /* Every deal as one listing row — the live one first, read from state. */
 function dealRows(){
-  var rows=[{id:LIVE_ID,live:true,base:'Production Order',title:'Sub-contracting for shaft machining',
+  var rows=!liveExists()?[]:[{id:LIVE_ID,live:true,base:L().base,title:L().title,
     planner:'Kinjal Sisodiya',vendor:'Sri Venkateswara Aerospace Pvt.ltd',vendorSub:'21005 · Hyderabad',
     process:'Job Work',scr:scrLabel(),ship:shipLabel(),pending:pendingWith(),stage:liveStage(),
     asns:state.asns.length,imrs:state.imrs.length}];
@@ -387,9 +397,9 @@ function dealRows(){
 }
 function orderRows(){
   var rows=[];
-  if(state.po!=='none')rows.push({no:LIVE_PO,live:true,scrId:LIVE_ID,title:'Sub-contracting for shaft machining',
-    vendor:'Sri Venkateswara Aerospace Pvt.ltd',buyer:'Madan Mohan',value:5000,created:'30 Sep 2026',
-    approved:(state.po==='approved'||state.po==='closed')?'30 Sep 2026':'',status:poLabel(),stage:liveStage()});
+  if(state.po!=='none')rows.push({no:LIVE_PO,live:true,scrId:LIVE_ID,title:L().title,
+    vendor:'Sri Venkateswara Aerospace Pvt.ltd',buyer:L().buyer,value:poValue(),created:state.poCreated||'',
+    approved:state.poApproved||'',status:poLabel(),stage:liveStage()});
   SAMPLE_DEALS.forEach(function(d){
     if(!d.po)return;
     var ms=sampleMilestones(d),
@@ -598,6 +608,7 @@ function validPOActions(role){
 }
 
 function pendingWith(){
+  if(!liveExists())return '—';
   if(state.scr==='sent')return 'PMG Approver';
   if(state.scr==='approved'&&state.po==='draft')return 'Buyer';
   if(state.po==='created')return 'PO Approver';
@@ -615,8 +626,8 @@ function pendingWith(){
   return '—';
 }
 
-function scrLabel(){return state.scr==='sent'?'Sent for Approval':state.scr==='closed'?'Closed':'Approved';}
-function scrTone(){return state.scr==='sent'?'pending':state.scr==='closed'?'closed':'approved';}
+function scrLabel(){return state.scr==='none'?'Not Created':state.scr==='sent'?'Sent for Approval':state.scr==='closed'?'Closed':'Approved';}
+function scrTone(){return state.scr==='none'?'sc-idle':state.scr==='sent'?'pending':state.scr==='closed'?'closed':'approved';}
 function shipLabel(){
   return state.shipment==='none'?'Not Started'
     :state.shipment==='closed'?'Closed'
@@ -1131,17 +1142,20 @@ function recTable(head,rows){
 }
 
 /* ══ DEAL PANEL ═══════════════════════════════════════════════════════════  */
+/* Logs before Workflow: the log is where an action is taken, the workflow is
+   where it is read back afterwards. */
+var DEAL_TABS=[{id:'details',label:'Details'},{id:'logs',label:'Logs'},
+               {id:'workflow',label:'Workflow'},{id:'attachments',label:'Attachments'}];
+var ORDER_TABS=[{id:'details',label:'Details'},{id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
 function dealPanelHTML(){
   if(state.dealSel!==LIVE_ID)return samplePanelHTML(sampleDeal(state.dealSel));
-  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},
-            {id:'logs',label:'Logs'},{id:'attachments',label:'Attachments'},{id:'activity',label:'Activity Log'}];
+  var tabs=DEAL_TABS;
   var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
   var body;
   if(state.dealTab==='details')body=dealDetailsHTML();
   else if(state.dealTab==='workflow')body=dealWorkflowHTML();
   else if(state.dealTab==='logs')body=dealLogsHTML();
-  else if(state.dealTab==='attachments')body=dealAttachmentsHTML();
-  else body=dealActivityHTML();
+  else body=attachmentsHTML(LIVE_ID);
 
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
@@ -1151,21 +1165,21 @@ function dealDetailsHTML(){
      identical cards into two readable groups. */
   var g=function(cards){return '<div class="lp-sb-detail-grid" style="margin-bottom:20px">'+cards+'</div>';};
   var head=g(
-     fieldCard(ICO.hash,'SCR No.','SCR-2026-50123')
+     fieldCard(ICO.hash,'SCR No.',LIVE_ID)
     +fieldCard(ICO.check,'Status',badge(scrTone(),scrLabel()))
-    +fieldCard(ICO.doc,'SCR Title','Sub-contracting for shaft machining')
-    +fieldCard(ICO.tag,'SCR Base','Production Order')
-    +fieldCard(ICO.tag,'Nature of SCR / Work Type','Job')
+    +fieldCard(ICO.doc,'SCR Title',L().title)
+    +fieldCard(ICO.tag,'SCR Base',esc(L().base))
+    +fieldCard(ICO.tag,'Nature of SCR / Work Type',esc(L().nature))
     +fieldCard(ICO.globe,'Purchase Office','PUR-121 — Manufacturing Procurement')
     +fieldCard(ICO.check,'SCR Unpeg','Yes')
     +fieldCard(ICO.check,'Inter-Unit','No')
     +fieldCard(ICO.check,'Partial Material as FIM','Yes')
     +fieldCard(ICO.check,'Billable','Yes')
     +fieldCard(ICO.truck,'Logistics Required','Yes')
-    +fieldCard(ICO.user,'Buyer','Madan Mohan')
+    +fieldCard(ICO.user,'Buyer',esc(L().buyer))
     +fieldCard(ICO.user,'Approver','PMG Approver')
-    +fieldCard(ICO.doc,'Remarks','For urgent processing')
-    +fieldCard(ICO.doc,'Header Text','Additional header information',true)
+    +fieldCard(ICO.doc,'Remarks',esc(L().remarks))
+    +fieldCard(ICO.doc,'Header Text',esc(L().headText),true)
   );
   var base=g(
      fieldCard(ICO.clipboard,'Production Order','PO-100045 — Shaft Machining')
@@ -1181,8 +1195,8 @@ function dealDetailsHTML(){
 
   var recv=recTable(
     ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open','Status'],
-    '<tr><td><b>Fabricated End Frame</b></td><td>Finished Product</td><td>10</td><td>Each</td><td>250</td>'
-    +'<td>Hazira Works</td><td>0202</td><td>30 Oct 2026</td><td>'+confirmedReceived()+'</td><td>'+openReceiptQty()+'</td>'
+    '<tr><td><b>'+esc(L().item.name)+'</b></td><td>Finished Product</td><td>'+L().item.qty+'</td><td>Each</td><td>'+fmtAmt(L().item.price)+'</td>'
+    +'<td>Hazira Works</td><td>0202</td><td>'+esc(L().item.date)+'</td><td>'+confirmedReceived()+'</td><td>'+openReceiptQty()+'</td>'
     +'<td>'+badge(state.closed?'closed':'open',state.closed?'Closed':'Open')+'</td></tr>');
 
   var issues=[
@@ -1190,7 +1204,7 @@ function dealDetailsHTML(){
     ['SKU_52288_3814 — Carbon Steel Billet','Zone B','0206'],
     ['SKU_52287_3814 — Alloy Steel Forging Block','Zone C','0203']
   ].map(function(r){
-    return '<tr><td>Fabricated End Frame</td><td><b>'+r[0]+'</b></td><td>Raw Material</td><td>10</td><td>Each</td>'
+    return '<tr><td>'+esc(L().item.name)+'</td><td><b>'+r[0]+'</b></td><td>Raw Material</td><td>'+L().item.qty+'</td><td>Each</td>'
       +'<td>Hazira Works</td><td>Main Store</td><td>'+r[1]+'</td><td>Yes</td><td>GST-05</td><td>'+r[2]+'</td><td>1:1</td></tr>';
   }).join('');
   var issue=recTable(['For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Location','Storage Zone','FIM','Tax Code','HSN','BOM Ratio'],issues);
@@ -1241,7 +1255,7 @@ function viewBtn(label,type,index){
 function wfTimelineHTML(events,pending){
   var rows=events.map(function(e){return {title:e.status,meta:wfMeta(e),desc:esc(e.comment),actions:e.view||''};});
   if(pending)rows.push({title:pending.action+' — Pending',meta:{user:'Pending with '+pending.role,date:'',time:''},
-    desc:'Awaiting <b>'+esc(pending.role)+'</b>.',actions:''});
+    desc:'Awaiting <b>'+esc(pending.role)+'</b>.',actions:pending.actions||''});
   if(!rows.length)return '<div class="lp-wf-empty">No workflow activity yet.</div>';
   return '<div class="lp-wf-wrap">'+rows.map(function(r,i){
     return wfRow(r.title,r.meta,r.desc,r.actions,i===rows.length-1);
@@ -1259,7 +1273,7 @@ function liveEvents(){
   all=all.map(function(l,i){return {l:l,i:i};})
     .sort(function(a,b){return logTs(a.l)-logTs(b.l)||a.i-b.i;}).map(function(x){return x.l;});
   var asn=0,imr=0;
-  var views={'SCR Submitted':['View SCR','scr'],'Shipment Created':['View Shipment','shipment'],
+  var views={'SCR Submitted':['View SCR','scr'],'PO Generated':['View PO','po'],'Shipment Created':['View Shipment','shipment'],
     'Outbound Key Generated':['View Outbound Key','outbound'],'Delivery Note Generated':['View Delivery Note','deliverynote'],
     'Challan Generated':['View Challan','challan'],'Reconciliation Completed':['View Reconciliation','reconciliation'],
     'PO Auto-Created':['View PO','po']};
@@ -1274,13 +1288,33 @@ function liveEvents(){
 /* The live deal's next step: who holds it, and the forward action they take. */
 function liveNext(){
   var who=pendingWith();if(who==='—')return null;
-  var role={'Planner / PMG':'Planner','Finance / F&A':'Finance / F&A / IDT'}[who]||who;
+  var role=roleKey(who);
   var acts=validDealActions(role).concat(validPOActions(role))
     .filter(function(a){return !/^(Return|Reject)/.test(a);});
   return acts.length?{action:acts[0],role:who}:null;
 }
 function dealWorkflowHTML(){
-  return wfTimelineHTML(liveEvents(),liveNext());
+  var next=liveNext();
+  if(next&&/ PO$/.test(next.action))next.actions=openPOBtn();
+  return wfTimelineHTML(liveEvents(),next);
+}
+/* PO actions are recorded on the Purchase Order, not the deal — this is the
+   hop between the two. */
+function openPOBtn(){
+  return '<button class="btn-outline btn-sm" onclick="scGoOrderLogs()">'+ICO.cart+' Open Purchase Order '+LIVE_PO+'</button>';
+}
+function scGoOrderLogs(){
+  state.page='orders';state.stageFilter=null;state.stageLabel='';state.orderPage=1;
+  state.orderFilter={q:'',status:'',buyer:''};
+  state.dealOpen=false;state.orderOpen=false;
+  scRender();
+  scOpenOrder(LIVE_PO);
+  scOrderTab('logs');
+}
+/* The role a pending step belongs to, as a header role. */
+function roleKey(who){return {'Planner / PMG':'Planner','Finance / F&A':'Finance / F&A / IDT'}[who]||who;}
+function handoffBtn(role){
+  return '<button class="btn-outline btn-sm" style="margin-top:10px" onclick="scSetRole(\''+role+'\')">'+ICO.user+' Switch to '+esc(role)+'</button>';
 }
 
 /* ── LOGS ─────────────────────────────────────────────────────────────────
@@ -1342,12 +1376,19 @@ function scResetLogForm(id){
   if(tr){tr.querySelector('.cs-value').textContent='Select Status';tr.classList.add('cs-placeholder');}
   document.querySelectorAll('#csd-'+id+'-status .cs-option').forEach(function(o){o.classList.remove('cs-selected');});
 }
+function dealHandoff(){
+  var next=liveNext();
+  if(!next)return 'Nothing further is pending on this deal.';
+  if(/ PO$/.test(next.action))
+    return 'Next: <b>'+esc(next.action)+'</b> by the <b>'+esc(next.role)+'</b>, on the Purchase Order.<br>'+openPOBtn();
+  return 'Next: <b>'+esc(next.action)+'</b>, pending with <b>'+esc(next.role)+'</b>.<br>'+handoffBtn(roleKey(next.role));
+}
 function dealLogsHTML(){
   var opts=validDealActions(),last=state.dealLogs[0];
   var form=logFormHTML({id:'sc-deal',opts:opts,hook:'scDealStatusPicked',submit:'scSubmitDealLog',
     current:last?last.status:scrLabel(),
     sub:'Record the next action as <b>'+esc(state.role)+'</b> and add a comment.',
-    note:opts.length?'':'Nothing is pending with this role at this stage. Switch role in the header to continue the flow.'});
+    note:opts.length?'':dealHandoff()});
   return '<div class="lp-logs-wrap">'+logTimelineHTML(state.dealLogs)+form+'</div>';
 }
 /* Picking one of the form-backed actions opens its own popup straight away —
@@ -1369,24 +1410,92 @@ function scSubmitDealLog(){
   scRender();
 }
 
-function dealAttachmentsHTML(){
-  return secHead('Attachments')
-    +'<div style="display:flex;flex-direction:column;gap:10px">'
-    +'<div class="sc-att-row"><div class="sc-att-ico">'+ICO.doc+'</div>'
-      +'<div><div class="sc-att-name">Machining_Specification.pdf</div>'
-      +'<div class="sc-att-meta">Uploaded with the SCR · 1.4 MB · 25 Sep 2026</div></div>'
-      +'<button class="btn-outline btn-sm" style="margin-left:auto" onclick="scToast(\'Download is not wired in this prototype\',\'info\')">Download</button></div>'
-    +'<div class="sc-att-row"><div class="sc-att-ico">'+ICO.doc+'</div>'
-      +'<div><div class="sc-att-name">Vendor_Rate_Contract_RC-123.pdf</div>'
-      +'<div class="sc-att-meta">Linked from Rate Contract · 820 KB · 25 Sep 2026</div></div>'
-      +'<button class="btn-outline btn-sm" style="margin-left:auto" onclick="scToast(\'Download is not wired in this prototype\',\'info\')">Download</button></div>'
-    +'</div>'
-    +'<div class="ct-upload-area" style="margin-top:14px" onclick="scToast(\'Upload is not wired in this prototype\',\'info\')">'
-      +'<b style="font-size:13px;color:var(--navy)">Choose files</b> or drop them here'
-      +'<p>PDF, Excel, CSV or Word. Up to 10 MB each.</p></div>';
+/* ── ATTACHMENTS ──────────────────────────────────────────────────────────
+   ADT's attachments tab (.att-*, leaves.css), in its two states: the drop
+   zone is the whole tab while there is nothing to show, and shrinks to one
+   line above the file table once there is. Uploads are real for the session:
+   the file is held as an object URL, so Download hands back what was dropped. */
+var ATT_ICO={
+  upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>',
+  download:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>'
+};
+var attStore={};
+function attSeed(id){
+  if(id===LIVE_ID)return [
+    {name:'Machining_Specification.pdf',size:'1.4 MB',by:'Kinjal Sisodiya',source:'Uploaded with the SCR'},
+    {name:'Vendor_Rate_Contract_RC-123.pdf',size:'820 KB',by:'Madan Mohan',source:'Linked from Rate Contract'}];
+  var d=sampleDeal(id);if(!d||d.stage==='scr')return [];
+  var f=[{name:d.title.replace(/[^A-Za-z]+/g,'_').replace(/_$/,'')+'_Specification.pdf',size:'1.2 MB',by:d.planner,source:'Uploaded with the SCR'},
+         {name:'PO_'+d.po.no+'.pdf',size:'340 KB',by:'System',source:'Generated with the PO'}];
+  if(stagePassed(d,'outbound'))f.push({name:'Delivery_Challan_'+d.id.slice(-5)+'.pdf',size:'210 KB',by:'System',source:'Gate pass copy'});
+  if(d.received)f.push({name:'QC_Report_'+d.id.slice(-5)+'.xlsx',size:'96 KB',by:SAMPLE_PEOPLE['QC User'],source:'Uploaded with the ASN'});
+  return f;
 }
-function dealActivityHTML(){
-  return secHead('Activity Log')+logTimelineHTML(state.dealLogs);
+function attList(id){if(!attStore[id])attStore[id]=attSeed(id);return attStore[id];}
+function attKind(name){var m=/\.([a-z0-9]+)$/i.exec(name);return m?m[1].toUpperCase():'FILE';}
+function attSize(b){return b<1024?b+' B':b<1048576?Math.round(b/1024)+' KB':(b/1048576).toFixed(1)+' MB';}
+
+function attachmentsHTML(id){
+  var files=attList(id);
+  var input='<input type="file" id="sc-att-input" multiple hidden onchange="scAttAdd(\''+id+'\',this.files);this.value=\'\'">';
+  var dz=' onclick="document.getElementById(\'sc-att-input\').click()" ondragover="event.preventDefault();this.classList.add(\'is-over\')"'
+    +' ondragleave="this.classList.remove(\'is-over\')" ondrop="event.preventDefault();this.classList.remove(\'is-over\');scAttAdd(\''+id+'\',event.dataTransfer.files)"';
+  if(!files.length){
+    return input+'<div class="att-zone att-zone-lg"'+dz+'>'
+      +'<span class="att-zone-ico">'+ATT_ICO.upload+'</span>'
+      +'<div class="att-zone-title">Drop files here, or click to browse</div>'
+      +'<div class="att-zone-hint">PDF, images, documents and spreadsheets · up to 10 MB each</div></div>';
+  }
+  var rows=files.map(function(f,i){
+    return '<tr><td>'+(i+1)+'</td>'
+      +'<td><div class="lp-c-main">'+esc(f.name)+'</div><div class="lp-c-sub">'+esc(f.size)+'</div></td>'
+      +'<td>'+esc(f.by)+'</td>'
+      +'<td><span class="att-kind">'+attKind(f.name)+'</span></td>'
+      +'<td><span class="lp-c-sub" style="font-size:12.5px">'+esc(f.source)+'</span></td>'
+      +'<td style="text-align:right;white-space:nowrap">'
+        +'<button class="att-row-btn" title="Download" onclick="scAttDownload(\''+id+'\','+i+')">'+ATT_ICO.download+'</button>'
+        +'<button class="att-row-btn is-danger" title="Delete" onclick="scAttDelete(\''+id+'\','+i+')">'+ATT_ICO.trash+'</button>'
+      +'</td></tr>';
+  }).join('');
+  return input
+    +'<div class="att-bar"><span class="att-count">'+files.length+' File'+(files.length>1?'s':'')+'</span>'
+    +'<div class="att-bar-actions"><button class="att-link" onclick="scAttDownloadAll(\''+id+'\')">'+ATT_ICO.download+' Download All</button></div></div>'
+    +'<div class="att-zone att-zone-sm"'+dz+'><span class="att-zone-ico-sm">'+ATT_ICO.upload+'</span>Drop files here, or click to browse</div>'
+    +'<div class="att-table-wrap"><table class="lp-table att-table"><thead><tr>'
+    +'<th>Sr. No</th><th>File Name</th><th>Uploaded By</th><th>Type</th><th>Source</th><th style="text-align:right">Action</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+function refreshAttachments(){
+  if(state.dealOpen&&state.dealTab==='attachments')fillPanel('sc-deal-isb',dealPanelHTML());
+}
+function scAttAdd(id,fileList){
+  var list=attList(id),added=0,big=0;
+  Array.prototype.forEach.call(fileList||[],function(f){
+    if(f.size>10*1048576){big++;return;}
+    list.push({name:f.name,size:attSize(f.size),by:who(),source:'Manual upload',url:URL.createObjectURL(f)});
+    added++;
+  });
+  if(added)scToast(added+' file'+(added>1?'s':'')+' uploaded','success');
+  if(big)scToast(big+' file'+(big>1?'s are':' is')+' over 10 MB','error');
+  refreshAttachments();
+}
+function scAttDownload(id,i){
+  var f=attList(id)[i];if(!f)return;
+  if(!f.url){scToast(f.name+' is sample data — nothing to download','info');return;}
+  var a=document.createElement('a');a.href=f.url;a.download=f.name;document.body.appendChild(a);a.click();a.remove();
+}
+function scAttDownloadAll(id){
+  var list=attList(id),real=list.filter(function(f){return f.url;});
+  if(!real.length){scToast('These are sample files — nothing to download','info');return;}
+  list.forEach(function(f,i){if(f.url)scAttDownload(id,i);});
+}
+function scAttDelete(id,i){
+  var list=attList(id),f=list[i];if(!f)return;
+  if(f.url)URL.revokeObjectURL(f.url);
+  list.splice(i,1);
+  scToast(f.name+' deleted','info');
+  refreshAttachments();
 }
 
 /* ══ ORDER PANEL ══════════════════════════════════════════════════════════  */
@@ -1395,7 +1504,7 @@ function orderPanelHTML(){
     var d=SAMPLE_DEALS.filter(function(x){return x.po&&x.po.no===state.orderSel;})[0];
     return sampleOrderPanelHTML(d);
   }
-  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},{id:'logs',label:'Logs'}];
+  var tabs=ORDER_TABS;
   var bar=tabBarHTML(tabs,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs');
   var body;
   if(state.orderTab==='details')body=orderDetailsHTML();
@@ -1410,15 +1519,15 @@ function orderDetailsHTML(){
       +'<div class="sc-empty-sub">It is created automatically in Draft once the SCR is approved.</div></div>';
   }
   var head='<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
-    +fieldCard(ICO.hash,'PO No.','37741')
+    +fieldCard(ICO.hash,'PO No.',LIVE_PO)
     +fieldCard(ICO.check,'PO Status',badge(poTone(),poLabel()))
-    +fieldCard(ICO.doc,'SCR No.','SCR-2026-50123')
+    +fieldCard(ICO.doc,'SCR No.',LIVE_ID)
     +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
     +fieldCard(ICO.handshake,'Vendor / Sub-Contractor','21005 — Sri Venkateswara Aerospace Pvt.ltd')
     +fieldCard(ICO.globe,'Vendor Address','Hyderabad, Telangana 500084')
     +fieldCard(ICO.tag,'Required Skill / Service','Structural Fabrication')
     +fieldCard(ICO.tag,'Lot Type','Specific')
-    +fieldCard(ICO.user,'Buyer','Madan Mohan')
+    +fieldCard(ICO.user,'Buyer',esc(L().buyer))
     +fieldCard(ICO.doc,'PO Series','Not Applicable')
     +fieldCard(ICO.doc,'Rate Contract','RC-123')
     +fieldCard(ICO.doc,'SAP SCR Reference ID','')
@@ -1428,11 +1537,11 @@ function orderDetailsHTML(){
     +fieldCard(ICO.user,'PMG Approver','Gagan Tej')
     +fieldCard(ICO.tag,'Tax Code','GST-05 — GST @ 5%')
     +fieldCard(ICO.globe,'Purchase Office','PUR-121 — Manufacturing Procurement')
-    +fieldCard(ICO.money,'PO Value','5,000.00')
+    +fieldCard(ICO.money,'PO Value',fmtAmt(poValue()))
     +'</div>';
   var lines=recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
-    '<tr><td>1</td><td><b>Power Shovel</b><span class="sc-rec-sub">SKU_52321_3814</span></td>'
-    +'<td>10</td><td>Each</td><td>500</td><td><b>5,000.00</b></td></tr>');
+    '<tr><td>1</td><td><b>'+esc(L().item.name)+'</b></td>'
+    +'<td>'+L().item.qty+'</td><td>Each</td><td>'+fmtAmt(poPrice())+'</td><td><b>'+fmtAmt(poValue())+'</b></td></tr>');
   return secHead('PO Header Details',viewBtn('View PO','po'))+head
     +secHead('PO Lines')+lines;
 }
@@ -1444,15 +1553,20 @@ function orderWorkflowHTML(){
     :state.po==='created'?{action:'Approve PO',role:'PO Approver'}:null;
   var ev=state.poLogs.slice().reverse().map(function(l){
     return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,
-      view:l.status==='PO Auto-Created'?viewBtn('View PO','po'):''};
+      view:l.status==='PO Generated'?viewBtn('View PO','po'):''};
   });
   return wfTimelineHTML(ev,pending);
+}
+function orderHandoff(){
+  var r=state.po==='draft'?['Generate PO','Buyer']:state.po==='created'?['Approve PO','PO Approver']:null;
+  if(!r)return 'Nothing further is pending on this PO.';
+  return 'Next: <b>'+r[0]+'</b>, pending with <b>'+r[1]+'</b>.<br>'+handoffBtn(r[1]);
 }
 function orderLogsHTML(){
   var opts=validPOActions();
   var form=logFormHTML({id:'sc-po',opts:opts,hook:'scOrderStatusPicked',submit:'scSubmitOrderLog',
     current:'PO '+poLabel(),sub:'Record the next action on this Purchase Order.',
-    note:opts.length?'':'Nothing is pending with this role on this PO.'});
+    note:opts.length?'':orderHandoff()});
   return '<div class="lp-logs-wrap">'+logTimelineHTML(state.poLogs)+form+'</div>';
 }
 function scOrderStatusPicked(val){
@@ -1467,7 +1581,7 @@ function scSubmitOrderLog(){
   if(!action){scToast('Select a status first','error');return;}
   if(action==='Generate PO'){scOpenActionModal(action,comment,'order');return;}
   if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
-  if(action==='Approve PO'){state.po='approved';addPOLog('PO Approved',comment);scToast('PO 37741 approved');}
+  if(action==='Approve PO'){state.po='approved';state.poApproved=stamp().date;addPOLog('PO Approved',comment);scToast('PO '+LIVE_PO+' approved');}
   if(action==='Return PO'){addPOLog('PO Returned',comment);scToast('PO returned to Buyer','info');}
   scRender();
 }
@@ -1487,15 +1601,13 @@ function sampleNote(d){
     +'The interactive flow runs on <b>'+LIVE_ID+'</b>.');
 }
 function samplePanelHTML(d){
-  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},
-            {id:'logs',label:'Logs'},{id:'attachments',label:'Attachments'},{id:'activity',label:'Activity Log'}];
+  var tabs=DEAL_TABS;
   var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
   var t=state.dealTab,body;
   if(t==='details')body=sampleDetailsHTML(d);
   else if(t==='workflow')body=sampleWorkflowHTML(d);
   else if(t==='logs')body=sampleLogsHTML(d);
-  else if(t==='attachments')body=sampleAttachmentsHTML(d);
-  else body=secHead('Activity Log')+logTimelineHTML(sampleMilestones(d).slice().reverse());
+  else body=attachmentsHTML(d.id);
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 function sampleDetailsHTML(d){
@@ -1552,21 +1664,10 @@ function sampleLogsHTML(d){
     note:'Sample record — read-only. Open <b>'+LIVE_ID+'</b> to record actions.'});
   return '<div class="lp-logs-wrap">'+logTimelineHTML(logs)+form+'</div>';
 }
-function sampleAttachmentsHTML(d){
-  var files=[[d.title.replace(/[^A-Za-z]+/g,'_').replace(/_$/,'')+'_Specification.pdf','Uploaded with the SCR · 1.2 MB · '+d.created]];
-  if(d.po)files.push(['PO_'+d.po.no+'.pdf','Generated with the Purchase Order · 340 KB']);
-  if(stagePassed(d,'outbound'))files.push(['Delivery_Challan_'+d.id.slice(-5)+'.pdf','Gate pass copy · 210 KB']);
-  return secHead('Attachments')+'<div style="display:flex;flex-direction:column;gap:10px">'
-    +files.map(function(f){
-      return '<div class="sc-att-row"><div class="sc-att-ico">'+ICO.doc+'</div>'
-        +'<div><div class="sc-att-name">'+esc(f[0])+'</div><div class="sc-att-meta">'+esc(f[1])+'</div></div>'
-        +'<button class="btn-outline btn-sm" style="margin-left:auto" onclick="scToast(\'Download is not wired in this prototype\',\'info\')">Download</button></div>';
-    }).join('')+'</div>';
-}
 
 /* ── SAMPLE PO PANEL ──────────────────────────────────────────────────────  */
 function sampleOrderPanelHTML(d){
-  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},{id:'logs',label:'Logs'}];
+  var tabs=ORDER_TABS;
   var bar=tabBarHTML(tabs,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs');
   var ms=sampleMilestones(d),it=d.item,value=it.qty*it.price;
   var poLogs=ms.filter(function(l){return /^(SCR Approved|PO )/.test(l.status);});
@@ -1628,8 +1729,9 @@ function executeDealAction(action,comment){
   if(action==='Approve SCR'){
     state.scr='approved';state.po='draft';
     addDealLog('SCR Approved',comment);
-    addPOLog('PO Auto-Created','PO 37741 created automatically in Draft after SCR approval.');
-    scToast('SCR approved','success','PO 37741 created in Draft for the Buyer.');
+    addPOLog('PO Auto-Created','PO '+LIVE_PO+' created automatically in Draft after SCR approval.');
+    state.poCreated=state.poLogs[0].date;
+    scToast('SCR approved','success','PO '+LIVE_PO+' created in Draft for the Buyer.');
   }
   else if(action==='Return SCR'){addDealLog('SCR Returned',comment);scToast('SCR returned to Planner','info');}
   else if(action==='Reject SCR'){addDealLog('SCR Rejected',comment);scToast('SCR rejected','error');}
@@ -1823,12 +1925,23 @@ function scAddIssue(){
 }
 function scSaveDraftSCR(){scCloseModal();scToast('SCR saved as Draft','info');}
 function scSubmitSCR(){
+  var v=function(id){var el=document.getElementById(id);return el?String(el.value).trim():'';};
+  var title=v('f-title'),qty=parseInt(v('r1-qty'),10),price=parseFloat(v('r1-price'));
+  if(!title){scToast('SCR Title is mandatory','error');return;}
+  if(!(qty>0)||!(price>0)){scToast('Enter the receivable quantity and price','error');return;}
+  var due=v('r1-date')?fmtDate(new Date(v('r1-date'))):'';
+  state.scrData={title:title,base:v('f-base'),nature:v('f-nature')||'Job',buyer:v('f-buyer'),
+    remarks:v('f-remarks'),headText:v('f-headtext'),item:{name:v('r1-item'),qty:qty,price:price,date:due}};
+  EXPECTED_QTY=qty;
   state.scr='sent';
-  addDealLog('SCR Submitted','SCR created and submitted for approval.');
+  addDealLog('SCR Submitted','SCR raised against '+v('f-po').split(' — ')[0]+' and sent for approval.');
   scCloseModal();
-  state.page='deals';
+  state.page='deals';state.stageFilter=null;state.stageLabel='';state.dealPage=1;
+  state.dealFilter={q:'',process:'',scr:'',ship:''};
+  state.dealOpen=false;
   scRender();
-  scToast('SCR submitted for approval','success','Now pending with the PMG Approver.');
+  scOpenDeal(LIVE_ID);
+  scToast(LIVE_ID+' submitted','success','Pending with the PMG Approver — approve it from the Logs tab.');
 }
 
 /* ── THE FORM-BACKED ACTIONS ──────────────────────────────────────────────  */
@@ -1838,15 +1951,15 @@ function scOpenActionModal(action,comment,context){
 
   if(action==='Generate PO'){
     fields=section('PO Header Details','<div class="policy-form-grid">'
-      +readonlyField('SCR No.','SCR-2026-50123')
-      +readonlyField('PO No.','37741')
+      +readonlyField('SCR No.',LIVE_ID)
+      +readonlyField('PO No.',LIVE_PO)
       +readonlyField('Order Type','Sub-Contracting')
       +readonlyField('PO Status','Draft')
       +readonlyField('Vendor / Sub-Contractor','21005 — Sri Venkateswara Aerospace Pvt.ltd')
       +readonlyField('Vendor Address','Hyderabad, Telangana 500084')
       +readonlyField('Required Skill / Service','Structural Fabrication')
       +readonlyField('Lot Type','Specific')
-      +readonlyField('Buyer','Madan Mohan')
+      +readonlyField('Buyer',L().buyer)
       +readonlyField('PO Series','Not Applicable')
       +field('Rate Contract',select('po-rc',['RC-123']),true)
       +field('SAP SCR Reference ID','<input class="ep-form-input" id="po-sap" placeholder="Optional">')
@@ -1859,12 +1972,12 @@ function scOpenActionModal(action,comment,context){
       +'</div>')
     +section('PO Lines',
       recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
-        '<tr><td>1</td><td><b>Power Shovel</b><span class="sc-rec-sub">SKU_52321_3814</span></td><td>10</td><td>Each</td>'
-        +'<td><input class="ep-form-input" id="po-price" value="500" oninput="scRecalcPO()"></td>'
-        +'<td id="po-line-value"><b>5,000.00</b></td></tr>')
+        '<tr><td>1</td><td><b>'+esc(L().item.name)+'</b><span class="sc-rec-sub">Est. '+fmtAmt(L().item.price)+' / unit on the SCR</span></td><td>'+L().item.qty+'</td><td>Each</td>'
+        +'<td><input class="ep-form-input" id="po-price" type="number" min="0" value="'+poPrice()+'" oninput="scRecalcPO()"></td>'
+        +'<td id="po-line-value"><b>'+fmtAmt(poValue())+'</b></td></tr>')
       +'<div class="policy-form-grid" style="margin-top:14px">'
-      +field('Header Text (from the request)','<textarea class="ep-form-input" id="po-head" style="min-height:70px"></textarea>',false,true)
-      +field('PO Value','<div class="sc-ro" id="po-total">5,000.00</div>')
+      +field('Header Text (from the request)','<textarea class="ep-form-input" id="po-head" style="min-height:70px">'+esc(L().headText)+'</textarea>',false,true)
+      +field('PO Value','<div class="sc-ro" id="po-total">'+fmtAmt(poValue())+'</div>')
       +'</div>');
   }
 
@@ -1893,8 +2006,8 @@ function scOpenActionModal(action,comment,context){
   if(action==='Create ASN'){
     fields=section('ASN Details','<div class="policy-form-grid">'
       +readonlyField('Shipment Number','SHP-2026-035307')
-      +readonlyField('SCR Number','SCR-2026-50123')
-      +readonlyField('PO Number','37741')
+      +readonlyField('SCR Number',LIVE_ID)
+      +readonlyField('PO Number',LIVE_PO)
       +field('Vendor Invoice No.',input('asn-inv','INV-'+(8891+state.asns.length)))
       +field('Dispatch Date',input('asn-date','2026-10-08','date'))
       +field('Vehicle No.',input('asn-vehicle','AP47TD8451'))
@@ -1902,7 +2015,7 @@ function scOpenActionModal(action,comment,context){
       +'</div>')
     +section('Open Items',
       recTable(['Receivable Item','Expected Qty','Cumulative Advised','Open ASN Qty','Advised Qty *'],
-        '<tr><td><b>Fabricated End Frame</b></td><td>'+EXPECTED_QTY+'</td><td>'+cumulativeAdvised()+'</td>'
+        '<tr><td><b>'+esc(L().item.name)+'</b></td><td>'+EXPECTED_QTY+'</td><td>'+cumulativeAdvised()+'</td>'
         +'<td><b>'+openASNQty()+'</b></td>'
         +'<td><input class="ep-form-input" id="asn-qty" value="'+Math.min(6,openASNQty())+'"></td></tr>'));
   }
@@ -1910,8 +2023,8 @@ function scOpenActionModal(action,comment,context){
   if(action==='Create IMR'){
     var eligible=eligibleASNs();
     fields=section('IMR Details','<div class="policy-form-grid">'
-      +readonlyField('SCR Number','SCR-2026-50123')
-      +readonlyField('PO Number','37741')
+      +readonlyField('SCR Number',LIVE_ID)
+      +readonlyField('PO Number',LIVE_PO)
       +readonlyField('Shipment Number','SHP-2026-035307')
       +field('ASN','<select class="ep-form-select" id="imr-asn" onchange="scRefreshIMR()">'
         +eligible.map(function(a){return '<option value="'+a.index+'">'+a.no+' — Available '+availableForIMR(a.index)+'</option>';}).join('')
@@ -1925,7 +2038,7 @@ function scOpenActionModal(action,comment,context){
   if(action==='Short Close'){
     fields=section('Short Close Details',
       '<div class="lp-sb-detail-grid">'
-      +fieldCard(ICO.cube,'Receivable Item','Fabricated End Frame')
+      +fieldCard(ICO.cube,'Receivable Item',L().item.name)
       +fieldCard(ICO.tag,'Expected Qty',String(EXPECTED_QTY))
       +fieldCard(ICO.check,'Received Qty',String(confirmedReceived()))
       +fieldCard(ICO.info,'Open Qty','<b>'+openReceiptQty()+'</b>')
@@ -1942,20 +2055,20 @@ function scOpenActionModal(action,comment,context){
     +'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Recorded as a log entry on '
-    +(context==='order'?'PO 37741':'SCR-2026-50123')+'.</span>'
+    +(context==='order'?'PO '+LIVE_PO+'':LIVE_ID)+'.</span>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
       +'<button class="btn-primary" onclick="scSubmitAction()">Submit</button>'
     +'</div>';
 
   document.getElementById('sc-modal-root').innerHTML=
-    modalShell(action,context==='order'?'PO 37741 · SCR-2026-50123':'SCR-2026-50123',statusBlock+fields,foot,true);
+    modalShell(action,context==='order'?'PO '+LIVE_PO+' · '+LIVE_ID+'':LIVE_ID,statusBlock+fields,foot,true);
 
   if(action==='Create IMR')scRefreshIMR();
 }
 function scRecalcPO(){
   var price=parseFloat((document.getElementById('po-price')||{value:0}).value||0);
-  var v=(price*10).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  var v=fmtAmt(price*L().item.qty);
   document.getElementById('po-line-value').innerHTML='<b>'+v+'</b>';
   document.getElementById('po-total').textContent=v;
 }
@@ -1965,7 +2078,7 @@ function scRefreshIMR(){
   var asn=state.asns[i];if(!asn)return;
   document.getElementById('imr-items').innerHTML=section('Receivable Items',
     recTable(['Receivable Item','Advised Qty','Already Received','Available for Receipt','Receipt Qty *'],
-      '<tr><td><b>Fabricated End Frame</b></td><td>'+asn.qty+'</td><td>'+receivedForASN(i)+'</td>'
+      '<tr><td><b>'+esc(L().item.name)+'</b></td><td>'+asn.qty+'</td><td>'+receivedForASN(i)+'</td>'
       +'<td><b>'+availableForIMR(i)+'</b></td>'
       +'<td><input class="ep-form-input" id="imr-qty" value="'+availableForIMR(i)+'"></td></tr>'));
 }
@@ -1977,9 +2090,11 @@ function scSubmitAction(){
   if(!comment){scToast('Comment is mandatory','error');return;}
 
   if(action==='Generate PO'){
-    state.po='created';
-    addPOLog('PO Generated',comment);
-    scToast('PO 37741 generated','success','Now pending with the PO Approver.');
+    var price=parseFloat((document.getElementById('po-price')||{value:''}).value);
+    if(!(price>0)){scToast('Enter the price per unit','error');return;}
+    state.po='created';state.poPrice=price;
+    addPOLog('PO Generated',comment+' — PO value '+fmtAmt(poValue())+'.');
+    scToast('PO '+LIVE_PO+' generated','success','Review it from the Workflow tab — View PO.');
   }
   else if(action==='Create Shipment'){
     state.shipment='created';state.outboundKey=true;state.transferOrder=true;
@@ -2023,16 +2138,16 @@ function docGrid(cols,cells){return '<div class="sc-doc-grid cols-'+cols+'">'+ce
 function scOpenView(type,index){
   var title='',sub='',body='';
 
-  if(type==='scr'){title='SCR Details';sub='SCR-2026-50123';body=dealDetailsHTML();}
+  if(type==='scr'){title='SCR Details';sub=LIVE_ID;body=dealDetailsHTML();}
 
-  else if(type==='po'){title='Purchase Order';sub='PO 37741';body=orderDetailsHTML();}
+  else if(type==='po'){title='Purchase Order';sub='PO '+LIVE_PO+'';body=orderDetailsHTML();}
 
   else if(type==='shipment'){
     title='Shipment';sub='SHP-2026-035307';
     body='<div class="lp-sb-detail-grid">'
       +fieldCard(ICO.box,'Shipment ID','SHP-2026-035307')
-      +fieldCard(ICO.doc,'SCR No.','SCR-2026-50123')
-      +fieldCard(ICO.cart,'PO No.','37741')
+      +fieldCard(ICO.doc,'SCR No.',LIVE_ID)
+      +fieldCard(ICO.cart,'PO No.',LIVE_PO)
       +fieldCard(ICO.user,'Delivery Note Approver','Chandra Mohan')
       +fieldCard(ICO.tag,'Challan Type','Production Material Challan')
       +fieldCard(ICO.truck,'Logistics Required','Yes')
@@ -2051,7 +2166,7 @@ function scOpenView(type,index){
         +'<div><div class="adt-doc-title">OBK/26/0152</div>'
         +'<div class="adt-doc-meta">Generated 25 Sep 2026 11:19 · Sagar Kohli</div></div></div>'
       +docGrid(4,docCell('Outbound Key No.','OBK/26/0152')+docCell('Shipment No.','SHP-2026-035307')
-        +docCell('SCR No.','SCR-2026-50123')+docCell('PO No.','37741'))
+        +docCell('SCR No.',LIVE_ID)+docCell('PO No.',LIVE_PO))
       +docGrid(2,docCell('Transfer Order No.','TO/26/0152')+docCell('Material Position','MAAS_STAGING'))
       +'<div class="adt-doc-section"><div class="adt-doc-section-title">Material Details</div>'
       +recTable(['#','Material Code','Description','Project','Qty','UOM','Warehouse','Storage Location'],
@@ -2077,9 +2192,9 @@ function scOpenView(type,index){
       +'<div class="adt-doc-header"><div><div class="adt-doc-brand">DELIVERY NOTE</div>'
         +'<div class="adt-doc-brand-sub">Sub-Contracting</div></div>'
         +'<div><div class="adt-doc-title">DN/26/0123</div>'
-        +'<div class="adt-doc-meta">'+(state.deliveryNote==='approved'?'Approved':'Generated')+' · SCR-2026-50123</div></div></div>'
+        +'<div class="adt-doc-meta">'+(state.deliveryNote==='approved'?'Approved':'Generated')+' · '+LIVE_ID+'</div></div></div>'
       +docGrid(4,docCell('Delivery Note No.','DN/26/0123')+docCell('Delivery Note Date','25 Sep 2026 11:19')
-        +docCell('PO No.','37741')+docCell('Shipment No.','SHP-2026-035307'))
+        +docCell('PO No.',LIVE_PO)+docCell('Shipment No.','SHP-2026-035307'))
       +docGrid(2,docCell('Vendor / Consignee','Sri Venkateswara Aerospace Pvt.ltd')+docCell('Dispatching Unit','Hazira Works'))
       +docGrid(2,docCell('Address','Hyderabad, Telangana 500084, India')+docCell('Expected Date of Return','30 Oct 2026'))
       +docGrid(2,docCell('Delivery Note Approver','Chandra Mohan')+docCell('Your / Our Reference',''))
@@ -2110,8 +2225,8 @@ function scOpenView(type,index){
         +'<div class="adt-doc-brand-sub">Sub-Contracting · Gate Pass Copy · Billable</div></div>'
         +'<div><div class="adt-doc-title">CHL/26/0103</div>'
         +'<div class="adt-doc-meta">'+(state.challan==='gate_cleared'?'GATE_CLEARED':state.challan==='closed'?'Closed':'Generated')+'</div></div></div>'
-      +docGrid(4,docCell('Delivery Note No.','DN/26/0123')+docCell('SCR No.','SCR-2026-50123')
-        +docCell('PO No.','37741')+docCell('Shipment No.','SHP-2026-035307'))
+      +docGrid(4,docCell('Delivery Note No.','DN/26/0123')+docCell('SCR No.',LIVE_ID)
+        +docCell('PO No.',LIVE_PO)+docCell('Shipment No.','SHP-2026-035307'))
       +docGrid(3,docCell('Challan Date','25 Sep 2026 11:21')+docCell('Mode','Road Transport')+docCell('Expected Date of Return','30 Oct 2026'))
       +docGrid(2,
          docCell('Vendor','Sri Venkateswara Aerospace Pvt.ltd<br>Hyderabad, Telangana 500084<br>GSTIN 27AAPFU0939F1ZV')
@@ -2141,8 +2256,8 @@ function scOpenView(type,index){
     body='<div class="lp-sb-detail-grid">'
       +fieldCard(ICO.doc,'ASN No.',a.no)
       +fieldCard(ICO.box,'Shipment No.','SHP-2026-035307')
-      +fieldCard(ICO.doc,'SCR No.','SCR-2026-50123')
-      +fieldCard(ICO.cart,'PO No.','37741')
+      +fieldCard(ICO.doc,'SCR No.',LIVE_ID)
+      +fieldCard(ICO.cart,'PO No.',LIVE_PO)
       +fieldCard(ICO.cube,'Advised Qty',String(a.qty))
       +fieldCard(ICO.check,'QC Status',badge(a.qc==='QC Cleared'?'approved':'pending',a.qc))
       +fieldCard(ICO.shield,'Gate Inward',badge(a.gateIn?'approved':'pending',a.gateIn?'Confirmed':'Pending'))
@@ -2156,17 +2271,17 @@ function scOpenView(type,index){
       +fieldCard(ICO.doc,'IMR No.',m.no)
       +fieldCard(ICO.doc,'ASN No.',m.asnNo)
       +fieldCard(ICO.box,'Shipment No.','SHP-2026-035307')
-      +fieldCard(ICO.doc,'SCR No.','SCR-2026-50123')
-      +fieldCard(ICO.cart,'PO No.','37741')
+      +fieldCard(ICO.doc,'SCR No.',LIVE_ID)
+      +fieldCard(ICO.cart,'PO No.',LIVE_PO)
       +fieldCard(ICO.cube,'Receipt Qty',String(m.qty))
       +fieldCard(ICO.check,'Status',badge(m.status==='Confirmed'?'approved':'created',m.status))
       +'</div>';
   }
 
   else if(type==='reconciliation'){
-    title='Reconciliation';sub='SCR-2026-50123';
+    title='Reconciliation';sub=LIVE_ID;
     body=recTable(['SCR','PO','Shipment','Receivable Item','Expected Qty','Received Qty','Open Qty'],
-        '<tr><td>SCR-2026-50123</td><td>37741</td><td>SHP-2026-035307</td><td><b>Fabricated End Frame</b></td>'
+        '<tr><td>'+LIVE_ID+'</td><td>'+LIVE_PO+'</td><td>SHP-2026-035307</td><td><b>'+esc(L().item.name)+'</b></td>'
         +'<td>'+EXPECTED_QTY+'</td><td>'+confirmedReceived()+'</td><td><b>'+openReceiptQty()+'</b></td></tr>')
       +secHead('IMR Receipt History')
       +recTable(['ASN No.','IMR No.','Receipt Qty','Status'],
