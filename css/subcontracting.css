@@ -197,3 +197,9 @@
 .ct-modal .sc-rec-table select.ep-form-select,
 .ct-modal .sc-rec-table input[type="date"].ep-form-input{height:34px;padding:0 10px;font-size:12.5px;border-radius:var(--r-control)}
 .ct-modal .sc-rec-table select.ep-form-select{padding:0 26px 0 10px}
+
+/* ── LOG FORM FOOTER ──────────────────────────────────────────────────────
+   Cancel and Submit side by side, equal width, as every ADT logs panel. */
+.sc-logs-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sc-logs-btns .btn-outline{height:40px;justify-content:center}
+.sc-logs-btns button:disabled{opacity:.5;cursor:not-allowed}

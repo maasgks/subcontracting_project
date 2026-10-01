@@ -162,6 +162,8 @@ var state={
   dealSel:'SCR-2026-50123',
   orderSel:'37741',
   dealFilter:{q:'',process:'',scr:'',ship:''},
+  dealPage:1,
+  orderPage:1,
   orderFilter:{q:'',status:'',buyer:''},
 
   dealOpen:false,
@@ -298,10 +300,18 @@ function scrToneOf(s){return s==='Sent for Approval'?'pending':s==='Closed'?'clo
 function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':'in-progress';}
 function poToneOf(s){return {Draft:'draft',Created:'created',Approved:'approved',Closed:'closed'}[s]||'sc-idle';}
 function fmtAmt(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(d){return ('0'+d.getDate()).slice(-2)+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
 function addDays(dateStr,n){
   var d=new Date(dateStr);d.setDate(d.getDate()+n);
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  return fmtDate(d);
 }
+/* Logs store 24-hour time; ADT shows it as 09:05:00 AM. */
+function fmtTime(t){
+  var p=String(t).split(':'),h=+p[0];if(isNaN(h))return t;
+  return ('0'+(h%12||12)).slice(-2)+':'+p[1]+':'+(p[2]||'00')+' '+(h<12?'AM':'PM');
+}
+function logTs(l){return Date.parse(l.date+' '+l.time)||0;}
 
 /* The milestones a sample deal has completed, oldest first. Each one is a
    log entry and a workflow card, so the two tabs can never disagree. */
@@ -549,8 +559,8 @@ function openReceiptQty(){return Math.max(0,EXPECTED_QTY-confirmedReceived());}
 
 /* Which of this role's actions the record is actually ready for. The log form
    offers nothing else, so the prototype cannot be walked out of sequence. */
-function validDealActions(){
-  var actions=ROLE_ACTIONS[state.role]||[];
+function validDealActions(role){
+  var actions=ROLE_ACTIONS[role||state.role]||[];
   return actions.filter(function(a){
     /* A CLOSED TRANSACTION ACCEPTS NOTHING FURTHER. Without this, Create ASN
        stayed on offer to the Vendor after closure whenever the deal had been
@@ -578,8 +588,8 @@ function validDealActions(){
     return false;
   });
 }
-function validPOActions(){
-  var actions=ROLE_ACTIONS[state.role]||[];
+function validPOActions(role){
+  var actions=ROLE_ACTIONS[role||state.role]||[];
   return actions.filter(function(a){
     if(a==='Generate PO')return state.po==='draft';
     if(a==='Approve PO'||a==='Return PO')return state.po==='created';
@@ -723,7 +733,7 @@ function scGo(page){
   /* Arriving from the rail is a fresh arrival at the page. Carrying a stage
      filter over from a dashboard card would leave the listing quietly scoped
      to something the user did not ask for on this visit. */
-  state.stageFilter=null;state.stageLabel='';
+  state.stageFilter=null;state.stageLabel='';state.dealPage=1;state.orderPage=1;
   scRender();
 }
 function scRender(){
@@ -741,11 +751,11 @@ function scRender(){
      that one animates (scOpenDeal / scOpenOrder). */
   if(state.page==='deals'&&state.dealOpen){
     var sb=document.getElementById('sc-deal-sb');
-    if(sb){sb.classList.add('open');document.getElementById('sc-deal-isb').innerHTML=dealPanelHTML();}
+    if(sb){sb.classList.add('open');fillPanel('sc-deal-isb',dealPanelHTML());}
   }
   if(state.page==='orders'&&state.orderOpen){
     var ob=document.getElementById('sc-order-sb');
-    if(ob){ob.classList.add('open');document.getElementById('sc-order-isb').innerHTML=orderPanelHTML();}
+    if(ob){ob.classList.add('open');fillPanel('sc-order-isb',orderPanelHTML());}
   }
 }
 
@@ -792,7 +802,7 @@ function dashboardHTML(){
   +'</div>';
 }
 function scOpenStage(key,title,count){
-  state.stageFilter=key;state.stageLabel=title;
+  state.stageFilter=key;state.stageLabel=title;state.dealPage=1;state.orderPage=1;
   state.page=(key==='po')?'orders':'deals';
   state.dealOpen=false;state.orderOpen=false;
   scRender();
@@ -803,7 +813,7 @@ function scOpenStage(key,title,count){
   }
 }
 function scClearStageFilter(){
-  state.stageFilter=null;state.stageLabel='';
+  state.stageFilter=null;state.stageLabel='';state.dealPage=1;state.orderPage=1;
   scRender();
 }
 
@@ -836,22 +846,39 @@ function filteredOrders(){
 function scSearchDeals(){
   var q=document.getElementById('sc-deal-q');
   state.dealFilter={q:q?q.value:'',process:csValue('sc-f-process'),scr:csValue('sc-f-scr'),ship:csValue('sc-f-ship')};
-  state.dealOpen=false;
+  state.dealOpen=false;state.dealPage=1;
   scRender();
 }
 function scSearchOrders(){
   var q=document.getElementById('sc-order-q');
   state.orderFilter={q:q?q.value:'',status:csValue('sc-f-pos'),buyer:csValue('sc-f-buyer')};
-  state.orderOpen=false;
+  state.orderOpen=false;state.orderPage=1;
   scRender();
 }
 function scResetFilters(){
+  state.dealPage=1;state.orderPage=1;
   state.dealFilter={q:'',process:'',scr:'',ship:''};
   state.orderFilter={q:'',status:'',buyer:''};
   state.stageFilter=null;state.stageLabel='';
   state.dealOpen=false;state.orderOpen=false;
   scRender();
 }
+/* ── PAGINATION ───────────────────────────────────────────────────────────
+   Ten rows a page, as every ADT listing. It is also what keeps the detail
+   panel at ADT's height: the panel spans the table, so a page of ten rows is
+   the panel ADT users already know rather than one as tall as every record. */
+var PAGE_SIZE=10;
+function pageSlice(rows,page){return rows.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);}
+function paginationHTML(total,page,noun,fn){
+  var pages=Math.max(1,Math.ceil(total/PAGE_SIZE)),from=total?(page-1)*PAGE_SIZE+1:0,to=Math.min(total,page*PAGE_SIZE);
+  var btns='<button class="lp-pg-btn" '+(page<=1?'disabled':'onclick="'+fn+'('+(page-1)+')"')+' title="Previous">'+ICO.chevL+'</button>';
+  for(var i=1;i<=pages;i++)btns+='<button class="lp-pg-btn'+(i===page?' active':'')+'" onclick="'+fn+'('+i+')">'+i+'</button>';
+  btns+='<button class="lp-pg-btn" '+(page>=pages?'disabled':'onclick="'+fn+'('+(page+1)+')"')+' title="Next">'+ICO.chevR+'</button>';
+  return '<div class="lp-pagination"><div class="lp-pagination-info">Showing '+from+'–'+to+' of '+total+' '+noun+'</div>'
+    +'<div class="lp-pagination-controls">'+btns+'</div></div>';
+}
+function scDealPage(n){state.dealPage=n;state.dealOpen=false;scRender();}
+function scOrderPage(n){state.orderPage=n;state.orderOpen=false;scRender();}
 function scSearchKey(e,fn){if(e.key==='Enter')window[fn]();}
 function emptyRow(cols,title,sub){
   return '<tr><td colspan="'+cols+'" style="padding:0"><div class="sc-empty"><div class="sc-empty-ico">'+ICO.search+'</div>'
@@ -867,11 +894,14 @@ function stageBannerHTML(){
 }
 
 function dealsPageHTML(){
-  var all=filteredDeals(),total=dealRows().length,f=state.dealFilter;
-  var rows=all.map(function(r,n){
+  var all=filteredDeals(),f=state.dealFilter;
+  var pages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));
+  if(state.dealPage>pages)state.dealPage=pages;
+  var offset=(state.dealPage-1)*PAGE_SIZE;
+  var rows=pageSlice(all,state.dealPage).map(function(r,n){
     var selected=state.dealOpen&&state.dealSel===r.id?' lp-row-selected':'';
     return '<tr class="lp-row'+selected+'" data-id="'+r.id+'" style="cursor:pointer" onclick="scOpenDeal(\''+r.id+'\')">'
-      +'<td>'+(n+1)+'</td>'
+      +'<td>'+(offset+n+1)+'</td>'
       +'<td><div class="lp-c-main">'+esc(r.id)+'</div><div class="lp-c-sub">'+esc(r.base)+'</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
       +'<td><span class="lp-c-name">'+esc(r.planner)+'</span></td>'
@@ -913,8 +943,7 @@ function dealsPageHTML(){
           +'<th>S.No</th><th>Deal ID</th><th>Title</th><th>Planner</th><th>Vendor</th>'
           +'<th>SCR Status</th><th>Shipment Status</th><th>Pending With</th><th>Action</th>'
           +'</tr></thead><tbody>'+rows+'</tbody></table>'
-          +'<div class="lp-pagination"><div class="lp-pagination-info">Showing '+all.length+' of '+total+' deals</div>'
-          +'<div class="lp-pagination-controls"><button class="lp-pg-btn active">1</button></div></div>'
+          +paginationHTML(all.length,state.dealPage,'deals','scDealPage')
         +'</div>'
       +'</div>'
       +'<div class="lp-split-sb" id="sc-deal-sb"><div class="lp-isb" id="sc-deal-isb"></div></div>'
@@ -925,7 +954,9 @@ function dealsPageHTML(){
 /* ══ LISTING: PURCHASE ORDERS ═════════════════════════════════════════════  */
 function ordersPageHTML(){
   var all=filteredOrders(),f=state.orderFilter;
-  var body=all.map(function(r){
+  var opages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));
+  if(state.orderPage>opages)state.orderPage=opages;
+  var body=pageSlice(all,state.orderPage).map(function(r){
     var selected=state.orderOpen&&state.orderSel===r.no?' lp-row-selected':'';
     return '<tr class="lp-row'+selected+'" data-id="'+r.no+'" style="cursor:pointer" onclick="scOpenOrder(\''+r.no+'\')">'
       +'<td><div class="lp-c-main">'+esc(r.no)+'</div></td>'
@@ -969,6 +1000,7 @@ function ordersPageHTML(){
           +'<th>PO No.</th><th>SCR No.</th><th>SCR Title</th><th>Location</th><th>Vendor</th>'
           +'<th>Buyer</th><th>PO Value</th><th>Created On</th><th>Approved On</th><th>Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+body+'</tbody></table>'
+          +paginationHTML(all.length,state.orderPage,'purchase orders','scOrderPage')
         +'</div>'
       +'</div>'
       +'<div class="lp-split-sb" id="sc-order-sb"><div class="lp-isb" id="sc-order-isb"></div></div>'
@@ -987,7 +1019,7 @@ function scOpenDeal(id){
   if(!switching)state.dealTab='details';
   var sb=document.getElementById('sc-deal-sb');if(!sb)return;
   sb.classList.add('open');
-  document.getElementById('sc-deal-isb').innerHTML=dealPanelHTML();
+  fillPanel('sc-deal-isb',dealPanelHTML());
   markSelectedRow(id);
 }
 function scCloseDeal(){
@@ -1003,7 +1035,7 @@ function scOpenOrder(no){
   if(!switching)state.orderTab='details';
   var sb=document.getElementById('sc-order-sb');if(!sb)return;
   sb.classList.add('open');
-  document.getElementById('sc-order-isb').innerHTML=orderPanelHTML();
+  fillPanel('sc-order-isb',orderPanelHTML());
   markSelectedRow(no);
 }
 function scCloseOrder(){
@@ -1018,17 +1050,50 @@ function markSelectedRow(id){
 }
 function scDealTab(tab){
   state.dealTab=tab;
-  document.getElementById('sc-deal-isb').innerHTML=dealPanelHTML();
+  fillPanel('sc-deal-isb',dealPanelHTML());
 }
 function scOrderTab(tab){
   state.orderTab=tab;
-  document.getElementById('sc-order-isb').innerHTML=orderPanelHTML();
+  fillPanel('sc-order-isb',orderPanelHTML());
 }
 function refreshDealPanel(){
   if(state.dealOpen&&document.getElementById('sc-deal-isb'))
-    document.getElementById('sc-deal-isb').innerHTML=dealPanelHTML();
+    fillPanel('sc-deal-isb',dealPanelHTML());
 }
 
+/* ── PANEL FILL + TAB MARKER ──────────────────────────────────────────────
+   The active detail-panel tab is marked by ONE box that travels between tabs
+   (.tab-ind--box, motion.css 6b). In ADT js/tab-slide.js places it; this
+   module does not load that file, so this is its small equivalent. The panel
+   is rebuilt on every tab switch, so the box is planted where the old active
+   tab was and then moved — which is what makes it slide rather than blink. */
+function fillPanel(id,html){
+  var el=document.getElementById(id);if(!el)return;
+  var oldBar=el.querySelector('.lp-isb-tabs'),oldInd=el.querySelector('.tab-ind');
+  var prev=oldInd&&oldInd.classList.contains('on')
+    ?{t:oldInd.style.transform,w:oldInd.style.width,h:oldInd.style.height}:null;
+  var scroll=oldBar?oldBar.scrollLeft:0;
+  el.innerHTML=html;
+  var bar=el.querySelector('.lp-isb-tabs'),tab=bar&&bar.querySelector('.lp-isb-tab.active');
+  if(!tab)return;
+  bar.scrollLeft=scroll;
+  var ind=document.createElement('span');
+  ind.className='tab-ind tab-ind--box no-anim';
+  bar.insertBefore(ind,bar.firstChild);
+  var place=function(){
+    ind.style.transform='translate('+tab.offsetLeft+'px,'+tab.offsetTop+'px)';
+    ind.style.width=tab.offsetWidth+'px';ind.style.height=tab.offsetHeight+'px';
+  };
+  if(prev){ind.style.transform=prev.t;ind.style.width=prev.w;ind.style.height=prev.h;}
+  else place();
+  ind.classList.add('on');
+  void ind.offsetWidth;
+  ind.classList.remove('no-anim');
+  if(prev)requestAnimationFrame(place);
+  /* Keep the active tab in view when the row scrolls. */
+  if(tab.offsetLeft<bar.scrollLeft||tab.offsetLeft+tab.offsetWidth>bar.scrollLeft+bar.clientWidth)
+    bar.scrollLeft=tab.offsetLeft-8;
+}
 function tabBarHTML(tabs,current,handler,closer,id){
   return '<div class="lp-isb-tabbar">'
     +'<button class="lp-isb-nav-btn" onclick="scrollTabRow(\'left\',\''+id+'\')" title="Scroll left">'+ICO.chevL+'</button>'
@@ -1150,11 +1215,7 @@ function dealDetailsHTML(){
    on screen, in the two places ADT itself puts it: appended to the stage title
    the way the generic panel writes "Current Status — Active", and in the
    Description line. Nothing is lost and no new component is introduced. */
-function wfMeta(status,fallbackUser){
-  var l=state.dealLogs.filter(function(x){return x.status===status;})[0]
-     || state.poLogs.filter(function(x){return x.status===status;})[0];
-  return l?{user:l.by+' · '+l.role,date:l.date,time:l.time}:{user:fallbackUser||'Pending',date:'',time:''};
-}
+function wfMeta(l){return {user:l.by,date:l.date,time:fmtTime(l.time)};}
 function wfRow(title,meta,description,actions,isLast){
   var pSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   var cSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
@@ -1177,104 +1238,49 @@ function viewBtn(label,type,index){
 /* The lifecycle runs to twenty-odd stages, so it is grouped — with the section
    head the Details tab and every other ADT panel already use, not a second
    heading style. */
-function wfGroup(title,rows){
-  return '<div class="sc-wf-group">'+secHead(title)+'<div class="lp-wf-wrap">'+rows.join('')+'</div></div>';
+function wfTimelineHTML(events,pending){
+  var rows=events.map(function(e){return {title:e.status,meta:wfMeta(e),desc:esc(e.comment),actions:e.view||''};});
+  if(pending)rows.push({title:pending.action+' — Pending',meta:{user:'Pending with '+pending.role,date:'',time:''},
+    desc:'Awaiting <b>'+esc(pending.role)+'</b>.',actions:''});
+  if(!rows.length)return '<div class="lp-wf-empty">No workflow activity yet.</div>';
+  return '<div class="lp-wf-wrap">'+rows.map(function(r,i){
+    return wfRow(r.title,r.meta,r.desc,r.actions,i===rows.length-1);
+  }).join('')+'</div>';
 }
 /* ADT's note box, not a module-specific one. */
 function wfNote(text){
   return '<div class="info-box tip" style="margin:0 0 18px">'
     +'<span class="ib-icon">'+ICO.info+'</span><div>'+text+'</div></div>';
 }
+/* Oldest first, deal and PO logs merged — the workflow is the record of what
+   happened, so it is built from the logs and cannot disagree with them. */
+function liveEvents(){
+  var all=state.dealLogs.slice().reverse().concat(state.poLogs.slice().reverse());
+  all=all.map(function(l,i){return {l:l,i:i};})
+    .sort(function(a,b){return logTs(a.l)-logTs(b.l)||a.i-b.i;}).map(function(x){return x.l;});
+  var asn=0,imr=0;
+  var views={'SCR Submitted':['View SCR','scr'],'Shipment Created':['View Shipment','shipment'],
+    'Outbound Key Generated':['View Outbound Key','outbound'],'Delivery Note Generated':['View Delivery Note','deliverynote'],
+    'Challan Generated':['View Challan','challan'],'Reconciliation Completed':['View Reconciliation','reconciliation'],
+    'PO Auto-Created':['View PO','po']};
+  return all.map(function(l){
+    var e={status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment};
+    if(l.status==='ASN Created')e.view=viewBtn('View ASN','asn',asn++);
+    else if(l.status==='IMR Created')e.view=viewBtn('View IMR','imr',imr++);
+    else if(views[l.status])e.view=viewBtn(views[l.status][0],views[l.status][1]);
+    return e;
+  });
+}
+/* The live deal's next step: who holds it, and the forward action they take. */
+function liveNext(){
+  var who=pendingWith();if(who==='—')return null;
+  var role={'Planner / PMG':'Planner','Finance / F&A':'Finance / F&A / IDT'}[who]||who;
+  var acts=validDealActions(role).concat(validPOActions(role))
+    .filter(function(a){return !/^(Return|Reject)/.test(a);});
+  return acts.length?{action:acts[0],role:who}:null;
+}
 function dealWorkflowHTML(){
-  var html=wfNote('<b>Workflow is read-only.</b> Every operational update is recorded from the Logs tab, '
-    +'so this timeline only ever reports what has already happened.');
-
-  html+=wfGroup('SCR',[
-    wfRow('Creation',wfMeta('SCR Submitted','Kinjal Sisodiya · Planner'),
-      'SCR raised against Production Order PO-100045 and submitted for approval.',
-      viewBtn('View SCR','scr')),
-    wfRow('Approval — '+(state.scr==='sent'?'Pending':state.scr==='closed'?'Closed':'Approved'),
-      wfMeta('SCR Approved','Pending with PMG Approver'),
-      state.scr==='sent'?'Awaiting the PMG Approver. The Purchase Order is created in Draft on approval.'
-        :'Approved by the PMG Approver. PO 37741 created in Draft.','',true)
-  ]);
-
-  html+=wfGroup('Shipment & Outbound',[
-    wfRow('Shipment Creation — '+(state.shipment==='none'?'Pending':state.shipment==='closed'?'Closed':'Completed'),
-      wfMeta('Shipment Created','Pending with Planner'),
-      state.shipment==='none'?'Starts once the Purchase Order is approved.'
-        :'Shipment <b>SHP-2026-035307</b> raised against PO 37741.',
-      state.shipment!=='none'?viewBtn('View Shipment','shipment'):''),
-    wfRow('Outbound Key & Transfer Order — '+(state.outboundKey?'Generated':'Pending'),
-      wfMeta('Outbound Key Generated','System'),
-      state.outboundKey?'Outbound Key <b>OBK/26/0152</b> and Transfer Order <b>TO/26/0152</b> generated automatically. Material Position <b>MAAS_STAGING</b>.'
-        :'Generated automatically as soon as the Shipment is created.',
-      state.outboundKey?viewBtn('View Outbound Key','outbound'):''),
-    wfRow('Goods Release & Issue — '+(state.goodsIssue?'Completed':'Pending'),
-      wfMeta('Goods Release & Issue','Pending with Stores User'),
-      state.goodsIssue?'Stores released the reserved issue material. Shipment moved to <b>Freezed Outbound Release</b>.'
-        :'Stores releases the reserved issue material against the Transfer Order.',''),
-    wfRow('Delivery Note — '+(state.deliveryNote==='none'?'Not Started':state.deliveryNote==='approved'?'Approved':'Generated'),
-      wfMeta(state.deliveryNote==='approved'?'Delivery Note Approved':'Delivery Note Generated','Pending with Delivery Note Approver'),
-      state.deliveryNote==='none'?'Generated automatically after Goods Release & Issue.'
-        :'Delivery Note <b>DN/26/0123</b> covering three issue items, 10 Each.',
-      state.deliveryNote!=='none'?viewBtn('View Delivery Note','deliverynote'):''),
-    wfRow('Challan — '+(state.challan==='none'?'Not Started':state.challan==='gate_cleared'?'Gate Cleared':state.challan==='closed'?'Closed':'Generated'),
-      wfMeta('Challan Generated','Pending with Finance / F&A / IDT'),
-      state.challan==='none'?'Generated once the Delivery Note is approved.'
-        :'Delivery Challan <b>CHL/26/0103</b> issued as the gate pass copy, billable job work.',
-      state.challan!=='none'?viewBtn('View Challan','challan'):''),
-    wfRow('Gate Outward — '+(state.gateOut?'Completed':'Pending'),
-      wfMeta('Gate Outward Confirmed','Pending with Security User'),
-      state.gateOut?'Security confirmed the outward movement against the challan. Vehicle AP47TD8451.'
-        :'Security confirms the physical outward movement of the material.',''),
-    wfRow('Shipment Confirmation — '+(state.shipmentConfirmed?'Completed':'Pending'),
-      wfMeta('Shipment Confirmed','Pending with Planner / PMG'),
-      state.shipmentConfirmed?'Shipment confirmed. Material Position updated to <b>At Vendor</b>.'
-        :'Planner or PMG confirms the Shipment once it has left the gate.','',true)
-  ]);
-
-  var asnRows;
-  if(!state.asns.length){
-    asnRows=[wfRow('ASN — Pending',{user:'Pending with Vendor User',date:'',time:''},
-      'No ASN raised yet. Open ASN Qty <b>'+openASNQty()+'</b> of '+EXPECTED_QTY+'.','',true)];
-  }else{
-    asnRows=state.asns.map(function(a,i){
-      var done=a.qc==='QC Cleared'&&a.gateIn;
-      return wfRow('ASN '+(i+1)+' — '+(done?'Gate Inward Confirmed':a.qc==='QC Cleared'?'Awaiting Gate Inward':'Awaiting QC'),
-        wfMeta('ASN Created','Vendor Portal User · Vendor User'),
-        '<b>'+a.no+'</b> advising <b>'+a.qty+'</b> of '+EXPECTED_QTY+'. QC <b>'+a.qc+'</b>, Gate Inward <b>'
-          +(a.gateIn?'Confirmed':'Pending')+'</b>. Open ASN Qty <b>'+openASNQty()+'</b>.',
-        viewBtn('View ASN','asn',i),i===state.asns.length-1);
-    });
-  }
-  html+=wfGroup('ASN & Gate Inward',asnRows);
-
-  var imrRows=[];
-  if(!state.imrs.length){
-    imrRows.push(wfRow('Material Receipt / IMR — Pending',{user:'Pending with Stores User',date:'',time:''},
-      'Raised against a QC-cleared ASN that has passed gate inward.',''));
-  }else{
-    state.imrs.forEach(function(m,i){
-      imrRows.push(wfRow('IMR '+(i+1)+' — '+m.status,wfMeta('IMR Created','Stores User'),
-        '<b>'+m.no+'</b> against <b>'+m.asnNo+'</b>, receipt quantity <b>'+m.qty+'</b>.',
-        viewBtn('View IMR','imr',i)));
-    });
-  }
-  imrRows.push(wfRow('Reconciliation — '+(state.reconciled?'Completed':'Pending'),
-    wfMeta('Reconciliation Completed','Pending with Finance / F&A'),
-    'Expected <b>'+EXPECTED_QTY+'</b>, cumulative received <b>'+confirmedReceived()+'</b>, open receipt <b>'+openReceiptQty()+'</b>.',
-    viewBtn('View Reconciliation','reconciliation')));
-  imrRows.push(wfRow('Receipt Completion & Closure — '
-      +(state.closed?'Closed':state.shortClosed?'Short Closed':state.fullReceipt?'Full Receipt Confirmed':'Pending'),
-    wfMeta('Transaction Closed','Pending with Finance / F&A'),
-    state.closed?'SCR, Purchase Order, Shipment and Challan all closed.'
-      :state.shortClosed?'The remaining open quantity was short closed. The transaction can now be closed.'
-      :state.fullReceipt?'Full receipt confirmed against the expected quantity.'
-      :'Available once Reconciliation is complete.','',true));
-  html+=wfGroup('IMR & Reconciliation',imrRows);
-
-  return html;
+  return wfTimelineHTML(liveEvents(),liveNext());
 }
 
 /* ── LOGS ─────────────────────────────────────────────────────────────────
@@ -1302,27 +1308,46 @@ function logTimelineHTML(logs){
         +'<div class="lp-log-status-row"><span class="lp-log-dot lp-log-dot--'+k+'"></span>'
         +'<span class="lp-log-status-text lp-log-status-text--'+k+'">'+esc(l.status)+'</span></div>'
         +'<div class="lp-log-meta-row">'
-          +'<span class="lp-log-meta-item">'+pSvg+'<span>'+esc(l.by)+' · '+esc(l.role)+'</span></span>'
+          +'<span class="lp-log-meta-item" title="'+esc(l.role)+'">'+pSvg+'<span>'+esc(l.by)+'</span></span>'
           +'<span class="lp-log-meta-item">'+cSvg+'<span>'+esc(l.date)+'</span></span>'
-          +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(l.time)+'</span></span>'
-          +'<span class="lp-log-meta-item">'+esc(l.portal)+'</span>'
+          +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(fmtTime(l.time))+'</span></span>'
         +'</div>'
         +'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>'
       +'</div></div>';
   }).join('')+'</div>';
 }
-function dealLogsHTML(){
-  var opts=validDealActions();
-  var form='<div class="lp-logs-form">'
-    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(scrLabel())+'"></span>Add Log</div>'
-    +'<p class="lp-logs-form-sub">Record the next action on this deal. Only the actions <b>'+esc(state.role)+'</b> can take right now are offered.</p>'
+/* The Add Log card. Headed by the record's CURRENT status, the way every
+   ADT logs panel is; the status select offers only what this role can do now. */
+function logFormHTML(o){
+  return '<div class="lp-logs-form">'
+    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(o.current)+'"></span>'+esc(o.current)+'</div>'
+    +'<p class="lp-logs-form-sub">'+o.sub+'</p>'
     +'<div class="lp-logs-form-label">Status <span class="lp-logs-form-req">*</span></div>'
-    +csField('sc-deal-status',opts,'','Select Status','scDealStatusPicked')
-    +'<div class="lp-logs-form-label">Remarks / Comment <span class="lp-logs-form-req">*</span></div>'
-    +'<textarea class="lp-logs-form-textarea" id="sc-deal-comment" placeholder="Type comment"></textarea>'
-    +'<button class="lp-logs-save-btn" onclick="scSubmitDealLog()">Submit</button>'
-    +(opts.length?'':'<p class="lp-logs-form-sub" style="margin:12px 0 0">Nothing is pending with this role at this stage. Switch role in the header to continue the flow.</p>')
+    +(o.readonly
+      ?'<div class="cs-wrap"><button type="button" class="cs-trigger" disabled style="cursor:default"><span class="cs-value">'+esc(o.opts[0]||'—')+'</span></button></div>'
+      :csField(o.id+'-status',o.opts,'','Select Status',o.hook))
+    +'<div class="lp-logs-form-label">Comment <span class="lp-logs-form-req">*</span></div>'
+    +'<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="Enter comment"'+(o.readonly?' disabled':'')+'></textarea>'
+    +'<div class="sc-logs-btns">'
+      +'<button class="btn-outline" onclick="scResetLogForm(\''+o.id+'\')"'+(o.readonly?' disabled':'')+'>Cancel</button>'
+      +'<button class="lp-logs-save-btn" onclick="'+o.submit+'()"'+(o.readonly?' disabled':'')+'>Submit</button>'
+    +'</div>'
+    +(o.note?'<p class="lp-logs-form-sub" style="margin:12px 0 0">'+o.note+'</p>':'')
     +'</div>';
+}
+function scResetLogForm(id){
+  var t=document.getElementById(id+'-comment');if(t)t.value='';
+  csValues[id+'-status']='';
+  var tr=document.querySelector('[data-csid="'+id+'-status"]');
+  if(tr){tr.querySelector('.cs-value').textContent='Select Status';tr.classList.add('cs-placeholder');}
+  document.querySelectorAll('#csd-'+id+'-status .cs-option').forEach(function(o){o.classList.remove('cs-selected');});
+}
+function dealLogsHTML(){
+  var opts=validDealActions(),last=state.dealLogs[0];
+  var form=logFormHTML({id:'sc-deal',opts:opts,hook:'scDealStatusPicked',submit:'scSubmitDealLog',
+    current:last?last.status:scrLabel(),
+    sub:'Record the next action as <b>'+esc(state.role)+'</b> and add a comment.',
+    note:opts.length?'':'Nothing is pending with this role at this stage. Switch role in the header to continue the flow.'});
   return '<div class="lp-logs-wrap">'+logTimelineHTML(state.dealLogs)+form+'</div>';
 }
 /* Picking one of the form-backed actions opens its own popup straight away —
@@ -1413,35 +1438,21 @@ function orderDetailsHTML(){
 }
 function orderWorkflowHTML(){
   if(state.po==='none'){
-    return wfNote('The Purchase Order is created automatically in <b>Draft</b> once the SCR is approved; '
-      +'its workflow begins there.');
+    return '<div class="lp-wf-empty">The Purchase Order is created automatically in Draft once the SCR is approved.</div>';
   }
-  var created=state.po==='created'||state.po==='approved'||state.po==='closed';
-  var approved=state.po==='approved'||state.po==='closed';
-  return wfNote('<b>Workflow is read-only.</b> Purchase Order actions are recorded from the Logs tab.')
-    +wfGroup('Purchase Order',[
-      wfRow('Draft',wfMeta('PO Auto-Created','System'),
-        'PO <b>37741</b> created automatically against SCR-2026-50123 on approval.',viewBtn('View PO','po')),
-      wfRow('Generate PO — '+(created?'Created':'Pending'),wfMeta('PO Generated','Pending with Buyer'),
-        created?'Buyer completed the commercial fields and generated the Purchase Order. PO value 5,000.00.'
-          :'Buyer completes rate contract, price basis, currency, payment terms and line price.',''),
-      wfRow('PO Approval — '+(approved?'Approved':'Pending'),wfMeta('PO Approved','Pending with PO Approver'),
-        approved?'Approved by the PO Approver. The Planner can now raise the Shipment.'
-          :'PO Approver reviews the generated Purchase Order.','',true)
-    ]);
+  var pending=state.po==='draft'?{action:'Generate PO',role:'Buyer'}
+    :state.po==='created'?{action:'Approve PO',role:'PO Approver'}:null;
+  var ev=state.poLogs.slice().reverse().map(function(l){
+    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,
+      view:l.status==='PO Auto-Created'?viewBtn('View PO','po'):''};
+  });
+  return wfTimelineHTML(ev,pending);
 }
 function orderLogsHTML(){
   var opts=validPOActions();
-  var form='<div class="lp-logs-form">'
-    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(poLabel())+'"></span>Add Log</div>'
-    +'<p class="lp-logs-form-sub">Record the next action on this Purchase Order.</p>'
-    +'<div class="lp-logs-form-label">Status <span class="lp-logs-form-req">*</span></div>'
-    +csField('sc-po-status',opts,'','Select Status','scOrderStatusPicked')
-    +'<div class="lp-logs-form-label">Remarks / Comment <span class="lp-logs-form-req">*</span></div>'
-    +'<textarea class="lp-logs-form-textarea" id="sc-po-comment" placeholder="Type comment"></textarea>'
-    +'<button class="lp-logs-save-btn" onclick="scSubmitOrderLog()">Submit</button>'
-    +(opts.length?'':'<p class="lp-logs-form-sub" style="margin:12px 0 0">Nothing is pending with this role on this PO.</p>')
-    +'</div>';
+  var form=logFormHTML({id:'sc-po',opts:opts,hook:'scOrderStatusPicked',submit:'scSubmitOrderLog',
+    current:'PO '+poLabel(),sub:'Record the next action on this Purchase Order.',
+    note:opts.length?'':'Nothing is pending with this role on this PO.'});
   return '<div class="lp-logs-wrap">'+logTimelineHTML(state.poLogs)+form+'</div>';
 }
 function scOrderStatusPicked(val){
@@ -1471,10 +1482,6 @@ var SAMPLE_NEXT={
   asn:['QC User','Clear ASN'],imr:['Stores User','Confirm IMR'],
   reconciliation:['Finance / F&A / IDT','Complete Reconciliation'],closure:['Finance / F&A / IDT','Close Transaction']
 };
-function msOf(ms,status){
-  var l=ms.filter(function(x){return x.status===status;}).pop();
-  return l?{user:l.by+' · '+l.role,date:l.date,time:l.time}:null;
-}
 function sampleNote(d){
   return wfNote('<b>Sample record.</b> '+esc(d.id)+' is read-only demo data. '
     +'The interactive flow runs on <b>'+LIVE_ID+'</b>.');
@@ -1531,62 +1538,19 @@ function sampleDetailsHTML(d){
     +secHead('Receivable Item Details')+recv
     +secHead('Issue Item Details')+issue;
 }
+function sampleNextOf(d){
+  var n=d.stage==='po'&&d.po.status==='Created'?['PO Approver','Approve PO']:SAMPLE_NEXT[d.stage];
+  return n?{action:n[1],role:n[0]}:null;
+}
 function sampleWorkflowHTML(d){
-  var ms=sampleMilestones(d);
-  var row=function(title,status,pendingWho,doneText,waitText,isLast){
-    var m=msOf(ms,status);
-    return wfRow(title+' — '+(m?'Completed':'Pending'),m||{user:'Pending with '+pendingWho,date:'',time:''},
-      m?doneText:waitText,'',isLast);
-  };
-  var po=d.po?d.po.no:'—';
-  var html=sampleNote(d);
-  html+=wfGroup('SCR',[
-    row('Creation','SCR Submitted','Planner','SCR raised against '+esc(d.baseRef)+'.',''),
-    row('Approval','SCR Approved','PMG Approver','Approved. PO <b>'+po+'</b> created in Draft.',
-      'Awaiting the PMG Approver.',true)
-  ]);
-  html+=wfGroup('Purchase Order',[
-    row('Generate PO','PO Generated','Buyer','Buyer completed the commercial fields. PO value <b>'+fmtAmt(d.item.qty*d.item.price)+'</b>.',
-      'Buyer completes rate contract, price basis and line price.'),
-    row('PO Approval','PO Approved','PO Approver','PO <b>'+po+'</b> approved.','PO Approver reviews the generated PO.',true)
-  ]);
-  html+=wfGroup('Shipment & Outbound',[
-    row('Shipment Creation','Shipment Created','Planner','Shipment raised for <b>'+d.item.qty+' '+esc(d.item.uom)+'</b>.','Starts once the PO is approved.'),
-    row('Goods Release & Issue','Goods Release & Issue','Stores User','Issue material released against the Transfer Order.','Stores releases the reserved issue material.'),
-    row('Delivery Note','Delivery Note Approved','Delivery Note Approver','Delivery Note approved.','Generated after Goods Release & Issue, then approved.'),
-    row('Challan','Challan Generated','Finance / F&A / IDT','Delivery Challan issued as the gate pass copy.','Generated once the Delivery Note is approved.'),
-    row('Gate Outward','Gate Outward Confirmed','Security User','Security confirmed the outward movement.','Security confirms the physical movement.'),
-    row('Shipment Confirmation','Shipment Confirmed','Planner / PMG','Material Position updated to <b>At Vendor</b>.','Confirmed once the material has left the gate.',true)
-  ]);
-  var asnDone=ms.filter(function(x){return x.status==='Gate Inward Confirmed';}).length;
-  html+=wfGroup('ASN & Gate Inward',[
-    wfRow('ASN — '+(d.asns?asnDone+' of '+d.asns+' cleared':'Pending'),
-      msOf(ms,'ASN Created')||{user:'Pending with Vendor User',date:'',time:''},
-      d.asns?'<b>'+d.asns+'</b> ASN(s) raised. '+asnDone+' passed QC and gate inward.':'No ASN raised yet.','',true)
-  ]);
-  html+=wfGroup('IMR & Reconciliation',[
-    wfRow('Material Receipt / IMR — '+(d.imrs?d.imrs+' raised':'Pending'),
-      msOf(ms,'IMR Confirmed')||msOf(ms,'IMR Created')||{user:'Pending with Stores User',date:'',time:''},
-      d.imrs?'Received <b>'+d.received+'</b> of '+d.item.qty+'.':'Raised against a QC-cleared ASN.',''),
-    row('Reconciliation','Reconciliation Completed','Finance / F&A','Expected <b>'+d.item.qty+'</b>, received <b>'+d.received+'</b>.','Finance reconciles issued and received quantities.'),
-    row('Receipt Completion & Closure','Transaction Closed','Finance / F&A','SCR, PO, Shipment and Challan all closed.','Available once Reconciliation is complete.',true)
-  ]);
-  return html;
+  return wfTimelineHTML(sampleMilestones(d),sampleNextOf(d));
 }
 function sampleLogsHTML(d){
-  var logs=sampleMilestones(d).slice().reverse();
-  var next=d.stage==='po'&&d.po.status==='Created'?['PO Approver','Approve PO']:SAMPLE_NEXT[d.stage];
-  var cur=logs[0].status;
-  var side='<div class="lp-logs-form">'
-    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(cur)+'"></span>Current Status</div>'
-    +'<p class="lp-logs-form-sub"><b>'+esc(cur)+'</b> on '+esc(logs[0].date)+'.</p>'
-    +(next
-      ?'<div class="lp-logs-form-label">Next Action</div><p class="lp-logs-form-sub"><b>'+esc(next[1])+'</b></p>'
-       +'<div class="lp-logs-form-label">Pending With</div><p class="lp-logs-form-sub"><b>'+esc(next[0])+'</b></p>'
-      :'<p class="lp-logs-form-sub">The transaction is closed. No further actions.</p>')
-    +'<p class="lp-logs-form-sub" style="margin:12px 0 0">Sample record — logs are read-only. Open <b>'+LIVE_ID+'</b> to record actions.</p>'
-    +'</div>';
-  return '<div class="lp-logs-wrap">'+logTimelineHTML(logs)+side+'</div>';
+  var logs=sampleMilestones(d).slice().reverse(),next=sampleNextOf(d);
+  var form=logFormHTML({id:'sc-sample',readonly:true,opts:next?[next.action]:[],current:logs[0].status,
+    sub:next?'Next action is pending with <b>'+esc(next.role)+'</b>.':'The transaction is closed. No further actions.',
+    note:'Sample record — read-only. Open <b>'+LIVE_ID+'</b> to record actions.'});
+  return '<div class="lp-logs-wrap">'+logTimelineHTML(logs)+form+'</div>';
 }
 function sampleAttachmentsHTML(d){
   var files=[[d.title.replace(/[^A-Za-z]+/g,'_').replace(/_$/,'')+'_Specification.pdf','Uploaded with the SCR · 1.2 MB · '+d.created]];
@@ -1624,19 +1588,12 @@ function sampleOrderPanelHTML(d){
       +secHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
         '<tr><td>1</td><td><b>'+esc(it.name)+'</b></td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td><td>'+fmtAmt(it.price)+'</td><td><b>'+fmtAmt(value)+'</b></td></tr>');
   }else if(state.orderTab==='workflow'){
-    var st=function(s){return msOf(ms,s);};
-    body=sampleNote(d)+wfGroup('Purchase Order',[
-      wfRow('Draft',st('SCR Approved')||{user:'System',date:'',time:''},'PO <b>'+d.po.no+'</b> created automatically on SCR approval.',''),
-      wfRow('Generate PO — '+(st('PO Generated')?'Created':'Pending'),st('PO Generated')||{user:'Pending with Buyer',date:'',time:''},
-        st('PO Generated')?'PO value <b>'+fmtAmt(value)+'</b>.':'Buyer completes the commercial fields.',''),
-      wfRow('PO Approval — '+(st('PO Approved')?'Approved':'Pending'),st('PO Approved')||{user:'Pending with PO Approver',date:'',time:''},
-        st('PO Approved')?'Approved by the PO Approver.':'PO Approver reviews the generated PO.','',true)
-    ]);
+    var pend=d.po.status==='Draft'?{action:'Generate PO',role:'Buyer'}:d.po.status==='Created'?{action:'Approve PO',role:'PO Approver'}:null;
+    body=wfTimelineHTML(poLogs,pend);
   }else{
     body='<div class="lp-logs-wrap">'+logTimelineHTML(poLogs.slice().reverse())
-      +'<div class="lp-logs-form"><div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(d.po.status)+'"></span>Current Status</div>'
-      +'<p class="lp-logs-form-sub">PO is <b>'+esc(d.po.status)+'</b>.</p>'
-      +'<p class="lp-logs-form-sub" style="margin:12px 0 0">Sample record — logs are read-only.</p></div></div>';
+      +logFormHTML({id:'sc-sample-po',readonly:true,opts:[],current:'PO '+d.po.status,
+        sub:'Purchase Order '+esc(d.po.no)+'.',note:'Sample record — read-only.'})+'</div>';
   }
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
@@ -1645,23 +1602,26 @@ function sampleOrderPanelHTML(d){
 function stamp(){
   var d=new Date();
   return {
-    date:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
-    time:d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    date:fmtDate(d),
+    time:d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})
   };
 }
+/* Who signs a log: the person holding the current role, or System for the
+   steps the application takes on its own. */
+var AUTO_STATUSES=['PO Auto-Created','Outbound Key Generated','Transfer Order Generated','Delivery Note Generated'];
 function who(){
   return state.role==='Super Admin'?'Super Admin User'
-    :state.role==='Vendor User'?'Vendor Portal User'
-    :'Kinjal Sisodiya';
+    :state.role==='Planner'?'Kinjal Sisodiya'
+    :state.role==='Buyer'?'Madan Mohan'
+    :SAMPLE_PEOPLE[state.role]||'Kinjal Sisodiya';
 }
-function addDealLog(status,comment){
-  var s=stamp();
-  state.dealLogs.unshift({status:status,comment:comment,by:who(),role:state.role,date:s.date,time:s.time,portal:'Web'});
+function logEntry(status,comment){
+  var s=stamp(),auto=AUTO_STATUSES.indexOf(status)>=0;
+  return {status:status,comment:comment,by:auto?'System':who(),role:auto?'System':state.role,
+    date:s.date,time:s.time,portal:'Web'};
 }
-function addPOLog(status,comment){
-  var s=stamp();
-  state.poLogs.unshift({status:status,comment:comment,by:who(),role:state.role,date:s.date,time:s.time,portal:'Web'});
-}
+function addDealLog(status,comment){state.dealLogs.unshift(logEntry(status,comment));}
+function addPOLog(status,comment){state.poLogs.unshift(logEntry(status,comment));}
 
 /* ══ ACTIONS WITHOUT A FORM ═══════════════════════════════════════════════  */
 function executeDealAction(action,comment){
