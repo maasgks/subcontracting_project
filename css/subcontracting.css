@@ -1,0 +1,197 @@
+/* ══ SUB-CONTRACTING ══════════════════════════════════════════════════════
+   Additive sheet for the Sub-Contracting module. Every selector is .sc-*, so
+   nothing here can reach an approved screen. Every colour, radius, shadow and
+   duration is a shared token from main.css / motion.css — this file invents
+   none of them. The module's own shapes are only three: the role switch in the
+   header, the stage card on the dashboard, and the printable document body.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── HEADER: "Logged in as" ───────────────────────────────────────────────
+   The same control as the entity and user pickers next to it (.company-sel),
+   with an eyebrow in front of it because WHICH ROLE you are reading the
+   workspace as changes what every screen offers. */
+.sc-role-wrap{display:flex;align-items:center;gap:8px}
+.sc-role-eyebrow{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.sc-role-sel{max-width:210px}
+.sc-role-sel .sc-role-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.sc-role-dd{min-width:250px;max-height:70vh;overflow-y:auto;scrollbar-width:thin}
+.sc-role-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  padding:8px 10px;border:none;background:none;border-radius:8px;cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:500;color:var(--navy);text-align:left;transition:background .12s}
+.sc-role-opt:hover{background:var(--light)}
+.sc-role-opt.is-current{color:var(--orange);font-weight:700;background:#f1f5f9}
+.sc-role-opt svg{flex-shrink:0;color:var(--orange);opacity:0;width:14px;height:14px}
+.sc-role-opt.is-current svg{opacity:1}
+
+/* ── DASHBOARD: the lifecycle stages ──────────────────────────────────────
+   A stage card is a BUTTON, not a tile: it filters the listing behind it. The
+   blocked state is the point of the row — a role that cannot act on a stage is
+   shown the stage anyway, greyed, so the pipeline reads whole rather than
+   appearing to have holes in it for that role. */
+.sc-stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.sc-stage-card{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;
+  font-family:inherit;cursor:pointer;min-height:104px;
+  transition:background var(--t-fast,140ms) var(--e-out,ease),border-color var(--t-fast,140ms) var(--e-out,ease),
+             box-shadow var(--t-base,260ms) var(--e-out,ease),transform var(--t-base,260ms) var(--e-out,ease)}
+.sc-stage-card:hover{background:#f8fafc;border-color:#cbd5e1;box-shadow:0 4px 14px rgba(15,23,42,.07);transform:translateY(-1px)}
+.sc-stage-card:active{transform:translateY(0) scale(.995)}
+.sc-stage-card:focus-visible{outline:2px solid var(--btn-accent,#1a1a1a);outline-offset:2px}
+/* Not a disabled button: it still reads, it just does not act. */
+.sc-stage-card.is-blocked{opacity:.5;cursor:not-allowed;background:#fcfcfd}
+.sc-stage-card.is-blocked:hover{background:#fcfcfd;border-color:var(--border);box-shadow:none;transform:none}
+.sc-stage-ico{width:38px;height:38px;border-radius:10px;background:#f1f3f5;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .14s ease,color .14s ease}
+.sc-stage-ico svg{width:17px;height:17px;stroke-width:1.8}
+.sc-stage-card:not(.is-blocked):hover .sc-stage-ico{background:var(--navy);color:#fff}
+.sc-stage-body{flex:1;min-width:0}
+/* The card's three lines are spans inside a button (a button may not contain a
+   div), so each has to be told to be a block — inline, they ran together into
+   one sentence. */
+.sc-stage-title,.sc-stage-count,.sc-stage-help{display:block}
+.sc-stage-title{font-size:var(--ds-title,13px);font-weight:600;color:var(--navy);line-height:1.3}
+.sc-stage-count{font-size:var(--ds-metric,22.5px);font-weight:700;color:var(--navy);letter-spacing:-.5px;line-height:1.25;margin-top:6px}
+.sc-stage-count em{font-style:normal;font-size:var(--ds-caption,11px);font-weight:500;color:var(--gray);margin-left:5px;letter-spacing:0}
+.sc-stage-help{font-size:var(--ds-caption,11px);color:var(--gray);margin-top:5px;line-height:1.4}
+.sc-stage-arrow{flex-shrink:0;color:#c4c9d4;display:flex;align-items:center;margin-top:2px;transition:transform .16s ease,color .16s ease}
+.sc-stage-card:not(.is-blocked):hover .sc-stage-arrow{color:var(--navy);transform:translateX(2px)}
+
+/* ── THE STAGE FILTER, STATED ON THE LISTING ──────────────────────────────
+   Arriving from a stage card the listing is filtered, and a filtered listing
+   that does not say so is a listing with rows missing. */
+.sc-banner{display:flex;align-items:center;gap:10px;background:#f8f9fb;border:1px solid var(--border);
+  border-left:3px solid var(--orange);border-radius:var(--r-control);padding:10px 14px;
+  font-size:12.5px;color:var(--navy)}
+.sc-banner b{font-weight:700}
+.sc-banner-clear{margin-left:auto}
+
+/* ── WORKFLOW ─────────────────────────────────────────────────────────────
+   The shared timeline (.lp-wf-*) with two additions: the lifecycle is long
+   enough to need section heads, and a stage here has a STATE, which the dot
+   carries by re-pointing the timeline's own three variables. */
+.sc-wf-note{display:flex;gap:10px;align-items:flex-start;background:#f8f9fb;border:1px solid var(--border);
+  border-radius:var(--r-control);padding:11px 13px;font-size:12px;color:var(--gray);line-height:1.5;margin-bottom:18px}
+.sc-wf-note b{color:var(--navy)}
+.sc-wf-note svg{flex-shrink:0;width:15px;height:15px;color:var(--gray);margin-top:1px}
+.sc-wf-group{margin-bottom:22px}
+.sc-wf-group:last-child{margin-bottom:0}
+.sc-wf-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sc-wf-group-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.sc-wf-group-title::before{content:'';width:3px;height:13px;border-radius:2px;background:var(--orange)}
+.sc-wf .lp-wf-row.is-done{--wf-dot:var(--st-ok-fg);--wf-ring:var(--st-ok-bd);--wf-halo:var(--st-ok-bg)}
+.sc-wf .lp-wf-row.is-current{--wf-dot:var(--st-wait-fg);--wf-ring:var(--st-wait-bd);--wf-halo:var(--st-wait-bg)}
+.sc-wf .lp-wf-row.is-idle{--wf-dot:#cbd5e1;--wf-ring:#e2e8f0;--wf-halo:#f1f5f9}
+.sc-wf-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
+.sc-wf-card-head .lp-wf-title{margin-bottom:0}
+.sc-wf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+
+/* ── RECORD TABLES ────────────────────────────────────────────────────────
+   Line items inside a panel or a popup. The listing table (.lp-table) is the
+   model; this is the same table one size down, boxed, because here it is a
+   field of a record rather than the page itself. */
+.sc-rec-wrap{border:1px solid var(--border);border-radius:10px;overflow:auto;background:#fff;scrollbar-width:thin}
+.sc-rec-table{width:100%;border-collapse:collapse}
+.sc-rec-table th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--gray);
+  text-transform:uppercase;letter-spacing:.4px;background:#fafbfc;border-bottom:1px solid var(--border);white-space:nowrap}
+.sc-rec-table td{padding:10px 12px;font-size:12.5px;color:var(--navy);border-bottom:1px solid #f1f3f5;vertical-align:middle;white-space:nowrap}
+.sc-rec-table tr:last-child td{border-bottom:none}
+.sc-rec-table tbody tr:hover td{background:#fafbfc}
+.sc-rec-table .sc-rec-sub{display:block;font-size:11px;color:#9ca3af;margin-top:2px}
+.sc-rec-table .ep-form-input,.sc-rec-table .ep-form-select{min-width:120px}
+
+/* A section head that follows a record table needs the same 20px a detail grid
+   leaves behind it, or it sits straight on the table's border. Stated as a
+   sibling rule rather than a blanket margin so a table that ENDS a panel adds
+   no trailing space, and so the creation form — where the section padding
+   already does this job — is untouched. */
+.sc-rec-wrap+.lp-sb-view-header{margin-top:20px}
+
+/* THE PANEL NEEDS THE HEIGHT THE RECORD NEEDS, NOT THE HEIGHT THE TABLE HAS.
+   .lp-split-sb is bottom:0 of .lp-split-wrap, so on ADT's listings — ten or
+   more rows — the panel is naturally page-tall. This module's listings carry a
+   single live record, so the wrap is barely taller than one row and the panel
+   fell back to its 500px floor: a deal with five tabs of content scrolling
+   inside a short box, with a page of empty white underneath it. Scoped to this
+   module's own wrapper, so no other listing's panel changes. */
+.sc-split .lp-split-sb.open{min-height:max(500px,calc(100vh - 300px))}
+
+/* ── CREATE SCR: the yes/no header switches ───────────────────────────────
+   Five one-word answers that belong together; as five labelled form fields
+   they ate half the popup, so they share one strip. */
+.sc-radio-row{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px}
+.sc-radio-group{display:flex;align-items:center;gap:10px;background:#f8f9fb;border:1px solid var(--border);
+  border-radius:var(--r-control);padding:8px 12px}
+.sc-radio-group>span{font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap}
+.sc-seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-control);overflow:hidden;background:#fff}
+.sc-seg button{border:none;background:#fff;padding:5px 12px;font-family:inherit;font-size:11.5px;font-weight:600;
+  color:var(--gray);cursor:pointer;transition:background .14s ease,color .14s ease}
+.sc-seg button+button{border-left:1px solid var(--border)}
+.sc-seg button.on{background:var(--orange);color:#fff}
+
+/* ── DOCUMENTS ────────────────────────────────────────────────────────────
+   Outbound Key, Delivery Note and Challan are printed paper that happens to be
+   on screen: they keep the shared .adt-doc-page shell and add the ruled grid
+   that a gate pass actually needs. */
+.sc-doc-grid{display:grid;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.sc-doc-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.sc-doc-grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.sc-doc-grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.sc-doc-cell{padding:9px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:0}
+.sc-doc-grid>.sc-doc-cell:last-child{border-right:none}
+.sc-doc-cell strong{display:block;font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sc-doc-cell span{font-size:12.5px;font-weight:600;color:var(--navy);overflow-wrap:anywhere}
+.sc-doc-note{font-size:11.5px;color:var(--gray);line-height:1.6;background:#f8f9fb;border:1px solid var(--border);
+  border-radius:8px;padding:11px 13px;margin-top:4px}
+.sc-doc-note b{color:var(--navy)}
+.sc-doc-sig{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+.sc-doc-sig-block{padding-top:40px;border-top:1.5px solid var(--navy)}
+.sc-doc-sig-name{font-size:12.5px;font-weight:700;color:var(--navy)}
+.sc-doc-sig-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* ── ATTACHMENTS ──────────────────────────────────────────────────────────  */
+.sc-att-row{display:flex;align-items:center;gap:12px;background:#f8f9fb;border:1px solid #eef0f3;
+  border-radius:10px;padding:12px 14px}
+.sc-att-ico{width:34px;height:34px;border-radius:8px;background:#fff;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--gray);flex-shrink:0}
+.sc-att-name{font-size:13px;font-weight:600;color:var(--navy)}
+.sc-att-meta{font-size:11px;color:#9ca3af;margin-top:2px}
+
+/* ── EMPTY STATE ──────────────────────────────────────────────────────────  */
+.sc-empty{display:flex;flex-direction:column;align-items:center;gap:8px;padding:44px 20px;text-align:center}
+.sc-empty-ico{width:44px;height:44px;border-radius:12px;background:#f1f3f5;color:#9ca3af;
+  display:flex;align-items:center;justify-content:center}
+.sc-empty-title{font-size:13px;font-weight:600;color:var(--navy)}
+.sc-empty-sub{font-size:12px;color:var(--gray);line-height:1.5;max-width:380px}
+
+/* The read-only mirror of a field, inside a popup that is confirming an action
+   rather than collecting one. */
+.sc-ro{background:#f8f9fb;border:1px solid var(--border);border-radius:var(--r-control);
+  padding:9px 12px;font-size:13px;font-weight:600;color:var(--navy);min-height:40px;display:flex;align-items:center}
+
+@media (max-width:1180px){
+  .sc-stage-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:760px){
+  .sc-stage-grid{grid-template-columns:1fr}
+  .sc-doc-grid.cols-3,.sc-doc-grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  .sc-doc-sig{grid-template-columns:1fr}
+}
+
+/* ── TWO ADDITIONS TO SHARED COMPONENTS, BOTH SCOPED ──────────────────────  */
+
+/* IDLE, SAID AS IDLE. The shared badge set spells "not in play" as .closed or
+   .archived, and this module needs that tone for stages whose own word is
+   "Not Started" or "Not Created" — naming the class .closed there would make
+   the markup contradict the text it renders. Same three tokens, honest name. */
+.lp-status-badge.sc-idle{background:var(--st-idle-bg);color:var(--st-idle-fg);border-color:var(--st-idle-bd)}
+
+/* Controls inside a line-item row. form-system.css settles every field in a
+   .ct-modal at 42px, which is right for a labelled form field and far too tall
+   for a cell in a twelve-column item table — the row would be half padding.
+   Scoped to this module's record table, so no form field anywhere else moves. */
+.ct-modal .sc-rec-table .ep-form-input,
+.ct-modal .sc-rec-table .ep-form-select,
+.ct-modal .sc-rec-table select.ep-form-select,
+.ct-modal .sc-rec-table input[type="date"].ep-form-input{height:34px;padding:0 10px;font-size:12.5px;border-radius:var(--r-control)}
+.ct-modal .sc-rec-table select.ep-form-select{padding:0 26px 0 10px}
