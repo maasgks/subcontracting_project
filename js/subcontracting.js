@@ -153,8 +153,16 @@ var state={
   fullReceipt:false,
   closed:false,
 
-  dealLogs:[],
+  /* Seeded with the submission that put the live SCR in front of the PMG
+     Approver, so its log opens with the step that already happened. */
+  dealLogs:[{status:'SCR Submitted',comment:'SCR raised against Production Order PO-100045 and sent for approval.',
+    by:'Kinjal Sisodiya',role:'Planner',date:'29 Sep 2026',time:'10:42:15',portal:'Web'}],
   poLogs:[],
+
+  dealSel:'SCR-2026-50123',
+  orderSel:'37741',
+  dealFilter:{q:'',process:'',scr:'',ship:''},
+  orderFilter:{q:'',status:'',buyer:''},
 
   dealOpen:false,
   orderOpen:false,
@@ -164,6 +172,227 @@ var state={
   railCollapsed:false
 };
 var pendingAction=null;   // the business popup currently on screen
+
+/* ══ SAMPLE DEALS ═════════════════════════════════════════════════════════
+   SCR-2026-50123 is the one LIVE deal: its state above is what every role
+   walks through the log forms. The records below are read-only sample data
+   that fill the listings, the stage cards and the side panel, so the module
+   reads like a populated workspace. Each record names the stage it sits at;
+   its logs, workflow and PO status are derived from that one key. */
+var LIVE_ID='SCR-2026-50123';
+var LIVE_PO='37741';
+var STAGE_ORDER=['scr','po','shipment','outbound','asn','imr','reconciliation','closure','closed'];
+
+var SAMPLE_DEALS=[
+  {id:'SCR-2026-50131',title:'Heat treatment of gear blanks',base:'Production Order',baseRef:'PO-100052 — Gear Blank Hardening',
+   process:'Processing',workType:'Service',planner:'Rahul Verma',buyer:'Gagan Tej',
+   vendor:{code:'21018',name:'Bharat Heat Treaters Pvt. Ltd.',city:'Pune',addr:'Bhosari MIDC, Pune, Maharashtra 411026'},
+   item:{name:'Hardened Gear Blank',type:'Semi-Finished',qty:40,uom:'Each',price:180,hsn:'8483',due:'18 Oct 2026'},
+   issues:[['SKU_52410_3814 — EN24 Gear Blank Forging','Zone B','7326']],
+   stage:'scr',created:'26 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50128',title:'Galvanising of structural members',base:'Project',baseRef:'PRJ-2207 — Coastal Jetty Extension',
+   process:'Processing',workType:'Service',planner:'Kinjal Sisodiya',buyer:'Madan Mohan',
+   vendor:{code:'21044',name:'Gujarat Galva Coatings LLP',city:'Ankleshwar',addr:'GIDC Estate, Ankleshwar, Gujarat 393002'},
+   item:{name:'Galvanised I-Beam ISMB 300',type:'Finished Product',qty:120,uom:'Each',price:95,hsn:'7308',due:'25 Oct 2026'},
+   issues:[['SKU_52133_3814 — ISMB 300 Beam 6 m','Zone D','7216']],
+   stage:'scr',created:'24 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50119',title:'CNC turning of pump impeller shafts',base:'Production Order',baseRef:'PO-100041 — Impeller Shaft',
+   process:'Job Work',workType:'Job',planner:'Rahul Verma',buyer:'Madan Mohan',
+   vendor:{code:'21005',name:'Sri Venkateswara Aerospace Pvt.ltd',city:'Hyderabad',addr:'Hyderabad, Telangana 500084'},
+   item:{name:'Impeller Shaft Ø60',type:'Finished Product',qty:25,uom:'Each',price:420,hsn:'8413',due:'20 Oct 2026'},
+   issues:[['SKU_52288_3814 — Carbon Steel Billet','Zone B','7207'],['SKU_52302_3814 — SS 410 Round Bar Ø70','Zone A','7222']],
+   stage:'po',po:{no:'37752',status:'Draft'},created:'21 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50114',title:'Sand blasting and painting of tank shell',base:'Project',baseRef:'PRJ-2198 — Ammonia Storage Tank',
+   process:'Processing',workType:'Service',planner:'Neha Joshi',buyer:'Gagan Tej',
+   vendor:{code:'21031',name:'Coastline Surface Solutions',city:'Surat',addr:'Sachin GIDC, Surat, Gujarat 394230'},
+   item:{name:'Painted Tank Shell Plate',type:'Semi-Finished',qty:18,uom:'Each',price:1250,hsn:'7309',due:'15 Oct 2026'},
+   issues:[['SKU_52297_3814 — Mild Steel Plate 10 mm','Zone A','7208']],
+   stage:'po',po:{no:'37748',status:'Created'},created:'19 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50107',title:'Fabrication of conveyor support frames',base:'Production Order',baseRef:'PO-100029 — Conveyor Frame',
+   process:'Job Work',workType:'Job',planner:'Kinjal Sisodiya',buyer:'Madan Mohan',
+   vendor:{code:'21027',name:'Shree Ganesh Engineering Works',city:'Vadodara',addr:'Makarpura GIDC, Vadodara, Gujarat 390010'},
+   item:{name:'Conveyor Support Frame',type:'Finished Product',qty:12,uom:'Each',price:2600,hsn:'8431',due:'12 Oct 2026'},
+   issues:[['SKU_52133_3814 — ISMC 150 Channel','Zone D','7216'],['SKU_52297_3814 — Mild Steel Plate 10 mm','Zone A','7208']],
+   stage:'shipment',po:{no:'37739',status:'Approved'},created:'15 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50102',title:'Repair of hydraulic cylinder rods',base:'Maintenance Order',baseRef:'MO-77812 — Press Line Overhaul',
+   process:'Repair',workType:'Service',planner:'Neha Joshi',buyer:'Gagan Tej',
+   vendor:{code:'21052',name:'Precision Hydraulics & Co.',city:'Ahmedabad',addr:'Vatva GIDC, Ahmedabad, Gujarat 382445'},
+   item:{name:'Re-chromed Cylinder Rod',type:'Repaired Item',qty:6,uom:'Each',price:3800,hsn:'8412',due:'10 Oct 2026'},
+   issues:[['SKU_51870_3814 — Hydraulic Cylinder Rod Ø80','Zone E','8412']],
+   stage:'shipment',po:{no:'37735',status:'Approved'},created:'12 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50096',title:'Machining of valve body castings',base:'Production Order',baseRef:'PO-100022 — Gate Valve 8"',
+   process:'Job Work',workType:'Job',planner:'Rahul Verma',buyer:'Madan Mohan',
+   vendor:{code:'21009',name:'Kalyani Precision Components',city:'Rajkot',addr:'Aji GIDC, Rajkot, Gujarat 360003'},
+   item:{name:'Machined Valve Body 8"',type:'Finished Product',qty:30,uom:'Each',price:950,hsn:'8481',due:'08 Oct 2026'},
+   issues:[['SKU_52011_3814 — WCB Valve Body Casting','Zone C','7325']],
+   stage:'outbound',po:{no:'37731',status:'Approved'},created:'09 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50091',title:'Bending and rolling of pipe spools',base:'Project',baseRef:'PRJ-2185 — Refinery Pipe Rack',
+   process:'Job Work',workType:'Job',planner:'Kinjal Sisodiya',buyer:'Gagan Tej',
+   vendor:{code:'21036',name:'Om Sai Pipe Fabricators',city:'Bharuch',addr:'Dahej SEZ, Bharuch, Gujarat 392130'},
+   item:{name:'Rolled Pipe Spool 12"',type:'Semi-Finished',qty:22,uom:'Each',price:1400,hsn:'7306',due:'06 Oct 2026'},
+   issues:[['SKU_51944_3814 — CS Pipe 12" SCH40 6 m','Zone D','7304']],
+   stage:'outbound',po:{no:'37726',status:'Approved'},created:'06 Sep 2026',asns:0,imrs:0,received:0},
+  {id:'SCR-2026-50085',title:'Laser cutting of bracket profiles',base:'Production Order',baseRef:'PO-100017 — Mounting Bracket',
+   process:'Job Work',workType:'Job',planner:'Neha Joshi',buyer:'Madan Mohan',
+   vendor:{code:'21061',name:'Tecno Laser Cut Pvt. Ltd.',city:'Vapi',addr:'Phase II GIDC, Vapi, Gujarat 396195'},
+   item:{name:'Laser-cut Bracket Profile',type:'Semi-Finished',qty:200,uom:'Each',price:45,hsn:'7326',due:'02 Oct 2026'},
+   issues:[['SKU_52297_3814 — Mild Steel Plate 10 mm','Zone A','7208']],
+   stage:'asn',po:{no:'37719',status:'Approved'},created:'02 Sep 2026',asns:1,imrs:0,received:0},
+  {id:'SCR-2026-50079',title:'Induction hardening of crane wheels',base:'Maintenance Order',baseRef:'MO-77790 — EOT Crane Refit',
+   process:'Processing',workType:'Service',planner:'Rahul Verma',buyer:'Gagan Tej',
+   vendor:{code:'21018',name:'Bharat Heat Treaters Pvt. Ltd.',city:'Pune',addr:'Bhosari MIDC, Pune, Maharashtra 411026'},
+   item:{name:'Hardened Crane Wheel Ø500',type:'Repaired Item',qty:8,uom:'Each',price:2100,hsn:'8431',due:'30 Sep 2026'},
+   issues:[['SKU_51702_3814 — Crane Wheel Ø500','Zone E','8431']],
+   stage:'asn',po:{no:'37714',status:'Approved'},created:'29 Aug 2026',asns:2,imrs:0,received:0},
+  {id:'SCR-2026-50072',title:'Welding of skid base assemblies',base:'Production Order',baseRef:'PO-100009 — Compressor Skid',
+   process:'Job Work',workType:'Job',planner:'Kinjal Sisodiya',buyer:'Madan Mohan',
+   vendor:{code:'21027',name:'Shree Ganesh Engineering Works',city:'Vadodara',addr:'Makarpura GIDC, Vadodara, Gujarat 390010'},
+   item:{name:'Compressor Skid Base',type:'Finished Product',qty:4,uom:'Each',price:18500,hsn:'8414',due:'28 Sep 2026'},
+   issues:[['SKU_52133_3814 — ISMC 150 Channel','Zone D','7216'],['SKU_52297_3814 — Mild Steel Plate 10 mm','Zone A','7208']],
+   stage:'imr',po:{no:'37708',status:'Approved'},created:'25 Aug 2026',asns:2,imrs:1,received:2},
+  {id:'SCR-2026-50066',title:'Grinding of roller shafts',base:'Production Order',baseRef:'PO-100004 — Roller Shaft',
+   process:'Job Work',workType:'Job',planner:'Neha Joshi',buyer:'Gagan Tej',
+   vendor:{code:'21009',name:'Kalyani Precision Components',city:'Rajkot',addr:'Aji GIDC, Rajkot, Gujarat 360003'},
+   item:{name:'Ground Roller Shaft',type:'Finished Product',qty:50,uom:'Each',price:310,hsn:'8483',due:'22 Sep 2026'},
+   issues:[['SKU_52302_3814 — SS 410 Round Bar Ø70','Zone A','7222']],
+   stage:'reconciliation',po:{no:'37701',status:'Approved'},created:'20 Aug 2026',asns:2,imrs:2,received:48},
+  {id:'SCR-2026-50058',title:'Powder coating of panel enclosures',base:'Project',baseRef:'PRJ-2170 — Substation Panels',
+   process:'Processing',workType:'Service',planner:'Rahul Verma',buyer:'Madan Mohan',
+   vendor:{code:'21044',name:'Gujarat Galva Coatings LLP',city:'Ankleshwar',addr:'GIDC Estate, Ankleshwar, Gujarat 393002'},
+   item:{name:'Coated Panel Enclosure',type:'Finished Product',qty:15,uom:'Each',price:1150,hsn:'8538',due:'18 Sep 2026'},
+   issues:[['SKU_51655_3814 — CRCA Sheet 2 mm','Zone C','7209']],
+   stage:'closure',po:{no:'37694',status:'Approved'},created:'14 Aug 2026',asns:1,imrs:1,received:15},
+  {id:'SCR-2026-50041',title:'Overhaul of gearbox housings',base:'Maintenance Order',baseRef:'MO-77731 — Kiln Drive',
+   process:'Repair',workType:'Service',planner:'Kinjal Sisodiya',buyer:'Gagan Tej',
+   vendor:{code:'21052',name:'Precision Hydraulics & Co.',city:'Ahmedabad',addr:'Vatva GIDC, Ahmedabad, Gujarat 382445'},
+   item:{name:'Overhauled Gearbox Housing',type:'Repaired Item',qty:3,uom:'Each',price:9200,hsn:'8483',due:'05 Sep 2026'},
+   issues:[['SKU_51590_3814 — Gearbox Housing GH-40','Zone E','8483']],
+   stage:'closed',po:{no:'37672',status:'Closed'},created:'04 Aug 2026',asns:1,imrs:1,received:3}
+];
+
+/* Who holds each stage in the sample data, and the names that sign its logs. */
+var SAMPLE_PEOPLE={
+  'PMG Approver':'Gagan Tej','PO Approver':'Ritesh Nair','Stores User':'Suresh Patel',
+  'Delivery Note Approver':'Anita Desai','Finance / F&A / IDT':'Pooja Mehta',
+  'Security User':'Ramesh Yadav','Vendor User':'Vendor Portal User','QC User':'Harish Kulkarni'
+};
+var SAMPLE_PENDING={
+  scr:'PMG Approver',po:'Buyer',shipment:'Stores User',outbound:'Delivery Note Approver',asn:'QC User',
+  imr:'Stores User',reconciliation:'Finance / F&A',closure:'Finance / F&A',closed:'—'
+};
+function samplePending(d){
+  return d.stage==='po'&&d.po.status==='Created'?'PO Approver':SAMPLE_PENDING[d.stage];
+}
+function sampleDeal(id){return SAMPLE_DEALS.filter(function(d){return d.id===id;})[0];}
+function stageReached(d,key){return STAGE_ORDER.indexOf(d.stage)>=STAGE_ORDER.indexOf(key);}
+function stagePassed(d,key){return STAGE_ORDER.indexOf(d.stage)>STAGE_ORDER.indexOf(key);}
+function sampleScr(d){return d.stage==='scr'?'Sent for Approval':d.stage==='closed'?'Closed':'Approved';}
+function sampleShip(d){
+  if(d.stage==='closed')return 'Closed';
+  if(!stageReached(d,'shipment'))return 'Not Started';
+  if(d.stage==='shipment')return 'Created';
+  if(d.stage==='outbound')return 'Freezed Outbound Release';
+  return 'Challan Generated';
+}
+function scrToneOf(s){return s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
+function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':'in-progress';}
+function poToneOf(s){return {Draft:'draft',Created:'created',Approved:'approved',Closed:'closed'}[s]||'sc-idle';}
+function fmtAmt(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function addDays(dateStr,n){
+  var d=new Date(dateStr);d.setDate(d.getDate()+n);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+/* The milestones a sample deal has completed, oldest first. Each one is a
+   log entry and a workflow card, so the two tabs can never disagree. */
+function sampleMilestones(d){
+  var m=[],day=0,po=d.po?d.po.no:'',
+      add=function(status,role,by,comment){
+        day+=1+(m.length%3);
+        m.push({status:status,role:role,by:by,comment:comment,date:addDays(d.created,day-1),
+          time:('0'+(9+m.length%8)).slice(-2)+':'+('0'+(m.length*7%60)).slice(-2)+':00',portal:'Web'});
+      };
+  add('SCR Submitted','Planner',d.planner,'SCR raised against '+d.baseRef.split(' — ')[0]+'.');
+  if(!stagePassed(d,'scr'))return m;
+  add('SCR Approved','PMG Approver',SAMPLE_PEOPLE['PMG Approver'],'Approved. PO '+po+' created in Draft.');
+  if(d.po.status!=='Draft')add('PO Generated','Buyer',d.buyer,'Commercial fields completed against the rate contract.');
+  if(!stagePassed(d,'po'))return m;
+  add('PO Approved','PO Approver',SAMPLE_PEOPLE['PO Approver'],'PO '+po+' approved.');
+  add('Shipment Created','Planner',d.planner,'Shipment raised for '+d.item.qty+' '+d.item.uom+'.');
+  if(!stagePassed(d,'shipment'))return m;
+  add('Goods Release & Issue','Stores User',SAMPLE_PEOPLE['Stores User'],'Issue material released against the Transfer Order.');
+  add('Delivery Note Generated','Stores User','System','Delivery Note generated after Goods Release & Issue.');
+  if(!stagePassed(d,'outbound'))return m;
+  add('Delivery Note Approved','Delivery Note Approver',SAMPLE_PEOPLE['Delivery Note Approver'],'Quantities match the Transfer Order.');
+  add('Challan Generated','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'Delivery Challan issued as the gate pass copy.');
+  add('Gate Outward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'Vehicle cleared at the main gate.');
+  add('Shipment Confirmed','Planner',d.planner,'Material Position updated to At Vendor.');
+  for(var a=1;a<=d.asns;a++){
+    add('ASN Created','Vendor User',SAMPLE_PEOPLE['Vendor User'],'ASN '+a+' raised by the vendor.');
+    if(d.stage!=='asn'||a<d.asns){
+      add('ASN QC Cleared','QC User',SAMPLE_PEOPLE['QC User'],'ASN '+a+' passed inspection.');
+      add('Gate Inward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'ASN '+a+' received at the gate.');
+    }
+  }
+  if(!stagePassed(d,'asn'))return m;
+  for(var i=1;i<=d.imrs;i++){
+    add('IMR Created','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' raised against a gate-cleared ASN.');
+    if(d.stage!=='imr')add('IMR Confirmed','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' posted to stock.');
+  }
+  if(!stagePassed(d,'imr'))return m;
+  if(!stagePassed(d,'reconciliation'))return m;
+  add('Reconciliation Completed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],
+    'Expected '+d.item.qty+', received '+d.received+'.');
+  if(!stagePassed(d,'closure'))return m;
+  add('Full Receipt Confirmed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'All receivable quantity received.');
+  add('Transaction Closed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'SCR, PO, Shipment and Challan closed.');
+  return m;
+}
+
+/* Where the live deal sits, read off its state. */
+function liveStage(){
+  if(state.closed)return 'closed';
+  if(state.scr==='sent')return 'scr';
+  if(state.po!=='approved')return 'po';
+  if(state.shipment==='none'||!state.goodsIssue)return 'shipment';
+  if(!state.shipmentConfirmed)return 'outbound';
+  if(state.reconciled)return 'closure';
+  if(eligibleASNs().length||state.imrs.some(function(m){return m.status==='Created';}))return 'imr';
+  if(state.imrs.some(function(m){return m.status==='Confirmed';}))return 'reconciliation';
+  return 'asn';
+}
+
+/* Every deal as one listing row — the live one first, read from state. */
+function dealRows(){
+  var rows=[{id:LIVE_ID,live:true,base:'Production Order',title:'Sub-contracting for shaft machining',
+    planner:'Kinjal Sisodiya',vendor:'Sri Venkateswara Aerospace Pvt.ltd',vendorSub:'21005 · Hyderabad',
+    process:'Job Work',scr:scrLabel(),ship:shipLabel(),pending:pendingWith(),stage:liveStage(),
+    asns:state.asns.length,imrs:state.imrs.length}];
+  SAMPLE_DEALS.forEach(function(d){
+    rows.push({id:d.id,base:d.base,title:d.title,planner:d.planner,vendor:d.vendor.name,
+      vendorSub:d.vendor.code+' · '+d.vendor.city,process:d.process,scr:sampleScr(d),ship:sampleShip(d),
+      pending:samplePending(d),stage:d.stage,asns:d.asns,imrs:d.imrs});
+  });
+  return rows;
+}
+function orderRows(){
+  var rows=[];
+  if(state.po!=='none')rows.push({no:LIVE_PO,live:true,scrId:LIVE_ID,title:'Sub-contracting for shaft machining',
+    vendor:'Sri Venkateswara Aerospace Pvt.ltd',buyer:'Madan Mohan',value:5000,created:'30 Sep 2026',
+    approved:(state.po==='approved'||state.po==='closed')?'30 Sep 2026':'',status:poLabel(),stage:liveStage()});
+  SAMPLE_DEALS.forEach(function(d){
+    if(!d.po)return;
+    var ms=sampleMilestones(d),
+        at=function(s){var x=ms.filter(function(l){return l.status===s;})[0];return x?x.date:'';};
+    rows.push({no:d.po.no,scrId:d.id,title:d.title,vendor:d.vendor.name,buyer:d.buyer,
+      value:d.item.qty*d.item.price,created:at('SCR Approved'),approved:at('PO Approved'),
+      status:d.po.status,stage:d.stage});
+  });
+  return rows;
+}
+function stageCount(key){
+  return dealRows().filter(function(r){return r.stage===key;}).length;
+}
 
 /* ══ SHARED UI HELPERS ════════════════════════════════════════════════════
    Reimplementations of the four core.js utilities this module uses, against
@@ -538,6 +767,7 @@ function dashboardHTML(){
 
   var stages=SC_STAGES.map(function(s){
     var open=stageAccess(state.role,s.key);
+    s.count=stageCount(s.key);
     return '<button type="button" class="sc-stage-card'+(open?'':' is-blocked')+'"'
       +(open?' onclick="scOpenStage(\''+s.key+'\',\''+s.title+'\','+s.count+')"':' disabled aria-disabled="true"')+'>'
       +'<span class="sc-stage-ico">'+s.icon+'</span>'
@@ -566,11 +796,66 @@ function scOpenStage(key,title,count){
   state.page=(key==='po')?'orders':'deals';
   state.dealOpen=false;state.orderOpen=false;
   scRender();
-  if(count===1){key==='po'?scOpenOrder():scOpenDeal();}
+  /* A stage holding exactly one deal opens it straight away. */
+  if(count===1){
+    if(key==='po'){var o=filteredOrders()[0];if(o)scOpenOrder(o.no);}
+    else{var r=filteredDeals()[0];if(r)scOpenDeal(r.id);}
+  }
 }
 function scClearStageFilter(){
   state.stageFilter=null;state.stageLabel='';
   scRender();
+}
+
+/* ── LISTING FILTERS ──────────────────────────────────────────────────────
+   Search reads the text box and the selects; the stage card filter applies on
+   top. Enter in the search box searches too. Reset clears all of it. */
+function matchQ(q,fields){
+  q=q.trim().toLowerCase();if(!q)return true;
+  return fields.join(' ').toLowerCase().indexOf(q)>=0;
+}
+function filteredDeals(){
+  var f=state.dealFilter;
+  return dealRows().filter(function(r){
+    if(state.stageFilter&&r.stage!==state.stageFilter)return false;
+    if(f.process&&r.process!==f.process)return false;
+    if(f.scr&&r.scr!==f.scr)return false;
+    if(f.ship&&r.ship!==f.ship)return false;
+    return matchQ(f.q,[r.id,r.title,r.vendor,r.vendorSub,r.planner,r.base]);
+  });
+}
+function filteredOrders(){
+  var f=state.orderFilter;
+  return orderRows().filter(function(r){
+    if(state.stageFilter&&r.stage!==state.stageFilter)return false;
+    if(f.status&&r.status!==f.status)return false;
+    if(f.buyer&&r.buyer!==f.buyer)return false;
+    return matchQ(f.q,[r.no,r.scrId,r.title,r.vendor,r.buyer]);
+  });
+}
+function scSearchDeals(){
+  var q=document.getElementById('sc-deal-q');
+  state.dealFilter={q:q?q.value:'',process:csValue('sc-f-process'),scr:csValue('sc-f-scr'),ship:csValue('sc-f-ship')};
+  state.dealOpen=false;
+  scRender();
+}
+function scSearchOrders(){
+  var q=document.getElementById('sc-order-q');
+  state.orderFilter={q:q?q.value:'',status:csValue('sc-f-pos'),buyer:csValue('sc-f-buyer')};
+  state.orderOpen=false;
+  scRender();
+}
+function scResetFilters(){
+  state.dealFilter={q:'',process:'',scr:'',ship:''};
+  state.orderFilter={q:'',status:'',buyer:''};
+  state.stageFilter=null;state.stageLabel='';
+  state.dealOpen=false;state.orderOpen=false;
+  scRender();
+}
+function scSearchKey(e,fn){if(e.key==='Enter')window[fn]();}
+function emptyRow(cols,title,sub){
+  return '<tr><td colspan="'+cols+'" style="padding:0"><div class="sc-empty"><div class="sc-empty-ico">'+ICO.search+'</div>'
+    +'<div class="sc-empty-title">'+esc(title)+'</div><div class="sc-empty-sub">'+esc(sub)+'</div></div></td></tr>';
 }
 
 /* ══ LISTING: DEALS ═══════════════════════════════════════════════════════  */
@@ -582,38 +867,41 @@ function stageBannerHTML(){
 }
 
 function dealsPageHTML(){
-  var selected=state.dealOpen?' lp-row-selected':'';
-  var row='<tr class="lp-row'+selected+'" style="cursor:pointer" onclick="scOpenDeal()">'
-    +'<td>1</td>'
-    +'<td><div class="lp-c-main">SCR-2026-50123</div><div class="lp-c-sub">Production Order</div></td>'
-    +'<td><div class="lp-c-plain">Sub-contracting for shaft machining</div></td>'
-    +'<td><span class="lp-c-name">Kinjal Sisodiya</span></td>'
-    +'<td><div class="lp-c-plain">Sri Venkateswara Aerospace Pvt.ltd</div><div class="lp-c-sub">21005 · Hyderabad</div></td>'
-    +'<td>'+badge(scrTone(),scrLabel())+'</td>'
-    +'<td>'+badge(shipTone(),shipLabel())+'</td>'
-    +'<td><div class="lp-c-plain">'+esc(pendingWith())+'</div></td>'
-    +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal()">'+ICO.hamburger+'</button></td>'
-    +'</tr>';
+  var all=filteredDeals(),total=dealRows().length,f=state.dealFilter;
+  var rows=all.map(function(r,n){
+    var selected=state.dealOpen&&state.dealSel===r.id?' lp-row-selected':'';
+    return '<tr class="lp-row'+selected+'" data-id="'+r.id+'" style="cursor:pointer" onclick="scOpenDeal(\''+r.id+'\')">'
+      +'<td>'+(n+1)+'</td>'
+      +'<td><div class="lp-c-main">'+esc(r.id)+'</div><div class="lp-c-sub">'+esc(r.base)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
+      +'<td><span class="lp-c-name">'+esc(r.planner)+'</span></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div><div class="lp-c-sub">'+esc(r.vendorSub)+'</div></td>'
+      +'<td>'+badge(scrToneOf(r.scr),r.scr)+'</td>'
+      +'<td>'+badge(shipToneOf(r.ship),r.ship)+'</td>'
+      +'<td><div class="lp-c-plain">'+esc(r.pending)+'</div></td>'
+      +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal(\''+r.id+'\')">'+ICO.hamburger+'</button></td>'
+      +'</tr>';
+  }).join('')||emptyRow(9,'No deals match','Change the search or filters, or Reset to see every deal.');
 
+  var sum=function(k){return all.reduce(function(t,r){return t+r[k];},0);};
   var stats='<div class="listing-stats">'
-    +'<div class="listing-stat active"><div class="listing-stat-count">1</div><div class="listing-stat-label">Open</div></div>'
-    +'<div class="listing-stat pending"><div class="listing-stat-count">'+(state.scr==='sent'?1:0)+'</div><div class="listing-stat-label">Awaiting Approval</div></div>'
-    +'<div class="listing-stat"><div class="listing-stat-count">'+state.asns.length+'</div><div class="listing-stat-label">ASNs</div></div>'
-    +'<div class="listing-stat"><div class="listing-stat-count">'+state.imrs.length+'</div><div class="listing-stat-label">IMRs</div></div>'
+    +'<div class="listing-stat active"><div class="listing-stat-count">'+all.filter(function(r){return r.stage!=='closed';}).length+'</div><div class="listing-stat-label">Open</div></div>'
+    +'<div class="listing-stat pending"><div class="listing-stat-count">'+all.filter(function(r){return r.scr==='Sent for Approval';}).length+'</div><div class="listing-stat-label">Awaiting Approval</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+sum('asns')+'</div><div class="listing-stat-label">ASNs</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+sum('imrs')+'</div><div class="listing-stat-label">IMRs</div></div>'
     +'</div>';
-
   return '<div class="listing-page">'
     +stageBannerHTML()
     +'<div class="listing-top">'
       +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
         +'<div class="lp-filter-bar-label">Select Filter</div>'
         +'<div class="lp-filter-bar-row">'
-          +'<input class="lp-search-input" type="text" placeholder="Search Deal ID, title, vendor">'
-          +csField('sc-f-process',['Job Work','Processing','Repair'],'','Sub-Contracting Process')
-          +csField('sc-f-scr',['Sent for Approval','Approved','Closed'],'','SCR Status')
-          +csField('sc-f-ship',['Not Started','Created','Freezed Outbound Release','Challan Generated','Closed'],'','Shipment Status')
-          +'<button class="lp-pill-clear" onclick="scClearStageFilter()">'+ICO.close+' Reset</button>'
-          +'<button class="lp-pill-search" onclick="scToast(\'Filters applied\',\'info\')">Search</button>'
+          +'<input class="lp-search-input" id="sc-deal-q" type="text" value="'+esc(f.q)+'" placeholder="Search Deal ID, title, vendor" onkeydown="scSearchKey(event,\'scSearchDeals\')">'
+          +csField('sc-f-process',['Job Work','Processing','Repair'],f.process,'Sub-Contracting Process')
+          +csField('sc-f-scr',['Sent for Approval','Approved','Closed'],f.scr,'SCR Status')
+          +csField('sc-f-ship',['Not Started','Created','Freezed Outbound Release','Challan Generated','Closed'],f.ship,'Shipment Status')
+          +'<button class="lp-pill-clear" onclick="scResetFilters()">'+ICO.close+' Reset</button>'
+          +'<button class="lp-pill-search" onclick="scSearchDeals()">Search</button>'
         +'</div>'
       +'</div>'
       +stats
@@ -624,8 +912,8 @@ function dealsPageHTML(){
           +'<table class="lp-table" style="min-width:980px"><thead><tr>'
           +'<th>S.No</th><th>Deal ID</th><th>Title</th><th>Planner</th><th>Vendor</th>'
           +'<th>SCR Status</th><th>Shipment Status</th><th>Pending With</th><th>Action</th>'
-          +'</tr></thead><tbody>'+row+'</tbody></table>'
-          +'<div class="lp-pagination"><div class="lp-pagination-info">Showing 1 of 1 deal</div>'
+          +'</tr></thead><tbody>'+rows+'</tbody></table>'
+          +'<div class="lp-pagination"><div class="lp-pagination-info">Showing '+all.length+' of '+total+' deals</div>'
           +'<div class="lp-pagination-controls"><button class="lp-pg-btn active">1</button></div></div>'
         +'</div>'
       +'</div>'
@@ -636,33 +924,27 @@ function dealsPageHTML(){
 
 /* ══ LISTING: PURCHASE ORDERS ═════════════════════════════════════════════  */
 function ordersPageHTML(){
-  var body;
-  if(state.po==='none'){
-    body='<tr><td colspan="11" style="padding:0">'
-      +'<div class="sc-empty"><div class="sc-empty-ico">'+ICO.cart+'</div>'
-      +'<div class="sc-empty-title">No Purchase Order yet</div>'
-      +'<div class="sc-empty-sub">A PO is created automatically in Draft as soon as the SCR is approved, and appears here for the Buyer to complete.</div>'
-      +'</div></td></tr>';
-  }else{
-    var selected=state.orderOpen?' lp-row-selected':'';
-    body='<tr class="lp-row'+selected+'" style="cursor:pointer" onclick="scOpenOrder()">'
-      +'<td><div class="lp-c-main">37741</div></td>'
-      +'<td><div class="lp-c-plain">SCR-2026-50123</div></td>'
-      +'<td><div class="lp-c-plain">Sub-contracting for shaft machining</div></td>'
+  var all=filteredOrders(),f=state.orderFilter;
+  var body=all.map(function(r){
+    var selected=state.orderOpen&&state.orderSel===r.no?' lp-row-selected':'';
+    return '<tr class="lp-row'+selected+'" data-id="'+r.no+'" style="cursor:pointer" onclick="scOpenOrder(\''+r.no+'\')">'
+      +'<td><div class="lp-c-main">'+esc(r.no)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.scrId)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
       +'<td><div class="lp-c-plain">Hazira Works</div></td>'
-      +'<td><div class="lp-c-plain">Sri Venkateswara Aerospace Pvt.ltd</div></td>'
-      +'<td><span class="lp-c-name">Madan Mohan</span></td>'
-      +'<td><div class="lp-c-main">5,000.00</div></td>'
-      +'<td><div class="lp-c-n">30 Sep 2026</div></td>'
-      +'<td><div class="lp-c-n">'+(state.po==='approved'||state.po==='closed'?'30 Sep 2026':'<span class="lp-dash">—</span>')+'</div></td>'
-      +'<td>'+badge(poTone(),poLabel())+'</td>'
-      +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder()">'+ICO.hamburger+'</button></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
+      +'<td><span class="lp-c-name">'+esc(r.buyer)+'</span></td>'
+      +'<td><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
+      +'<td><div class="lp-c-n">'+(r.created||'<span class="lp-dash">—</span>')+'</div></td>'
+      +'<td><div class="lp-c-n">'+(r.approved||'<span class="lp-dash">—</span>')+'</div></td>'
+      +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
+      +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button></td>'
       +'</tr>';
-  }
+  }).join('')||emptyRow(11,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.');
   var stats='<div class="listing-stats">'
-    +'<div class="listing-stat"><div class="listing-stat-count">'+(state.po==='none'?0:1)+'</div><div class="listing-stat-label">Total</div></div>'
-    +'<div class="listing-stat pending"><div class="listing-stat-count">'+(state.po==='draft'||state.po==='created'?1:0)+'</div><div class="listing-stat-label">In Progress</div></div>'
-    +'<div class="listing-stat approved"><div class="listing-stat-count">'+(state.po==='approved'||state.po==='closed'?1:0)+'</div><div class="listing-stat-label">Approved</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+all.length+'</div><div class="listing-stat-label">Total</div></div>'
+    +'<div class="listing-stat pending"><div class="listing-stat-count">'+all.filter(function(r){return r.status==='Draft'||r.status==='Created';}).length+'</div><div class="listing-stat-label">In Progress</div></div>'
+    +'<div class="listing-stat approved"><div class="listing-stat-count">'+all.filter(function(r){return r.status==='Approved'||r.status==='Closed';}).length+'</div><div class="listing-stat-label">Approved</div></div>'
     +'</div>';
 
   return '<div class="listing-page">'
@@ -671,11 +953,11 @@ function ordersPageHTML(){
       +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
         +'<div class="lp-filter-bar-label">Select Filter</div>'
         +'<div class="lp-filter-bar-row">'
-          +'<input class="lp-search-input" type="text" placeholder="Search PO No., SCR No.">'
-          +csField('sc-f-pos',['Draft','Created','Approved','Closed'],'','Status')
-          +csField('sc-f-buyer',['Madan Mohan','Gagan Tej'],'','Buyer')
-          +'<button class="lp-pill-clear" onclick="scClearStageFilter()">'+ICO.close+' Reset</button>'
-          +'<button class="lp-pill-search" onclick="scToast(\'Filters applied\',\'info\')">Search</button>'
+          +'<input class="lp-search-input" id="sc-order-q" type="text" value="'+esc(f.q)+'" placeholder="Search PO No., SCR No., vendor" onkeydown="scSearchKey(event,\'scSearchOrders\')">'
+          +csField('sc-f-pos',['Draft','Created','Approved','Closed'],f.status,'Status')
+          +csField('sc-f-buyer',['Madan Mohan','Gagan Tej'],f.buyer,'Buyer')
+          +'<button class="lp-pill-clear" onclick="scResetFilters()">'+ICO.close+' Reset</button>'
+          +'<button class="lp-pill-search" onclick="scSearchOrders()">Search</button>'
         +'</div>'
       +'</div>'
       +stats
@@ -697,35 +979,42 @@ function ordersPageHTML(){
 /* ══ PANEL PLUMBING ═══════════════════════════════════════════════════════
    Open and close toggle the class on the EXISTING node and fill its inner —
    never a wholesale re-render — which is what lets the panel actually slide. */
-function scOpenDeal(){
-  if(state.dealOpen){scCloseDeal();return;}
-  state.dealOpen=true;state.dealTab='details';
+function scOpenDeal(id){
+  id=id||LIVE_ID;
+  if(state.dealOpen&&state.dealSel===id){scCloseDeal();return;}
+  var switching=state.dealOpen;
+  state.dealOpen=true;state.dealSel=id;
+  if(!switching)state.dealTab='details';
   var sb=document.getElementById('sc-deal-sb');if(!sb)return;
   sb.classList.add('open');
   document.getElementById('sc-deal-isb').innerHTML=dealPanelHTML();
-  markSelectedRow(true);
+  markSelectedRow(id);
 }
 function scCloseDeal(){
   state.dealOpen=false;
   var sb=document.getElementById('sc-deal-sb');if(sb)sb.classList.remove('open');
-  markSelectedRow(false);
+  markSelectedRow(null);
 }
-function scOpenOrder(){
-  if(state.orderOpen){scCloseOrder();return;}
-  state.orderOpen=true;state.orderTab='details';
+function scOpenOrder(no){
+  no=no||LIVE_PO;
+  if(state.orderOpen&&state.orderSel===no){scCloseOrder();return;}
+  var switching=state.orderOpen;
+  state.orderOpen=true;state.orderSel=no;
+  if(!switching)state.orderTab='details';
   var sb=document.getElementById('sc-order-sb');if(!sb)return;
   sb.classList.add('open');
   document.getElementById('sc-order-isb').innerHTML=orderPanelHTML();
-  markSelectedRow(true);
+  markSelectedRow(no);
 }
 function scCloseOrder(){
   state.orderOpen=false;
   var sb=document.getElementById('sc-order-sb');if(sb)sb.classList.remove('open');
-  markSelectedRow(false);
+  markSelectedRow(null);
 }
-function markSelectedRow(on){
-  var r=document.querySelector('.lp-table tbody tr.lp-row');
-  if(r)r.classList.toggle('lp-row-selected',!!on);
+function markSelectedRow(id){
+  document.querySelectorAll('.lp-table tbody tr.lp-row').forEach(function(r){
+    r.classList.toggle('lp-row-selected',r.dataset.id===id);
+  });
 }
 function scDealTab(tab){
   state.dealTab=tab;
@@ -778,6 +1067,7 @@ function recTable(head,rows){
 
 /* ══ DEAL PANEL ═══════════════════════════════════════════════════════════  */
 function dealPanelHTML(){
+  if(state.dealSel!==LIVE_ID)return samplePanelHTML(sampleDeal(state.dealSel));
   var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},
             {id:'logs',label:'Logs'},{id:'attachments',label:'Attachments'},{id:'activity',label:'Activity Log'}];
   var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
@@ -1076,6 +1366,10 @@ function dealActivityHTML(){
 
 /* ══ ORDER PANEL ══════════════════════════════════════════════════════════  */
 function orderPanelHTML(){
+  if(state.orderSel!==LIVE_PO){
+    var d=SAMPLE_DEALS.filter(function(x){return x.po&&x.po.no===state.orderSel;})[0];
+    return sampleOrderPanelHTML(d);
+  }
   var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},{id:'logs',label:'Logs'}];
   var bar=tabBarHTML(tabs,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs');
   var body;
@@ -1165,6 +1459,186 @@ function scSubmitOrderLog(){
   if(action==='Approve PO'){state.po='approved';addPOLog('PO Approved',comment);scToast('PO 37741 approved');}
   if(action==='Return PO'){addPOLog('PO Returned',comment);scToast('PO returned to Buyer','info');}
   scRender();
+}
+
+/* ══ SAMPLE DEAL PANEL ════════════════════════════════════════════════════
+   The same tabs and components as the live deal, filled from the sample
+   record. Read-only: the Logs tab says which role and action are next instead
+   of offering a form, because only the live deal walks the process. */
+var SAMPLE_NEXT={
+  scr:['PMG Approver','Approve SCR'],po:['Buyer','Generate PO'],
+  shipment:['Stores User','Goods Release & Issue'],outbound:['Delivery Note Approver','Approve Delivery Note'],
+  asn:['QC User','Clear ASN'],imr:['Stores User','Confirm IMR'],
+  reconciliation:['Finance / F&A / IDT','Complete Reconciliation'],closure:['Finance / F&A / IDT','Close Transaction']
+};
+function msOf(ms,status){
+  var l=ms.filter(function(x){return x.status===status;}).pop();
+  return l?{user:l.by+' · '+l.role,date:l.date,time:l.time}:null;
+}
+function sampleNote(d){
+  return wfNote('<b>Sample record.</b> '+esc(d.id)+' is read-only demo data. '
+    +'The interactive flow runs on <b>'+LIVE_ID+'</b>.');
+}
+function samplePanelHTML(d){
+  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},
+            {id:'logs',label:'Logs'},{id:'attachments',label:'Attachments'},{id:'activity',label:'Activity Log'}];
+  var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
+  var t=state.dealTab,body;
+  if(t==='details')body=sampleDetailsHTML(d);
+  else if(t==='workflow')body=sampleWorkflowHTML(d);
+  else if(t==='logs')body=sampleLogsHTML(d);
+  else if(t==='attachments')body=sampleAttachmentsHTML(d);
+  else body=secHead('Activity Log')+logTimelineHTML(sampleMilestones(d).slice().reverse());
+  return bar+'<div class="lp-isb-body">'+body+'</div>';
+}
+function sampleDetailsHTML(d){
+  var g=function(cards){return '<div class="lp-sb-detail-grid" style="margin-bottom:20px">'+cards+'</div>';};
+  var scr=sampleScr(d),it=d.item,closed=d.stage==='closed';
+  var open=Math.max(0,it.qty-d.received);
+  var head=g(
+     fieldCard(ICO.hash,'SCR No.',esc(d.id))
+    +fieldCard(ICO.check,'Status',badge(scrToneOf(scr),scr))
+    +fieldCard(ICO.doc,'SCR Title',esc(d.title))
+    +fieldCard(ICO.tag,'SCR Base',esc(d.base))
+    +fieldCard(ICO.tag,'Nature of SCR / Work Type',esc(d.workType))
+    +fieldCard(ICO.tag,'Sub-Contracting Process',esc(d.process))
+    +fieldCard(ICO.globe,'Purchase Office','PUR-121 — Manufacturing Procurement')
+    +fieldCard(ICO.cal,'Created On',esc(d.created))
+    +fieldCard(ICO.user,'Planner',esc(d.planner))
+    +fieldCard(ICO.user,'Buyer',esc(d.buyer))
+    +fieldCard(ICO.user,'Pending With',esc(samplePending(d)))
+    +fieldCard(ICO.cart,'Purchase Order',d.po?esc(d.po.no)+' · '+badge(poToneOf(d.po.status),d.po.status):'Not Created')
+  );
+  var base=g(fieldCard(ICO.clipboard,d.base,esc(d.baseRef))+fieldCard(ICO.cube,'Plant','Hazira Works'));
+  var vendor=g(
+     fieldCard(ICO.handshake,'Vendor / Subcontractor',esc(d.vendor.code+' — '+d.vendor.name))
+    +fieldCard(ICO.globe,'Vendor Address',esc(d.vendor.addr))
+  );
+  var recv=recTable(
+    ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open','Status'],
+    '<tr><td><b>'+esc(it.name)+'</b></td><td>'+esc(it.type)+'</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td><td>'+fmtAmt(it.price)+'</td>'
+    +'<td>Hazira Works</td><td>'+esc(it.hsn)+'</td><td>'+esc(it.due)+'</td><td>'+d.received+'</td><td>'+(closed?0:open)+'</td>'
+    +'<td>'+badge(closed?'closed':'open',closed?'Closed':'Open')+'</td></tr>');
+  var issue=recTable(['For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Zone','FIM','HSN'],
+    d.issues.map(function(r){
+      return '<tr><td>'+esc(it.name)+'</td><td><b>'+esc(r[0])+'</b></td><td>Raw Material</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td>'
+        +'<td>Hazira Works</td><td>'+esc(r[1])+'</td><td>Yes</td><td>'+esc(r[2])+'</td></tr>';
+    }).join(''));
+  return sampleNote(d)
+    +secHead('SCR Header Details')+head
+    +secHead('SCR Base Details')+base
+    +secHead('Vendor Details')+vendor
+    +secHead('Receivable Item Details')+recv
+    +secHead('Issue Item Details')+issue;
+}
+function sampleWorkflowHTML(d){
+  var ms=sampleMilestones(d);
+  var row=function(title,status,pendingWho,doneText,waitText,isLast){
+    var m=msOf(ms,status);
+    return wfRow(title+' — '+(m?'Completed':'Pending'),m||{user:'Pending with '+pendingWho,date:'',time:''},
+      m?doneText:waitText,'',isLast);
+  };
+  var po=d.po?d.po.no:'—';
+  var html=sampleNote(d);
+  html+=wfGroup('SCR',[
+    row('Creation','SCR Submitted','Planner','SCR raised against '+esc(d.baseRef)+'.',''),
+    row('Approval','SCR Approved','PMG Approver','Approved. PO <b>'+po+'</b> created in Draft.',
+      'Awaiting the PMG Approver.',true)
+  ]);
+  html+=wfGroup('Purchase Order',[
+    row('Generate PO','PO Generated','Buyer','Buyer completed the commercial fields. PO value <b>'+fmtAmt(d.item.qty*d.item.price)+'</b>.',
+      'Buyer completes rate contract, price basis and line price.'),
+    row('PO Approval','PO Approved','PO Approver','PO <b>'+po+'</b> approved.','PO Approver reviews the generated PO.',true)
+  ]);
+  html+=wfGroup('Shipment & Outbound',[
+    row('Shipment Creation','Shipment Created','Planner','Shipment raised for <b>'+d.item.qty+' '+esc(d.item.uom)+'</b>.','Starts once the PO is approved.'),
+    row('Goods Release & Issue','Goods Release & Issue','Stores User','Issue material released against the Transfer Order.','Stores releases the reserved issue material.'),
+    row('Delivery Note','Delivery Note Approved','Delivery Note Approver','Delivery Note approved.','Generated after Goods Release & Issue, then approved.'),
+    row('Challan','Challan Generated','Finance / F&A / IDT','Delivery Challan issued as the gate pass copy.','Generated once the Delivery Note is approved.'),
+    row('Gate Outward','Gate Outward Confirmed','Security User','Security confirmed the outward movement.','Security confirms the physical movement.'),
+    row('Shipment Confirmation','Shipment Confirmed','Planner / PMG','Material Position updated to <b>At Vendor</b>.','Confirmed once the material has left the gate.',true)
+  ]);
+  var asnDone=ms.filter(function(x){return x.status==='Gate Inward Confirmed';}).length;
+  html+=wfGroup('ASN & Gate Inward',[
+    wfRow('ASN — '+(d.asns?asnDone+' of '+d.asns+' cleared':'Pending'),
+      msOf(ms,'ASN Created')||{user:'Pending with Vendor User',date:'',time:''},
+      d.asns?'<b>'+d.asns+'</b> ASN(s) raised. '+asnDone+' passed QC and gate inward.':'No ASN raised yet.','',true)
+  ]);
+  html+=wfGroup('IMR & Reconciliation',[
+    wfRow('Material Receipt / IMR — '+(d.imrs?d.imrs+' raised':'Pending'),
+      msOf(ms,'IMR Confirmed')||msOf(ms,'IMR Created')||{user:'Pending with Stores User',date:'',time:''},
+      d.imrs?'Received <b>'+d.received+'</b> of '+d.item.qty+'.':'Raised against a QC-cleared ASN.',''),
+    row('Reconciliation','Reconciliation Completed','Finance / F&A','Expected <b>'+d.item.qty+'</b>, received <b>'+d.received+'</b>.','Finance reconciles issued and received quantities.'),
+    row('Receipt Completion & Closure','Transaction Closed','Finance / F&A','SCR, PO, Shipment and Challan all closed.','Available once Reconciliation is complete.',true)
+  ]);
+  return html;
+}
+function sampleLogsHTML(d){
+  var logs=sampleMilestones(d).slice().reverse();
+  var next=d.stage==='po'&&d.po.status==='Created'?['PO Approver','Approve PO']:SAMPLE_NEXT[d.stage];
+  var cur=logs[0].status;
+  var side='<div class="lp-logs-form">'
+    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(cur)+'"></span>Current Status</div>'
+    +'<p class="lp-logs-form-sub"><b>'+esc(cur)+'</b> on '+esc(logs[0].date)+'.</p>'
+    +(next
+      ?'<div class="lp-logs-form-label">Next Action</div><p class="lp-logs-form-sub"><b>'+esc(next[1])+'</b></p>'
+       +'<div class="lp-logs-form-label">Pending With</div><p class="lp-logs-form-sub"><b>'+esc(next[0])+'</b></p>'
+      :'<p class="lp-logs-form-sub">The transaction is closed. No further actions.</p>')
+    +'<p class="lp-logs-form-sub" style="margin:12px 0 0">Sample record — logs are read-only. Open <b>'+LIVE_ID+'</b> to record actions.</p>'
+    +'</div>';
+  return '<div class="lp-logs-wrap">'+logTimelineHTML(logs)+side+'</div>';
+}
+function sampleAttachmentsHTML(d){
+  var files=[[d.title.replace(/[^A-Za-z]+/g,'_').replace(/_$/,'')+'_Specification.pdf','Uploaded with the SCR · 1.2 MB · '+d.created]];
+  if(d.po)files.push(['PO_'+d.po.no+'.pdf','Generated with the Purchase Order · 340 KB']);
+  if(stagePassed(d,'outbound'))files.push(['Delivery_Challan_'+d.id.slice(-5)+'.pdf','Gate pass copy · 210 KB']);
+  return secHead('Attachments')+'<div style="display:flex;flex-direction:column;gap:10px">'
+    +files.map(function(f){
+      return '<div class="sc-att-row"><div class="sc-att-ico">'+ICO.doc+'</div>'
+        +'<div><div class="sc-att-name">'+esc(f[0])+'</div><div class="sc-att-meta">'+esc(f[1])+'</div></div>'
+        +'<button class="btn-outline btn-sm" style="margin-left:auto" onclick="scToast(\'Download is not wired in this prototype\',\'info\')">Download</button></div>';
+    }).join('')+'</div>';
+}
+
+/* ── SAMPLE PO PANEL ──────────────────────────────────────────────────────  */
+function sampleOrderPanelHTML(d){
+  var tabs=[{id:'details',label:'Details'},{id:'workflow',label:'Workflow'},{id:'logs',label:'Logs'}];
+  var bar=tabBarHTML(tabs,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs');
+  var ms=sampleMilestones(d),it=d.item,value=it.qty*it.price;
+  var poLogs=ms.filter(function(l){return /^(SCR Approved|PO )/.test(l.status);});
+  var body;
+  if(state.orderTab==='details'){
+    body=sampleNote(d)+secHead('PO Header Details')+'<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
+      +fieldCard(ICO.hash,'PO No.',esc(d.po.no))
+      +fieldCard(ICO.check,'PO Status',badge(poToneOf(d.po.status),d.po.status))
+      +fieldCard(ICO.doc,'SCR No.',esc(d.id))
+      +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
+      +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(d.vendor.code+' — '+d.vendor.name))
+      +fieldCard(ICO.globe,'Vendor Address',esc(d.vendor.addr))
+      +fieldCard(ICO.user,'Buyer',esc(d.buyer))
+      +fieldCard(ICO.money,'Currency','INR — Rupees')
+      +fieldCard(ICO.clock,'Payment Terms','PT-122 — Payment within 7 Days')
+      +fieldCard(ICO.tag,'Tax Code','GST-05 — GST @ 5%')
+      +fieldCard(ICO.money,'PO Value',fmtAmt(value))
+      +'</div>'
+      +secHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
+        '<tr><td>1</td><td><b>'+esc(it.name)+'</b></td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td><td>'+fmtAmt(it.price)+'</td><td><b>'+fmtAmt(value)+'</b></td></tr>');
+  }else if(state.orderTab==='workflow'){
+    var st=function(s){return msOf(ms,s);};
+    body=sampleNote(d)+wfGroup('Purchase Order',[
+      wfRow('Draft',st('SCR Approved')||{user:'System',date:'',time:''},'PO <b>'+d.po.no+'</b> created automatically on SCR approval.',''),
+      wfRow('Generate PO — '+(st('PO Generated')?'Created':'Pending'),st('PO Generated')||{user:'Pending with Buyer',date:'',time:''},
+        st('PO Generated')?'PO value <b>'+fmtAmt(value)+'</b>.':'Buyer completes the commercial fields.',''),
+      wfRow('PO Approval — '+(st('PO Approved')?'Approved':'Pending'),st('PO Approved')||{user:'Pending with PO Approver',date:'',time:''},
+        st('PO Approved')?'Approved by the PO Approver.':'PO Approver reviews the generated PO.','',true)
+    ]);
+  }else{
+    body='<div class="lp-logs-wrap">'+logTimelineHTML(poLogs.slice().reverse())
+      +'<div class="lp-logs-form"><div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(d.po.status)+'"></span>Current Status</div>'
+      +'<p class="lp-logs-form-sub">PO is <b>'+esc(d.po.status)+'</b>.</p>'
+      +'<p class="lp-logs-form-sub" style="margin:12px 0 0">Sample record — logs are read-only.</p></div></div>';
+  }
+  return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 
 /* ══ LOG WRITERS ══════════════════════════════════════════════════════════  */
