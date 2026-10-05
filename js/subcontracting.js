@@ -1064,7 +1064,7 @@ function ordersPageHTML(){
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
       +'<td class="sc-num"><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
       +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
-      +'<td><div class="ct-action-wrap">'+poApproveBtn(r)+createPOBtn(r)
+      +'<td><div class="ct-action-wrap">'+(poApproveBtn(r)||createPOBtn(r))
         +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button>'
       +'</div></td>'
       +'</tr>';
@@ -1140,10 +1140,15 @@ function createPOState(r){
    and menu as the Deals listing, offering Approve PO and Return PO. Only on a
    PO that is waiting for approval; the menu and Update Status are the shared
    ones (scRowMenu / scOpenUS), keyed by the PO's SCR. */
+var PO_APPROVAL=['Approve PO','Return PO'];
 function poApproveBtn(r){
-  if(state.role!=='PO Approver'||!rowAvailable(r.scrId).length)return '';
+  /* PO Approver and Super Admin: on a PO waiting for approval only. The menu
+     is scoped to the approval pair, so Super Admin is not shown every action
+     it holds on the deal. */
+  if(state.role!=='PO Approver'&&state.role!=='Super Admin')return '';
+  if(!rowAvailable(r.scrId).some(function(a){return PO_APPROVAL.indexOf(a)>=0;}))return '';
   var label='PO '+r.status;
-  return '<button class="ct-action-btn" title="'+esc(label)+'" onclick="event.stopPropagation();scRowMenu(this,\''+r.scrId+'\')">'
+  return '<button class="ct-action-btn" title="'+esc(label)+'" onclick="event.stopPropagation();scRowMenu(this,\''+r.scrId+'\',\'po\')">'
     +'<span>'+esc(label)+'</span>'+ICO_DOWN+'</button>';
 }
 function createPOBtn(r){
@@ -2044,13 +2049,14 @@ function rowMenuEl(){
   return m;
 }
 function scCloseRowMenu(){var m=document.getElementById('sc-row-menu');if(m){m.classList.remove('open');m.dataset.id='';}}
-function scRowMenu(btn,id){
+function scRowMenu(btn,id,scope){
   var m=rowMenuEl();
   if(m.classList.contains('open')&&m.dataset.id===id){scCloseRowMenu();return;}
   scCloseAllDD();
   var list=rowActionsFor(),ok=rowAvailable(id);
   m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
     +(list.length?list.map(function(a,i){
+      if(scope==='po'&&PO_APPROVAL.indexOf(a)<0)return '';
       var on=ok.indexOf(a)>=0;
       return '<div class="ct-act-item'+(on?' sc-act-avail':' done')+'"'
         +(on?' onclick="scRowAction(\''+id+'\','+i+')"':' title="Not available at this stage"')+'>'
