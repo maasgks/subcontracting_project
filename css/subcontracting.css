@@ -298,3 +298,26 @@
 /* The Action block of a form step (Create Shipment, Create ASN, ...). */
 .sc-action-status{display:flex;align-items:center;min-height:24px}
 .sc-action-comment{min-height:84px;width:100%;resize:vertical}
+/* ORDERS LISTING COLUMNS. Proportional widths, so whatever room the card has
+   is shared across every column instead of piling up in Vendor. Two sets:
+   with the Generate PO button (Buyer / Super Admin, .has-cta) Action is
+   wide enough for button + menu; for every other role it is just the menu.
+   The amount is right-aligned so its decimals line up. */
+.sc-orders-table{table-layout:fixed}
+.sc-orders-table th:nth-child(1),.sc-orders-table td:nth-child(1){width:6%}
+.sc-orders-table th:nth-child(2),.sc-orders-table td:nth-child(2){width:11%}
+.sc-orders-table th:nth-child(3),.sc-orders-table td:nth-child(3){width:17%}
+.sc-orders-table th:nth-child(4),.sc-orders-table td:nth-child(4){width:29%}
+.sc-orders-table th:nth-child(5),.sc-orders-table td:nth-child(5){width:14%}
+.sc-orders-table th:nth-child(6),.sc-orders-table td:nth-child(6){width:14%}
+.sc-orders-table th:nth-child(7),.sc-orders-table td:nth-child(7){width:9%}
+.sc-orders-table.has-cta th:nth-child(2),.sc-orders-table.has-cta td:nth-child(2){width:10%}
+.sc-orders-table.has-cta th:nth-child(3),.sc-orders-table.has-cta td:nth-child(3){width:15%}
+.sc-orders-table.has-cta th:nth-child(4),.sc-orders-table.has-cta td:nth-child(4){width:24%}
+.sc-orders-table.has-cta th:nth-child(5),.sc-orders-table.has-cta td:nth-child(5){width:13%}
+.sc-orders-table.has-cta th:nth-child(6),.sc-orders-table.has-cta td:nth-child(6){width:12%}
+.sc-orders-table.has-cta th:nth-child(7),.sc-orders-table.has-cta td:nth-child(7){width:20%}
+.sc-orders-table .sc-num{text-align:right;padding-right:28px}
+/* The OpenDhi wordmark (assets/opendhi-logo.png) carries a "powered by Dhi"
+   line, so it sits at 30px - the height opendhi.com uses - rather than 26px. */
+.adt-logo img{height:30px}

@@ -1052,14 +1052,15 @@ function ordersPageHTML(){
   var all=filteredOrders(),f=state.orderFilter;
   var opages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));
   if(state.orderPage>opages)state.orderPage=opages;
-  var body=pageSlice(all,state.orderPage).map(function(r){
+  var ooffset=(state.orderPage-1)*PAGE_SIZE;
+  var body=pageSlice(all,state.orderPage).map(function(r,n){
     var selected=state.orderOpen&&state.orderSel===r.no?' lp-row-selected':'';
     return '<tr class="lp-row'+selected+'" data-id="'+r.no+'" style="cursor:pointer" onclick="scOpenOrder(\''+r.no+'\')">'
+      +'<td>'+(ooffset+n+1)+'</td>'
       +'<td><div class="lp-c-main">'+esc(r.no)+'</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.scrId)+'</div></td>'
-      +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
-      +'<td><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
+      +'<td class="sc-num"><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
       +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
       +'<td><div class="ct-action-wrap">'+createPOBtn(r)
         +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button>'
@@ -1090,9 +1091,9 @@ function ordersPageHTML(){
     +'<div class="lp-split-wrap sc-split">'
       +'<div class="lp-split-main">'
         +'<div class="lp-table-card" style="border:none;border-radius:0;box-shadow:none">'
-          +'<table class="lp-table"><thead><tr>'
-          +'<th>PO No.</th><th>SCR No.</th><th>SCR Title</th><th>Vendor</th>'
-          +'<th>PO Value</th><th>Status</th><th>Action</th>'
+          +'<table class="lp-table sc-orders-table'+(state.role==='Buyer'||state.role==='Super Admin'?' has-cta':'')+'"><thead><tr>'
+          +'<th>S.No</th><th>PO No.</th><th>SCR No.</th><th>Vendor</th>'
+          +'<th class="sc-num">PO Value</th><th>Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+body+'</tbody></table>'
           +paginationHTML(all.length,state.orderPage,'purchase orders','scOrderPage')
         +'</div>'
@@ -1132,6 +1133,8 @@ function createPOState(r){
   return {ok:true,why:'Generate PO '+r.no};
 }
 function createPOBtn(r){
+  /* Only the roles that generate POs see the button at all. */
+  if(state.role!=='Buyer'&&state.role!=='Super Admin')return '';
   var st=createPOState(r);
   return '<button class="sc-row-cta" type="button" title="'+esc(st.why)+'"'
     +(st.ok?' onclick="event.stopPropagation();scCreatePO(\''+r.no+'\')"':' disabled onclick="event.stopPropagation()"')+'>'
@@ -1373,7 +1376,7 @@ function wfRow(title,meta,description,actions,isLast){
         +(meta.date?'<span class="lp-wf-meta-item">'+cSvg+'<span>'+esc(meta.date)+'</span></span>':'')
         +(meta.time?'<span class="lp-wf-meta-sep">|</span><span class="lp-wf-meta-item"><span>'+esc(meta.time)+'</span></span>':'')
       +'</div>'
-      +'<div class="lp-wf-desc"><span class="lp-wf-desc-label">Description:</span><span class="lp-wf-desc-text">'+description+'</span></div>'
+      +(description?'<div class="lp-wf-desc"><span class="lp-wf-desc-label">Description:</span><span class="lp-wf-desc-text">'+description+'</span></div>':'')
       +(actions?'<div class="sc-wf-actions">'+actions+'</div>':'')
     +'</div></div>';
 }
@@ -1529,7 +1532,7 @@ function logTimelineHTML(logs,id){
           +'<span class="lp-log-meta-item">'+cSvg+'<span>'+esc(l.date)+'</span></span>'
           +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(fmtTime(l.time))+'</span></span>'
         +'</div>'
-        +'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>'
+        +(l.comment?'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>':'')
         +(l.view?'<div class="sc-log-view">'+l.view+'</div>':'')
       +'</div></div>';
   }).join('')+'</div>';
@@ -1544,7 +1547,7 @@ function logFormHTML(o){
     +(o.readonly
       ?'<div class="cs-wrap"><button type="button" class="cs-trigger" disabled style="cursor:default"><span class="cs-value">'+esc(o.opts[0]||'—')+'</span></button></div>'
       :csField(o.id+'-status',o.opts,'','Select Status',o.hook))
-    +'<div class="lp-logs-form-label">Comment <span class="lp-logs-form-req">*</span></div>'
+    +'<div class="lp-logs-form-label">Comment</div>'
     +'<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="Enter comment"'+(o.readonly?' disabled':'')+'></textarea>'
     +'<div class="sc-logs-btns">'
       +'<button class="btn-outline" onclick="scResetLogForm(\''+o.id+'\')"'+(o.readonly?' disabled':'')+'>Cancel</button>'
@@ -1589,7 +1592,6 @@ function scSubmitDealLog(){
   var comment=(document.getElementById('sc-deal-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
   if(FORM_ACTIONS.indexOf(action)>=0){scOpenActionModal(action,comment,'deal');return;}
-  if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
   executeDealAction(action,comment);
   scRender();
 }
@@ -1706,6 +1708,7 @@ function orderDetailsHTML(){
     +fieldCard(ICO.hash,'PO No.',LIVE_PO)
     +fieldCard(ICO.check,'PO Status',badge(poTone(),poLabel()))
     +fieldCard(ICO.doc,'SCR No.',LIVE_ID)
+    +fieldCard(ICO.doc,'SCR Title',esc(L().title))
     +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
     +fieldCard(ICO.handshake,'Vendor / Sub-Contractor','21005 — Sri Venkateswara Aerospace Pvt.ltd')
     +fieldCard(ICO.globe,'Vendor Address','Hyderabad, Telangana 500084')
@@ -1767,7 +1770,6 @@ function scSubmitOrderLog(){
   var comment=(document.getElementById('sc-po-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
   if(action==='Generate PO'){scOpenActionModal(action,comment,'order');return;}
-  if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
   executePOAction(action,comment);
   scRender();
 }
@@ -1864,7 +1866,6 @@ function scSubmitSampleLog(){
   var action=csValue('sc-sample-status');
   var comment=(document.getElementById('sc-sample-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
-  if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
   advanceSample(d,action,comment);
   scRender();
 }
@@ -1882,6 +1883,7 @@ function sampleOrderPanelHTML(d){
       +fieldCard(ICO.hash,'PO No.',esc(d.po.no))
       +fieldCard(ICO.check,'PO Status',badge(poToneOf(d.po.status),d.po.status))
       +fieldCard(ICO.doc,'SCR No.',esc(d.id))
+      +fieldCard(ICO.doc,'SCR Title',esc(d.title))
       +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
       +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(d.vendor.code+' — '+d.vendor.name))
       +fieldCard(ICO.globe,'Vendor Address',esc(d.vendor.addr))
@@ -1926,6 +1928,7 @@ function who(){
 }
 function logEntry(status,comment){
   var s=stamp(),auto=AUTO_STATUSES.indexOf(status)>=0;
+  comment=String(comment||'').replace(/^\s*—\s*/,'').trim();
   return {status:status,comment:comment,by:auto?'System':who(),role:auto?'System':state.role,
     date:s.date,time:s.time,portal:'Web'};
 }
@@ -2086,7 +2089,7 @@ function scOpenUS(id,action,comment){
       +'<span class="sc-us-arrow">'+ICO_ARROW+'</span><span id="sc-us-next">'+badge(rampTone(res),res)+'</span></div>'
     +'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>'
     +field('Status',csField('sc-us-status',rowAvailable(id),action,'Select Status','scUSPicked'),true,true)
-    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving?">'+esc(comment||'')+'</textarea>',true,true);
+    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving? (optional)">'+esc(comment||'')+'</textarea>',false,true);
   var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
@@ -2115,7 +2118,6 @@ function scUSSubmit(){
   if(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0){
     scOpenActionModal(action,comment,PO_ACTIONS.indexOf(action)>=0?'order':'deal');return;
   }
-  if(!comment){scToast('Comment is mandatory','error');return;}
   if(id===LIVE_ID){
     if(PO_ACTIONS.indexOf(action)>=0)executePOAction(action,comment);
     else executeDealAction(action,comment);
@@ -2480,7 +2482,7 @@ function scOpenActionModal(action,comment,context,dealId){
     /* Stacked full width, at the foot of the form: the step being taken as a
        chip, then the comment that goes on its log entry. */
     +field('Status','<div class="sc-action-status">'+badge('created',action)+'</div>',false,true)
-    +field('Comment','<textarea class="ep-form-input sc-action-comment" id="sc-action-comment" placeholder="Add a comment for the log">'+esc(comment||'')+'</textarea>',true,true)
+    +field('Comment','<textarea class="ep-form-input sc-action-comment" id="sc-action-comment" placeholder="Add a comment for the log (optional)">'+esc(comment||'')+'</textarea>',false,true)
     +'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Recorded as a log entry on '
@@ -2516,7 +2518,6 @@ function scSubmitAction(){
   if(!pendingAction)return;
   var action=pendingAction.action;
   var comment=(document.getElementById('sc-action-comment')||{value:''}).value.trim();
-  if(!comment){scToast('Comment is mandatory','error');return;}
   /* a sample deal's form step moves that deal on */
   if(pendingAction.id&&pendingAction.id!==LIVE_ID){
     var sd=sampleDeal(pendingAction.id);
