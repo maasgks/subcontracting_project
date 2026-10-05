@@ -284,18 +284,17 @@
 .sc-us-review .btn-sm{flex-shrink:0;background:#fff}
 #sc-us-review:empty{display:none}
 .sc-log-view{margin-top:10px}
-/* CREATE PO on every Orders row (createPOBtn). Quiet at rest so the column
-   reads as one calm stripe; solid on the hovered row; faded where it does not
-   apply. Same height as the row's other action controls. */
+/* CREATE PO on every Orders row (createPOBtn). Solid black wherever it can
+   be used; greyed out (flat grey fill, grey text) where the PO is already
+   generated or the role cannot generate it. Same height as the row's other
+   action controls. */
 .sc-row-cta{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 11px 0 9px;
-  border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--gray);
+  border:1px solid var(--btn-ink,#1a1a1a);border-radius:8px;background:var(--btn-ink,#1a1a1a);color:#fff;
   font:600 12px 'Inter',sans-serif;white-space:nowrap;cursor:pointer;
-  transition:background var(--t-fast,.15s) ease,color var(--t-fast,.15s) ease,border-color var(--t-fast,.15s) ease}
+  transition:background var(--t-fast,.15s) ease,border-color var(--t-fast,.15s) ease}
 .sc-row-cta svg{width:12px;height:12px}
-.lp-table tbody tr:hover .sc-row-cta:not(:disabled),.sc-row-cta:not(:disabled):focus-visible{
-  background:var(--btn-ink,#1a1a1a);border-color:var(--btn-ink,#1a1a1a);color:#fff}
 .sc-row-cta:not(:disabled):hover{background:var(--btn-solid-hover,#000);border-color:var(--btn-solid-hover,#000)}
-.sc-row-cta:disabled{opacity:.45;cursor:not-allowed}
+.sc-row-cta:disabled{background:#f1f5f9;border-color:#e2e8f0;color:#a0a9b8;cursor:not-allowed}
 /* The Action block of a form step (Create Shipment, Create ASN, ...). */
 .sc-action-status{display:flex;align-items:center;min-height:24px}
 .sc-action-comment{min-height:84px;width:100%;resize:vertical}

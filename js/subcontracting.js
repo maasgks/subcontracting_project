@@ -325,7 +325,7 @@ function samplePending(d){var n=sampleNextOf(d);return n?n.role:'—';}
 function sampleDeal(id){return SAMPLE_DEALS.filter(function(d){return d.id===id;})[0];}
 function stageReached(d,key){return STAGE_ORDER.indexOf(d.stage)>=STAGE_ORDER.indexOf(key);}
 function stagePassed(d,key){return STAGE_ORDER.indexOf(d.stage)>STAGE_ORDER.indexOf(key);}
-function sampleScr(d){return d.stage==='scr'?'Sent for Approval':d.stage==='closed'?'Closed':'Approved';}
+function sampleScr(d){return d.rejected?'Rejected':d.stage==='scr'?'Sent for Approval':d.stage==='closed'?'Closed':'Approved';}
 function sampleShip(d){
   if(d.stage==='closed')return 'Closed';
   if(!stageReached(d,'shipment'))return 'Not Started';
@@ -333,7 +333,7 @@ function sampleShip(d){
   if(d.stage==='outbound')return d.sub==='gate'||d.sub==='confirm'?'Challan Generated':'Freezed Outbound Release';
   return 'Challan Generated';
 }
-function scrToneOf(s){return s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
+function scrToneOf(s){return s==='Rejected'?'unapproved':s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
 function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':s==='Freezed Outbound Release'?'created':'in-progress';}
 function poToneOf(s){return {Draft:'draft',Created:'created',Approved:'approved',Closed:'closed'}[s]||'sc-idle';}
 /* The Update Status pills (from -> to) sit on one blue -> green ramp
@@ -369,9 +369,13 @@ function sampleMilestones(d){
      status (its last occurrence) with who actually did it, when, and why. */
   Object.keys(d.notes||{}).forEach(function(st){
     for(var i=m.length-1;i>=0;i--)if(m[i].status===st){
-      var n=d.notes[st];m[i]=Object.assign({},m[i],{by:n.by,role:n.role,comment:n.comment,date:n.date,time:n.time});break;
+      var n=d.notes[st];m[i]=Object.assign({},m[i],{by:n.by,role:n.role,comment:n.comment,date:n.date,time:n.time,seq:n.seq});break;
     }
   });
+  if(d.extra&&d.extra.length){
+    m=m.concat(d.extra).map(function(l,i){return {l:l,i:i};})
+      .sort(function(a,b){return logTs(a.l)-logTs(b.l)||(a.l.seq||0)-(b.l.seq||0)||a.i-b.i;}).map(function(x){return x.l;});
+  }
   return m;
 }
 function sampleMilestonesBase(d){
@@ -456,11 +460,8 @@ function dealRows(){
   });
   return rows;
 }
-/* POs raised from the Orders listing (Create PO on a row whose PO is already
-   generated): another PO under the same SCR. Held for the session. */
-var EXTRA_POS=[];
 function orderRows(){
-  var rows=EXTRA_POS.slice();
+  var rows=[];
   if(state.po!=='none')rows.push({no:LIVE_PO,live:true,scrId:LIVE_ID,title:L().title,
     vendor:'Sri Venkateswara Aerospace Pvt.ltd',buyer:L().buyer,value:poValue(),created:state.poCreated||'',
     approved:state.poApproved||'',status:poLabel(),stage:liveStage()});
@@ -1126,105 +1127,20 @@ function scCloseDeal(){
    is live only on a Draft PO and only for the Buyer (or Super Admin); on any
    other row it is faded and its tooltip says why. */
 function createPOState(r){
-  if(state.role!=='Buyer'&&state.role!=='Super Admin')return {ok:false,why:'Only the Buyer can create a PO'};
-  if(r.status==='Closed')return {ok:false,why:'This transaction is closed'};
-  if(r.status==='Draft')return {ok:true,why:'Generate PO '+r.no};
-  return {ok:true,why:'Raise another PO under '+r.scrId};
+  if(r.status!=='Draft')return {ok:false,why:'PO already generated'};
+  if(state.role!=='Buyer'&&state.role!=='Super Admin')return {ok:false,why:'Only the Buyer can generate a PO'};
+  return {ok:true,why:'Generate PO '+r.no};
 }
 function createPOBtn(r){
   var st=createPOState(r);
   return '<button class="sc-row-cta" type="button" title="'+esc(st.why)+'"'
     +(st.ok?' onclick="event.stopPropagation();scCreatePO(\''+r.no+'\')"':' disabled onclick="event.stopPropagation()"')+'>'
-    +ICO.plus+'<span>Create PO</span></button>';
+    +ICO.plus+'<span>Generate PO</span></button>';
 }
 function scCreatePO(no){
   var r=orderRows().filter(function(x){return x.no===no;})[0];
   if(!r||!createPOState(r).ok)return;
-  if(r.status!=='Draft')scOpenNewPO(r);
-  else if(r.live)scOpenActionModal('Generate PO','','order');
-  else scOpenUS(r.scrId,'Generate PO','');
-}
-/* The source of a new PO: the SCR's vendor, item and buyer. */
-function poSource(r){
-  if(r.extra)r=orderRows().filter(function(x){return !x.extra&&x.scrId===r.scrId;})[0]||r;
-  if(r.live)return {scrId:LIVE_ID,title:L().title,vendor:'21005 — Sri Venkateswara Aerospace Pvt.ltd',vendorName:'Sri Venkateswara Aerospace Pvt.ltd',
-    buyer:L().buyer,item:{name:L().item.name,qty:L().item.qty,uom:'Each',price:poPrice()},stage:liveStage()};
-  var d=sampleDeal(r.scrId);
-  return {scrId:d.id,title:d.title,vendor:d.vendor.code+' — '+d.vendor.name,vendorName:d.vendor.name,
-    buyer:d.buyer,item:{name:d.item.name,qty:d.item.qty,uom:d.item.uom,price:d.item.price},stage:d.stage};
-}
-function nextPONo(){
-  return String(orderRows().reduce(function(m,r){return Math.max(m,+r.no||0);},0)+1);
-}
-var newPOSrc=null;
-function scOpenNewPO(r){
-  var src=poSource(r),no=nextPONo();newPOSrc={src:src,no:no};
-  var body=section('PO Header Details','<div class="policy-form-grid">'
-      +readonlyField('SCR No.',src.scrId)
-      +readonlyField('PO No.',no)
-      +readonlyField('Order Type','Sub-Contracting')
-      +readonlyField('PO Status','Created')
-      +readonlyField('Vendor / Sub-Contractor',src.vendor,true)
-      +field('Buyer',csField('np-buyer',['Madan Mohan','Gagan Tej'],src.buyer,'Select Buyer'),true)
-      +field('Payment Terms',select('np-terms',['PT-122 — Payment within 7 Days','PT-130 — Payment within 30 Days']),true)
-      +field('Currency',select('np-currency',['INR — Rupees']),true)
-      +field('Tax Code',select('np-tax',['GST-05 — GST @ 5%','GST-18 — GST @ 18%']),true)
-      +field('Remarks','<input class="ep-form-input" id="np-remarks" placeholder="Why another PO? e.g. repeat or split order">',false,true)
-    +'</div>')
-    +section('PO Lines',recTable(['Receivable Item','Quantity *','UOM','Price / Unit *'],
-      '<tr><td><b>'+esc(src.item.name)+'</b></td>'
-      +'<td><input class="ep-form-input" id="np-qty" type="number" min="1" value="'+src.item.qty+'"></td>'
-      +'<td>'+esc(src.item.uom)+'</td>'
-      +'<td><input class="ep-form-input" id="np-price" type="number" min="0" step="0.01" value="'+src.item.price+'"></td></tr>'));
-  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
-    +'<button class="btn-primary" onclick="scSaveNewPO()">Create PO</button></div>';
-  document.getElementById('sc-modal-root').innerHTML=
-    modalShell('Create PO','Another Purchase Order under '+src.scrId+' · '+src.vendorName,body,foot,true);
-}
-function scSaveNewPO(){
-  if(!newPOSrc)return;
-  var src=newPOSrc.src,qty=+(document.getElementById('np-qty')||{}).value,price=+(document.getElementById('np-price')||{}).value;
-  if(!(qty>0)){scToast('Enter a quantity','error');return;}
-  if(!(price>0)){scToast('Enter a price per unit','error');return;}
-  var t=stamp(),remarks=((document.getElementById('np-remarks')||{}).value||'').trim();
-  var buyer=csValue('np-buyer')||src.buyer;
-  EXTRA_POS.unshift({no:newPOSrc.no,extra:true,scrId:src.scrId,title:src.title,vendor:src.vendorName,vendorFull:src.vendor,
-    buyer:buyer,value:qty*price,qty:qty,price:price,item:src.item,terms:csValue('np-terms'),tax:csValue('np-tax'),
-    created:t.date,approved:'',status:'Created',stage:src.stage,
-    logs:[{status:'PO Generated',role:state.role,by:who(),date:t.date,time:t.time,portal:'Web',
-      comment:remarks||('Another PO raised under '+src.scrId+'.')}]});
-  var no=newPOSrc.no;newPOSrc=null;
-  scCloseModal();
-  scToast('PO '+no+' created','success','Raised under '+src.scrId+'; pending with the PO Approver.');
-  scRender();
-}
-/* The panel of a PO raised from the listing: its own header, lines and log. */
-function extraOrderPanelHTML(x){
-  var bar=tabBarHTML(ORDER_TABS,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs'),body;
-  if(state.orderTab==='details'){
-    body=secHead('PO Header Details')+'<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
-      +fieldCard(ICO.hash,'PO No.',esc(x.no))
-      +fieldCard(ICO.check,'PO Status',badge(poToneOf(x.status),x.status))
-      +fieldCard(ICO.doc,'SCR No.',esc(x.scrId))
-      +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
-      +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(x.vendorFull))
-      +fieldCard(ICO.globe,'Location','Hazira Works')
-      +fieldCard(ICO.user,'Buyer',esc(x.buyer))
-      +fieldCard(ICO.cal,'Created On',esc(x.created))
-      +fieldCard(ICO.clock,'Payment Terms',esc(x.terms))
-      +fieldCard(ICO.tag,'Tax Code',esc(x.tax))
-      +fieldCard(ICO.money,'PO Value',fmtAmt(x.value))
-      +'</div>'
-      +tableHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
-        '<tr><td>1</td><td><b>'+esc(x.item.name)+'</b></td><td>'+x.qty+'</td><td>'+esc(x.item.uom)+'</td><td>'+fmtAmt(x.price)+'</td><td><b>'+fmtAmt(x.value)+'</b></td></tr>');
-  }else if(state.orderTab==='workflow'){
-    body=wfTimelineHTML(x.logs.slice().reverse(),{action:'Approve PO',role:'PO Approver'});
-  }else{
-    body='<div class="lp-logs-wrap">'+logTimelineHTML(x.logs,false)
-      +logFormHTML({id:'sc-extra-po',readonly:true,opts:[],current:'PO '+x.status,
-        sub:'Next action is pending with <b>PO Approver</b>.'})+'</div>';
-  }
-  return bar+'<div class="lp-isb-body">'+body+'</div>';
+  scOpenActionModal('Generate PO','','order',r.live?LIVE_ID:r.scrId);
 }
 function scOpenOrder(no){
   no=no||LIVE_PO;
@@ -1593,7 +1509,7 @@ function handoffBtn(role){
    Timeline on the left, the form on the right: the shared .lp-logs-wrap, so a
    Sub-Contracting log reads exactly like a log anywhere else in ADT. */
 function logTimelineHTML(logs,id){
-  logs=vendorView(id===false?logs:attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
+  logs=vendorView(attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
   if(!logs.length)return '<div class="lp-logs-empty">No activity logs yet.</div>';
   var pSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   var cSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
@@ -1768,8 +1684,6 @@ function scAttDelete(id,i){
 
 /* ══ ORDER PANEL ══════════════════════════════════════════════════════════  */
 function orderPanelHTML(){
-  var ex=EXTRA_POS.filter(function(x){return x.no===state.orderSel;})[0];
-  if(ex)return extraOrderPanelHTML(ex);
   if(state.orderSel!==LIVE_PO){
     var d=SAMPLE_DEALS.filter(function(x){return x.po&&x.po.no===state.orderSel;})[0];
     return sampleOrderPanelHTML(d);
@@ -1918,6 +1832,7 @@ function sampleDetailsHTML(d){
 /* Who a sample deal is waiting on, and for what. d.sub is the step inside a
    stage that several roles share (outbound, ASN, IMR, closure). */
 function sampleNextOf(d){
+  if(d.rejected)return null;
   var F='Finance / F&A / IDT',n=null,sub=d.sub;
   if(d.stage==='scr')n=['PMG Approver','Approve SCR'];
   else if(d.stage==='po')n=d.po.status==='Draft'?['Buyer','Generate PO']
@@ -2099,7 +2014,8 @@ function rowAvailable(id){
   var d=sampleDeal(id),n=d&&sampleNextOf(d);
   if(!n||!SAMPLE_STEP[n.action])return [];
   if(state.role!=='Super Admin'&&roleKey(n.role)!==state.role)return [];
-  return list.indexOf(n.action)>=0?[n.action]:[];
+  var here=[n.action].concat(SAMPLE_ALT[n.action]||[]);
+  return list.filter(function(a){return here.indexOf(a)>=0;});
 }
 function rowMenuEl(){
   var m=document.getElementById('sc-row-menu');
@@ -2121,7 +2037,7 @@ function scRowMenu(btn,id){
       var on=ok.indexOf(a)>=0;
       return '<div class="ct-act-item'+(on?' sc-act-avail':' done')+'"'
         +(on?' onclick="scRowAction(\''+id+'\','+i+')"':' title="Not available at this stage"')+'>'
-        +'<span class="ct-act-step '+(on?'current':'next')+'">'+(i+1)+'</span>'+esc(a)+'</div>';
+        +esc(a)+'</div>';
     }).join(''):'<div class="ct-act-item done">No actions for this role</div>');
   m.dataset.id=id;m.classList.add('open');
   var r=btn.getBoundingClientRect(),w=240;
@@ -2141,7 +2057,7 @@ function scRowAction(id,i){
   var action=rowActionsFor()[i];if(!action)return;
   /* A step that creates something opens its own form, not just a status
      change: Create Shipment on any deal; every form step on the live deal. */
-  if(action==='Create Shipment'||(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0)){
+  if(action==='Create Shipment'||action==='Generate PO'||(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0)){
     scOpenActionModal(action,'',PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);return;
   }
   scOpenUS(id,action,'');
@@ -2229,11 +2145,27 @@ var SAMPLE_STEP={
   'Confirm Full Receipt':function(d){d.sub='close';},
   'Close Transaction':function(d){d.stage='closed';d.sub='';d.po.status='Closed';}
 };
+/* The Return / Reject a sample's current step also allows. They write their
+   log entry and leave the deal where it is - except Reject SCR, which ends it. */
+var scSeq=0;   // orders entries recorded within the same second
+var SAMPLE_ALT={
+  'Approve SCR':['Return SCR','Reject SCR'],'Approve PO':['Return PO'],
+  'Goods Release & Issue':['Return Shipment'],'Approve Delivery Note':['Return Delivery Note'],
+  'Confirm Gate Outward':['Return Gate Outward']
+};
 function advanceSample(d,action,comment){
-  var step=d&&SAMPLE_STEP[action];if(!step)return;
+  if(!d)return;
+  if(!SAMPLE_STEP[action]){
+    var t0=stamp();d.extra=d.extra||[];
+    d.extra.push({status:ACTION_RESULT[action]||action,role:state.role,by:who(),comment:comment,date:t0.date,time:t0.time,portal:'Web',seq:++scSeq});
+    if(action==='Reject SCR')d.rejected=true;
+    scToast(d.id+': '+(ACTION_RESULT[action]||action),action==='Reject SCR'?'error':'info');
+    return;
+  }
+  var step=SAMPLE_STEP[action];
   step(d,SAMPLE_DEALS.indexOf(d));
   var t=stamp();d.notes=d.notes||{};
-  d.notes[ACTION_RESULT[action]]={by:who(),role:state.role,comment:comment,date:t.date,time:t.time};
+  d.notes[ACTION_RESULT[action]]={by:who(),role:state.role,comment:comment,date:t.date,time:t.time,seq:++scSeq};
   scToast(d.id+': '+(ACTION_RESULT[action]||action));
 }
 
@@ -2437,17 +2369,24 @@ function scOpenActionModal(action,comment,context,dealId){
   pendingAction={action:action,context:context,id:did};
   var fields='';
 
+  /* The deal the form is for: the live one, or a sample's own PO. */
+  var gd=did===LIVE_ID?null:sampleDeal(did);
+  var g=gd?{scr:gd.id,po:gd.po?gd.po.no:'',vendor:gd.vendor.code+' — '+gd.vendor.name,addr:gd.vendor.addr,buyer:gd.buyer,
+      item:gd.item,price:gd.item.price,head:gd.title}
+    :{scr:LIVE_ID,po:LIVE_PO,vendor:'21005 — Sri Venkateswara Aerospace Pvt.ltd',addr:'Hyderabad, Telangana 500084',buyer:L().buyer,
+      item:{name:L().item.name,qty:L().item.qty,uom:'Each',price:L().item.price},price:poPrice(),head:L().headText};
+  pendingAction.qty=g.item.qty;
   if(action==='Generate PO'){
     fields=section('PO Header Details','<div class="policy-form-grid">'
-      +readonlyField('SCR No.',LIVE_ID)
-      +readonlyField('PO No.',LIVE_PO)
+      +readonlyField('SCR No.',g.scr)
+      +readonlyField('PO No.',g.po)
       +readonlyField('Order Type','Sub-Contracting')
       +readonlyField('PO Status','Draft')
-      +readonlyField('Vendor / Sub-Contractor','21005 — Sri Venkateswara Aerospace Pvt.ltd')
-      +readonlyField('Vendor Address','Hyderabad, Telangana 500084')
+      +readonlyField('Vendor / Sub-Contractor',g.vendor)
+      +readonlyField('Vendor Address',g.addr)
       +readonlyField('Required Skill / Service','Structural Fabrication')
       +readonlyField('Lot Type','Specific')
-      +readonlyField('Buyer',L().buyer)
+      +readonlyField('Buyer',g.buyer)
       +readonlyField('PO Series','Not Applicable')
       +field('Rate Contract',select('po-rc',['RC-123']),true)
       +field('SAP SCR Reference ID','<input class="ep-form-input" id="po-sap" placeholder="Optional">')
@@ -2460,12 +2399,12 @@ function scOpenActionModal(action,comment,context,dealId){
       +'</div>')
     +section('PO Lines',
       recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
-        '<tr><td>1</td><td><b>'+esc(L().item.name)+'</b><span class="sc-rec-sub">Est. '+fmtAmt(L().item.price)+' / unit on the SCR</span></td><td>'+L().item.qty+'</td><td>Each</td>'
-        +'<td><input class="ep-form-input" id="po-price" type="number" min="0" value="'+poPrice()+'" oninput="scRecalcPO()"></td>'
-        +'<td id="po-line-value"><b>'+fmtAmt(poValue())+'</b></td></tr>')
+        '<tr><td>1</td><td><b>'+esc(g.item.name)+'</b><span class="sc-rec-sub">Est. '+fmtAmt(g.item.price)+' / unit on the SCR</span></td><td>'+g.item.qty+'</td><td>'+esc(g.item.uom)+'</td>'
+        +'<td><input class="ep-form-input" id="po-price" type="number" min="0" value="'+g.price+'" oninput="scRecalcPO()"></td>'
+        +'<td id="po-line-value"><b>'+fmtAmt(g.price*g.item.qty)+'</b></td></tr>')
       +'<div class="policy-form-grid" style="margin-top:14px">'
-      +field('Header Text (from the request)','<textarea class="ep-form-input" id="po-head" style="min-height:70px">'+esc(L().headText)+'</textarea>',false,true)
-      +field('PO Value','<div class="sc-ro" id="po-total">'+fmtAmt(poValue())+'</div>')
+      +field('Header Text (from the request)','<textarea class="ep-form-input" id="po-head" style="min-height:70px">'+esc(g.head)+'</textarea>',false,true)
+      +field('PO Value','<div class="sc-ro" id="po-total">'+fmtAmt(g.price*g.item.qty)+'</div>')
       +'</div>');
   }
 
@@ -2545,20 +2484,20 @@ function scOpenActionModal(action,comment,context,dealId){
     +'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Recorded as a log entry on '
-    +(context==='order'?'PO '+LIVE_PO+'':did)+'.</span>'
+    +(context==='order'?'PO '+g.po:did)+'.</span>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
       +'<button class="btn-primary" onclick="scSubmitAction()">Submit</button>'
     +'</div>';
 
   document.getElementById('sc-modal-root').innerHTML=
-    modalShell(action,context==='order'?'PO '+LIVE_PO+' · '+LIVE_ID+'':did,fields+statusBlock,foot,true);
+    modalShell(action,context==='order'?'PO '+g.po+' · '+g.scr:did,fields+statusBlock,foot,true);
 
   if(action==='Create IMR')scRefreshIMR();
 }
 function scRecalcPO(){
   var price=parseFloat((document.getElementById('po-price')||{value:0}).value||0);
-  var v=fmtAmt(price*L().item.qty);
+  var v=fmtAmt(price*((pendingAction&&pendingAction.qty)||L().item.qty));
   document.getElementById('po-line-value').innerHTML='<b>'+v+'</b>';
   document.getElementById('po-total').textContent=v;
 }
@@ -2580,7 +2519,13 @@ function scSubmitAction(){
   if(!comment){scToast('Comment is mandatory','error');return;}
   /* a sample deal's form step moves that deal on */
   if(pendingAction.id&&pendingAction.id!==LIVE_ID){
-    advanceSample(sampleDeal(pendingAction.id),action,comment);
+    var sd=sampleDeal(pendingAction.id);
+    if(action==='Generate PO'){
+      var sp=parseFloat((document.getElementById('po-price')||{value:''}).value);
+      if(!(sp>0)){scToast('Enter the price per unit','error');return;}
+      sd.item.price=sp;
+    }
+    advanceSample(sd,action,comment);
     scCloseModal();scRender();return;
   }
 
