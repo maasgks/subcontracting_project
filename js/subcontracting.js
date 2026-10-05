@@ -917,6 +917,8 @@ function filteredDeals(){
 function filteredOrders(){
   var f=state.orderFilter;
   return orderRows().filter(function(r){
+    /* The PO Approver's listing is its queue: only POs waiting on approval. */
+    if(state.role==='PO Approver'&&!rowAvailable(r.scrId).length)return false;
     if(state.stageFilter&&r.stage!==state.stageFilter)return false;
     if(f.status&&r.status!==f.status)return false;
     if(f.buyer&&r.buyer!==f.buyer)return false;
@@ -1062,11 +1064,13 @@ function ordersPageHTML(){
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
       +'<td class="sc-num"><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
       +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
-      +'<td><div class="ct-action-wrap">'+createPOBtn(r)
+      +'<td><div class="ct-action-wrap">'+poApproveBtn(r)+createPOBtn(r)
         +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button>'
       +'</div></td>'
       +'</tr>';
-  }).join('')||emptyRow(7,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.');
+  }).join('')||(state.role==='PO Approver'&&!filtersActive()
+    ?emptyRow(7,'Nothing pending with PO Approver','POs appear here when the Buyer generates them.')
+    :emptyRow(7,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.'));
   var stats='<div class="listing-stats">'
     +'<div class="listing-stat"><div class="listing-stat-count">'+all.length+'</div><div class="listing-stat-label">Total</div></div>'
     +'<div class="listing-stat pending"><div class="listing-stat-count">'+all.filter(function(r){return r.status==='Draft'||r.status==='Created';}).length+'</div><div class="listing-stat-label">In Progress</div></div>'
@@ -1091,7 +1095,7 @@ function ordersPageHTML(){
     +'<div class="lp-split-wrap sc-split">'
       +'<div class="lp-split-main">'
         +'<div class="lp-table-card" style="border:none;border-radius:0;box-shadow:none">'
-          +'<table class="lp-table sc-orders-table'+(state.role==='Buyer'||state.role==='Super Admin'?' has-cta':'')+'"><thead><tr>'
+          +'<table class="lp-table sc-orders-table'+(state.role==='Buyer'||state.role==='Super Admin'||state.role==='PO Approver'?' has-cta':'')+'"><thead><tr>'
           +'<th>S.No</th><th>PO No.</th><th>SCR No.</th><th>Vendor</th>'
           +'<th class="sc-num">PO Value</th><th>Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+body+'</tbody></table>'
@@ -1131,6 +1135,16 @@ function createPOState(r){
   if(r.status!=='Draft')return {ok:false,why:'PO already generated'};
   if(state.role!=='Buyer'&&state.role!=='Super Admin')return {ok:false,why:'Only the Buyer can generate a PO'};
   return {ok:true,why:'Generate PO '+r.no};
+}
+/* THE PO APPROVER'S DROPDOWN on an Orders row: the same dark status button
+   and menu as the Deals listing, offering Approve PO and Return PO. Only on a
+   PO that is waiting for approval; the menu and Update Status are the shared
+   ones (scRowMenu / scOpenUS), keyed by the PO's SCR. */
+function poApproveBtn(r){
+  if(state.role!=='PO Approver'||!rowAvailable(r.scrId).length)return '';
+  var label='PO '+r.status;
+  return '<button class="ct-action-btn" title="'+esc(label)+'" onclick="event.stopPropagation();scRowMenu(this,\''+r.scrId+'\')">'
+    +'<span>'+esc(label)+'</span>'+ICO_DOWN+'</button>';
 }
 function createPOBtn(r){
   /* Only the roles that generate POs see the button at all. */

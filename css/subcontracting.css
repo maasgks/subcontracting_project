@@ -321,3 +321,6 @@
 /* The OpenDhi wordmark (assets/opendhi-logo.png) carries a "powered by Dhi"
    line, so it sits at 30px - the height opendhi.com uses - rather than 26px. */
 .adt-logo img{height:30px}
+/* The Orders dropdown names the PO status ("PO Created") in full. */
+.sc-orders-table .ct-action-btn{width:auto;min-width:104px;gap:8px}
+.sc-orders-table .ct-action-btn span{overflow:visible}
