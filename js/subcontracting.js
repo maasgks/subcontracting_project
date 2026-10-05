@@ -927,15 +927,13 @@ function dealsPageHTML(){
     return '<tr class="lp-row'+selected+'" data-id="'+r.id+'" style="cursor:pointer" onclick="scOpenDeal(\''+r.id+'\')">'
       +'<td>'+(offset+n+1)+'</td>'
       +'<td><div class="lp-c-main">'+esc(r.id)+'</div><div class="lp-c-sub">'+esc(r.base)+'</div></td>'
-      +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
-      +'<td><span class="lp-c-name">'+esc(r.planner)+'</span></td>'
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div><div class="lp-c-sub">'+esc(r.vendorSub)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.pending)+'</div></td>'
       +'<td>'+badge(scrToneOf(r.scr),r.scr)+'</td>'
       +'<td>'+badge(shipToneOf(r.ship),r.ship)+'</td>'
-      +'<td><div class="lp-c-plain">'+esc(r.pending)+'</div></td>'
       +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal(\''+r.id+'\')">'+ICO.hamburger+'</button></td>'
       +'</tr>';
-  }).join('')||emptyRow(9,'No deals match','Change the search or filters, or Reset to see every deal.');
+  }).join('')||emptyRow(7,'No deals match','Change the search or filters, or Reset to see every deal.');
 
   var sum=function(k){return all.reduce(function(t,r){return t+r[k];},0);};
   var stats='<div class="listing-stats">'
@@ -963,9 +961,9 @@ function dealsPageHTML(){
     +'<div class="lp-split-wrap sc-split">'
       +'<div class="lp-split-main">'
         +'<div class="lp-table-card" style="border:none;border-radius:0;box-shadow:none">'
-          +'<table class="lp-table" style="min-width:980px"><thead><tr>'
-          +'<th>S.No</th><th>Deal ID</th><th>Title</th><th>Planner</th><th>Vendor</th>'
-          +'<th>SCR Status</th><th>Shipment Status</th><th>Pending With</th><th>Action</th>'
+          +'<table class="lp-table"><thead><tr>'
+          +'<th>S.No</th><th>Deal ID</th><th>Vendor</th><th>Pending With</th>'
+          +'<th>SCR Status</th><th>Shipment Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+rows+'</tbody></table>'
           +paginationHTML(all.length,state.dealPage,'deals','scDealPage')
         +'</div>'
@@ -986,16 +984,12 @@ function ordersPageHTML(){
       +'<td><div class="lp-c-main">'+esc(r.no)+'</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.scrId)+'</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.title)+'</div></td>'
-      +'<td><div class="lp-c-plain">Hazira Works</div></td>'
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
-      +'<td><span class="lp-c-name">'+esc(r.buyer)+'</span></td>'
       +'<td><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
-      +'<td><div class="lp-c-n">'+(r.created||'<span class="lp-dash">—</span>')+'</div></td>'
-      +'<td><div class="lp-c-n">'+(r.approved||'<span class="lp-dash">—</span>')+'</div></td>'
       +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
       +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button></td>'
       +'</tr>';
-  }).join('')||emptyRow(11,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.');
+  }).join('')||emptyRow(7,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.');
   var stats='<div class="listing-stats">'
     +'<div class="listing-stat"><div class="listing-stat-count">'+all.length+'</div><div class="listing-stat-label">Total</div></div>'
     +'<div class="listing-stat pending"><div class="listing-stat-count">'+all.filter(function(r){return r.status==='Draft'||r.status==='Created';}).length+'</div><div class="listing-stat-label">In Progress</div></div>'
@@ -1020,9 +1014,9 @@ function ordersPageHTML(){
     +'<div class="lp-split-wrap sc-split">'
       +'<div class="lp-split-main">'
         +'<div class="lp-table-card" style="border:none;border-radius:0;box-shadow:none">'
-          +'<table class="lp-table" style="min-width:1100px"><thead><tr>'
-          +'<th>PO No.</th><th>SCR No.</th><th>SCR Title</th><th>Location</th><th>Vendor</th>'
-          +'<th>Buyer</th><th>PO Value</th><th>Created On</th><th>Approved On</th><th>Status</th><th>Action</th>'
+          +'<table class="lp-table"><thead><tr>'
+          +'<th>PO No.</th><th>SCR No.</th><th>SCR Title</th><th>Vendor</th>'
+          +'<th>PO Value</th><th>Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+body+'</tbody></table>'
           +paginationHTML(all.length,state.orderPage,'purchase orders','scOrderPage')
         +'</div>'
@@ -1189,6 +1183,7 @@ function dealDetailsHTML(){
     +fieldCard(ICO.check,'Partial Material as FIM','Yes')
     +fieldCard(ICO.check,'Billable','Yes')
     +fieldCard(ICO.truck,'Logistics Required','Yes')
+    +fieldCard(ICO.user,'Planner','Kinjal Sisodiya')
     +fieldCard(ICO.user,'Buyer',esc(L().buyer))
     +fieldCard(ICO.user,'Approver','PMG Approver')
     +fieldCard(ICO.doc,'Remarks',esc(L().remarks))
@@ -1540,7 +1535,10 @@ function orderDetailsHTML(){
     +fieldCard(ICO.globe,'Vendor Address','Hyderabad, Telangana 500084')
     +fieldCard(ICO.tag,'Required Skill / Service','Structural Fabrication')
     +fieldCard(ICO.tag,'Lot Type','Specific')
+    +fieldCard(ICO.globe,'Location','Hazira Works')
     +fieldCard(ICO.user,'Buyer',esc(L().buyer))
+    +fieldCard(ICO.cal,'Created On',esc(state.poCreated||''))
+    +fieldCard(ICO.cal,'Approved On',esc(state.poApproved||''))
     +fieldCard(ICO.doc,'PO Series','Not Applicable')
     +fieldCard(ICO.doc,'Rate Contract','RC-123')
     +fieldCard(ICO.doc,'SAP SCR Reference ID','')
@@ -1609,10 +1607,6 @@ var SAMPLE_NEXT={
   asn:['QC User','Clear ASN'],imr:['Stores User','Confirm IMR'],
   reconciliation:['Finance / F&A / IDT','Complete Reconciliation'],closure:['Finance / F&A / IDT','Close Transaction']
 };
-function sampleNote(d){
-  return wfNote('<b>Sample record.</b> '+esc(d.id)+' is read-only demo data. '
-    +'The interactive flow runs on <b>'+LIVE_ID+'</b>.');
-}
 function samplePanelHTML(d){
   var tabs=DEAL_TABS;
   var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
@@ -1656,8 +1650,7 @@ function sampleDetailsHTML(d){
       return '<tr><td>'+esc(it.name)+'</td><td><b>'+esc(r[0])+'</b></td><td>Raw Material</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td>'
         +'<td>Hazira Works</td><td>'+esc(r[1])+'</td><td>Yes</td><td>'+esc(r[2])+'</td></tr>';
     }).join(''));
-  return sampleNote(d)
-    +secHead('SCR Header Details')+head
+  return secHead('SCR Header Details')+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
     +secHead('Receivable Item Details')+recv
@@ -1684,16 +1677,20 @@ function sampleOrderPanelHTML(d){
   var bar=tabBarHTML(tabs,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs');
   var ms=sampleMilestones(d),it=d.item,value=it.qty*it.price;
   var poLogs=ms.filter(function(l){return /^(SCR Approved|PO )/.test(l.status);});
+  var msDate=function(st){var x=ms.filter(function(l){return l.status===st;})[0];return x?x.date:'';};
   var body;
   if(state.orderTab==='details'){
-    body=sampleNote(d)+secHead('PO Header Details')+'<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
+    body=secHead('PO Header Details')+'<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
       +fieldCard(ICO.hash,'PO No.',esc(d.po.no))
       +fieldCard(ICO.check,'PO Status',badge(poToneOf(d.po.status),d.po.status))
       +fieldCard(ICO.doc,'SCR No.',esc(d.id))
       +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
       +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(d.vendor.code+' — '+d.vendor.name))
       +fieldCard(ICO.globe,'Vendor Address',esc(d.vendor.addr))
+      +fieldCard(ICO.globe,'Location','Hazira Works')
       +fieldCard(ICO.user,'Buyer',esc(d.buyer))
+      +fieldCard(ICO.cal,'Created On',esc(msDate('SCR Approved')))
+      +fieldCard(ICO.cal,'Approved On',esc(msDate('PO Approved')))
       +fieldCard(ICO.money,'Currency','INR — Rupees')
       +fieldCard(ICO.clock,'Payment Terms','PT-122 — Payment within 7 Days')
       +fieldCard(ICO.tag,'Tax Code','GST-05 — GST @ 5%')

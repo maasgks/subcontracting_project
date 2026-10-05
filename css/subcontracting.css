@@ -223,3 +223,12 @@
 .sc-filters .cs-chevron{flex-shrink:0}
 .sc-filters .lp-search-input{text-overflow:ellipsis}
 .sc-filters [hidden]{display:none}
+/* THE LISTINGS FIT THEIR CARD. .lp-c-plain is nowrap in main.css, so a long
+   title, vendor or "Pending With" each held its column to one full line and
+   the table ran out past the card — the last columns ended up under the
+   pinned ACTION cell with no way to reach them (the card is overflow:clip so
+   its head can pin to the page). Here those cells wrap to a second line
+   instead, and the padding comes in a little, so the table shrinks to the
+   card. Status badges and IDs stay on one line. */
+.sc-split .lp-table .lp-c-plain{white-space:normal;overflow-wrap:break-word;min-width:110px}
+.sc-split .lp-table th,.sc-split .lp-table td{padding-left:12px;padding-right:12px}
