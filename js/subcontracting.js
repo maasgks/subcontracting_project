@@ -65,7 +65,7 @@ var SC_NAV=[
   {id:'stores',label:'Stores & Management',icon:ICO.store,placeholder:true},
   {dropdown:'Transactions',icon:ICO.file,children:[
     {id:'deals',label:'Deals',icon:ICO.file},
-    {id:'orders',label:'Purchase Orders',icon:ICO.cart}
+    {id:'orders',label:'Orders',icon:ICO.cart}
   ]},
   {id:'products',label:'Product & Inventory',icon:ICO.cube,placeholder:true},
   {id:'category',label:'Category',icon:ICO.sitemap,placeholder:true},
@@ -456,8 +456,11 @@ function dealRows(){
   });
   return rows;
 }
+/* POs raised from the Orders listing (Create PO on a row whose PO is already
+   generated): another PO under the same SCR. Held for the session. */
+var EXTRA_POS=[];
 function orderRows(){
-  var rows=[];
+  var rows=EXTRA_POS.slice();
   if(state.po!=='none')rows.push({no:LIVE_PO,live:true,scrId:LIVE_ID,title:L().title,
     vendor:'Sri Venkateswara Aerospace Pvt.ltd',buyer:L().buyer,value:poValue(),created:state.poCreated||'',
     approved:state.poApproved||'',status:poLabel(),stage:liveStage()});
@@ -900,6 +903,9 @@ function matchQ(q,fields){
 function filteredDeals(){
   var f=state.dealFilter;
   return dealRows().filter(function(r){
+    /* A ROLE SEES ITS OWN QUEUE: only the deals it has an action on now.
+       Super Admin oversees every deal. */
+    if(state.role!=='Super Admin'&&!rowAvailable(r.id).length)return false;
     if(state.stageFilter&&r.stage!==state.stageFilter)return false;
     if(f.process&&r.process!==f.process)return false;
     if(f.scr&&r.scr!==f.scr)return false;
@@ -999,7 +1005,8 @@ function dealsPageHTML(){
         +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal(\''+r.id+'\')">'+ICO.hamburger+'</button>'
       +'</div></td>'
       +'</tr>';
-  }).join('')||emptyRow(7,'No deals match','Change the search or filters, or Reset to see every deal.');
+  }).join('')||emptyRow(7,filtersActive()?'No deals match':'Nothing pending with '+state.role,
+    filtersActive()?'Change the search or filters, or Reset to see every deal.':'Deals appear here when they reach a step '+state.role+' acts on.');
 
   var sum=function(k){return all.reduce(function(t,r){return t+r[k];},0);};
   var stats='<div class="listing-stats">'
@@ -1053,7 +1060,9 @@ function ordersPageHTML(){
       +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div></td>'
       +'<td><div class="lp-c-main">'+fmtAmt(r.value)+'</div></td>'
       +'<td>'+badge(poToneOf(r.status),r.status)+'</td>'
-      +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button></td>'
+      +'<td><div class="ct-action-wrap">'+createPOBtn(r)
+        +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenOrder(\''+r.no+'\')">'+ICO.hamburger+'</button>'
+      +'</div></td>'
       +'</tr>';
   }).join('')||emptyRow(7,'No Purchase Orders match','Change the search or filters, or Reset to see every PO.');
   var stats='<div class="listing-stats">'
@@ -1110,6 +1119,112 @@ function scCloseDeal(){
   state.dealOpen=false;
   var sb=document.getElementById('sc-deal-sb');if(sb)sb.classList.remove('open');
   markSelectedRow(null);
+}
+/* CREATE PO ON EVERY ORDERS ROW. The same quiet outline button sits on each
+   line - grey at rest, solid on the hovered row - so a column of them reads
+   as one stripe rather than a wall of dark buttons. It generates the PO, so it
+   is live only on a Draft PO and only for the Buyer (or Super Admin); on any
+   other row it is faded and its tooltip says why. */
+function createPOState(r){
+  if(state.role!=='Buyer'&&state.role!=='Super Admin')return {ok:false,why:'Only the Buyer can create a PO'};
+  if(r.status==='Closed')return {ok:false,why:'This transaction is closed'};
+  if(r.status==='Draft')return {ok:true,why:'Generate PO '+r.no};
+  return {ok:true,why:'Raise another PO under '+r.scrId};
+}
+function createPOBtn(r){
+  var st=createPOState(r);
+  return '<button class="sc-row-cta" type="button" title="'+esc(st.why)+'"'
+    +(st.ok?' onclick="event.stopPropagation();scCreatePO(\''+r.no+'\')"':' disabled onclick="event.stopPropagation()"')+'>'
+    +ICO.plus+'<span>Create PO</span></button>';
+}
+function scCreatePO(no){
+  var r=orderRows().filter(function(x){return x.no===no;})[0];
+  if(!r||!createPOState(r).ok)return;
+  if(r.status!=='Draft')scOpenNewPO(r);
+  else if(r.live)scOpenActionModal('Generate PO','','order');
+  else scOpenUS(r.scrId,'Generate PO','');
+}
+/* The source of a new PO: the SCR's vendor, item and buyer. */
+function poSource(r){
+  if(r.extra)r=orderRows().filter(function(x){return !x.extra&&x.scrId===r.scrId;})[0]||r;
+  if(r.live)return {scrId:LIVE_ID,title:L().title,vendor:'21005 — Sri Venkateswara Aerospace Pvt.ltd',vendorName:'Sri Venkateswara Aerospace Pvt.ltd',
+    buyer:L().buyer,item:{name:L().item.name,qty:L().item.qty,uom:'Each',price:poPrice()},stage:liveStage()};
+  var d=sampleDeal(r.scrId);
+  return {scrId:d.id,title:d.title,vendor:d.vendor.code+' — '+d.vendor.name,vendorName:d.vendor.name,
+    buyer:d.buyer,item:{name:d.item.name,qty:d.item.qty,uom:d.item.uom,price:d.item.price},stage:d.stage};
+}
+function nextPONo(){
+  return String(orderRows().reduce(function(m,r){return Math.max(m,+r.no||0);},0)+1);
+}
+var newPOSrc=null;
+function scOpenNewPO(r){
+  var src=poSource(r),no=nextPONo();newPOSrc={src:src,no:no};
+  var body=section('PO Header Details','<div class="policy-form-grid">'
+      +readonlyField('SCR No.',src.scrId)
+      +readonlyField('PO No.',no)
+      +readonlyField('Order Type','Sub-Contracting')
+      +readonlyField('PO Status','Created')
+      +readonlyField('Vendor / Sub-Contractor',src.vendor,true)
+      +field('Buyer',csField('np-buyer',['Madan Mohan','Gagan Tej'],src.buyer,'Select Buyer'),true)
+      +field('Payment Terms',select('np-terms',['PT-122 — Payment within 7 Days','PT-130 — Payment within 30 Days']),true)
+      +field('Currency',select('np-currency',['INR — Rupees']),true)
+      +field('Tax Code',select('np-tax',['GST-05 — GST @ 5%','GST-18 — GST @ 18%']),true)
+      +field('Remarks','<input class="ep-form-input" id="np-remarks" placeholder="Why another PO? e.g. repeat or split order">',false,true)
+    +'</div>')
+    +section('PO Lines',recTable(['Receivable Item','Quantity *','UOM','Price / Unit *'],
+      '<tr><td><b>'+esc(src.item.name)+'</b></td>'
+      +'<td><input class="ep-form-input" id="np-qty" type="number" min="1" value="'+src.item.qty+'"></td>'
+      +'<td>'+esc(src.item.uom)+'</td>'
+      +'<td><input class="ep-form-input" id="np-price" type="number" min="0" step="0.01" value="'+src.item.price+'"></td></tr>'));
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scSaveNewPO()">Create PO</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=
+    modalShell('Create PO','Another Purchase Order under '+src.scrId+' · '+src.vendorName,body,foot,true);
+}
+function scSaveNewPO(){
+  if(!newPOSrc)return;
+  var src=newPOSrc.src,qty=+(document.getElementById('np-qty')||{}).value,price=+(document.getElementById('np-price')||{}).value;
+  if(!(qty>0)){scToast('Enter a quantity','error');return;}
+  if(!(price>0)){scToast('Enter a price per unit','error');return;}
+  var t=stamp(),remarks=((document.getElementById('np-remarks')||{}).value||'').trim();
+  var buyer=csValue('np-buyer')||src.buyer;
+  EXTRA_POS.unshift({no:newPOSrc.no,extra:true,scrId:src.scrId,title:src.title,vendor:src.vendorName,vendorFull:src.vendor,
+    buyer:buyer,value:qty*price,qty:qty,price:price,item:src.item,terms:csValue('np-terms'),tax:csValue('np-tax'),
+    created:t.date,approved:'',status:'Created',stage:src.stage,
+    logs:[{status:'PO Generated',role:state.role,by:who(),date:t.date,time:t.time,portal:'Web',
+      comment:remarks||('Another PO raised under '+src.scrId+'.')}]});
+  var no=newPOSrc.no;newPOSrc=null;
+  scCloseModal();
+  scToast('PO '+no+' created','success','Raised under '+src.scrId+'; pending with the PO Approver.');
+  scRender();
+}
+/* The panel of a PO raised from the listing: its own header, lines and log. */
+function extraOrderPanelHTML(x){
+  var bar=tabBarHTML(ORDER_TABS,state.orderTab,'scOrderTab','scCloseOrder','sc-order-tabs'),body;
+  if(state.orderTab==='details'){
+    body=secHead('PO Header Details')+'<div class="lp-sb-detail-grid" style="margin-bottom:20px">'
+      +fieldCard(ICO.hash,'PO No.',esc(x.no))
+      +fieldCard(ICO.check,'PO Status',badge(poToneOf(x.status),x.status))
+      +fieldCard(ICO.doc,'SCR No.',esc(x.scrId))
+      +fieldCard(ICO.tag,'Order Type','Sub-Contracting')
+      +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(x.vendorFull))
+      +fieldCard(ICO.globe,'Location','Hazira Works')
+      +fieldCard(ICO.user,'Buyer',esc(x.buyer))
+      +fieldCard(ICO.cal,'Created On',esc(x.created))
+      +fieldCard(ICO.clock,'Payment Terms',esc(x.terms))
+      +fieldCard(ICO.tag,'Tax Code',esc(x.tax))
+      +fieldCard(ICO.money,'PO Value',fmtAmt(x.value))
+      +'</div>'
+      +tableHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
+        '<tr><td>1</td><td><b>'+esc(x.item.name)+'</b></td><td>'+x.qty+'</td><td>'+esc(x.item.uom)+'</td><td>'+fmtAmt(x.price)+'</td><td><b>'+fmtAmt(x.value)+'</b></td></tr>');
+  }else if(state.orderTab==='workflow'){
+    body=wfTimelineHTML(x.logs.slice().reverse(),{action:'Approve PO',role:'PO Approver'});
+  }else{
+    body='<div class="lp-logs-wrap">'+logTimelineHTML(x.logs,false)
+      +logFormHTML({id:'sc-extra-po',readonly:true,opts:[],current:'PO '+x.status,
+        sub:'Next action is pending with <b>PO Approver</b>.'})+'</div>';
+  }
+  return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 function scOpenOrder(no){
   no=no||LIVE_PO;
@@ -1478,7 +1593,7 @@ function handoffBtn(role){
    Timeline on the left, the form on the right: the shared .lp-logs-wrap, so a
    Sub-Contracting log reads exactly like a log anywhere else in ADT. */
 function logTimelineHTML(logs,id){
-  logs=vendorView(attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
+  logs=vendorView(id===false?logs:attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
   if(!logs.length)return '<div class="lp-logs-empty">No activity logs yet.</div>';
   var pSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   var cSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
@@ -1653,6 +1768,8 @@ function scAttDelete(id,i){
 
 /* ══ ORDER PANEL ══════════════════════════════════════════════════════════  */
 function orderPanelHTML(){
+  var ex=EXTRA_POS.filter(function(x){return x.no===state.orderSel;})[0];
+  if(ex)return extraOrderPanelHTML(ex);
   if(state.orderSel!==LIVE_PO){
     var d=SAMPLE_DEALS.filter(function(x){return x.po&&x.po.no===state.orderSel;})[0];
     return sampleOrderPanelHTML(d);
@@ -2021,7 +2138,13 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')scCloseRowMe
 var usRow=null;
 function scRowAction(id,i){
   scCloseRowMenu();
-  var action=rowActionsFor()[i];if(action)scOpenUS(id,action,'');
+  var action=rowActionsFor()[i];if(!action)return;
+  /* A step that creates something opens its own form, not just a status
+     change: Create Shipment on any deal; every form step on the live deal. */
+  if(action==='Create Shipment'||(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0)){
+    scOpenActionModal(action,'',PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);return;
+  }
+  scOpenUS(id,action,'');
 }
 function usReviewHTML(id,action){
   var rv=reviewOf(id,action);if(!rv)return '';
@@ -2309,8 +2432,9 @@ function scSubmitSCR(){
 }
 
 /* ── THE FORM-BACKED ACTIONS ──────────────────────────────────────────────  */
-function scOpenActionModal(action,comment,context){
-  pendingAction={action:action,context:context};
+function scOpenActionModal(action,comment,context,dealId){
+  var did=dealId||LIVE_ID;
+  pendingAction={action:action,context:context,id:did};
   var fields='';
 
   if(action==='Generate PO'){
@@ -2414,19 +2538,21 @@ function scOpenActionModal(action,comment,context){
 
   var statusBlock=section('Action',
     '<div class="policy-form-grid">'
-    +readonlyField('Status',action)
-    +field('Comment','<textarea class="ep-form-input" id="sc-action-comment" style="min-height:70px" placeholder="Enter comment">'+esc(comment||'')+'</textarea>',true)
+    /* Stacked full width, at the foot of the form: the step being taken as a
+       chip, then the comment that goes on its log entry. */
+    +field('Status','<div class="sc-action-status">'+badge('created',action)+'</div>',false,true)
+    +field('Comment','<textarea class="ep-form-input sc-action-comment" id="sc-action-comment" placeholder="Add a comment for the log">'+esc(comment||'')+'</textarea>',true,true)
     +'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Recorded as a log entry on '
-    +(context==='order'?'PO '+LIVE_PO+'':LIVE_ID)+'.</span>'
+    +(context==='order'?'PO '+LIVE_PO+'':did)+'.</span>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
       +'<button class="btn-primary" onclick="scSubmitAction()">Submit</button>'
     +'</div>';
 
   document.getElementById('sc-modal-root').innerHTML=
-    modalShell(action,context==='order'?'PO '+LIVE_PO+' · '+LIVE_ID+'':LIVE_ID,statusBlock+fields,foot,true);
+    modalShell(action,context==='order'?'PO '+LIVE_PO+' · '+LIVE_ID+'':did,fields+statusBlock,foot,true);
 
   if(action==='Create IMR')scRefreshIMR();
 }
@@ -2452,6 +2578,11 @@ function scSubmitAction(){
   var action=pendingAction.action;
   var comment=(document.getElementById('sc-action-comment')||{value:''}).value.trim();
   if(!comment){scToast('Comment is mandatory','error');return;}
+  /* a sample deal's form step moves that deal on */
+  if(pendingAction.id&&pendingAction.id!==LIVE_ID){
+    advanceSample(sampleDeal(pendingAction.id),action,comment);
+    scCloseModal();scRender();return;
+  }
 
   if(action==='Generate PO'){
     var price=parseFloat((document.getElementById('po-price')||{value:''}).value);
