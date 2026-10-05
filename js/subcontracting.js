@@ -99,6 +99,40 @@ var ROLE_ACTIONS={
     'Short Close','Confirm Full Receipt','Close Transaction']
 };
 
+/* What each role can do straight from the deals listing (the ACTION button's
+   menu). Narrower than ROLE_ACTIONS: the listing offers each role its forward
+   actions; the Add Log form in the panel still carries the full set. */
+var ROW_ACTIONS={
+  'Planner':['Create Shipment','Confirm Shipment'],
+  'PMG Approver':['Approve SCR','Return SCR','Reject SCR'],
+  'Buyer':['Generate PO'],
+  'PO Approver':['Approve PO','Return PO'],
+  'Stores User':['Goods Release & Issue','Return Shipment','Create IMR','Confirm IMR'],
+  'Delivery Note Approver':['Approve Delivery Note','Return Delivery Note'],
+  'Finance / F&A / IDT':['Generate Challan','Complete Reconciliation','Confirm Full Receipt','Close Transaction'],
+  'Security User':['Confirm Gate Outward','Return Gate Outward','Confirm Gate Inward'],
+  'Vendor User':['Create ASN'],
+  'QC User':['Clear ASN'],
+  'Super Admin':['Approve SCR','Return SCR','Reject SCR','Generate PO','Approve PO','Return PO',
+    'Create Shipment','Goods Release & Issue','Return Shipment','Approve Delivery Note','Return Delivery Note',
+    'Generate Challan','Confirm Gate Outward','Return Gate Outward','Confirm Shipment','Create ASN','Clear ASN',
+    'Confirm Gate Inward','Create IMR','Confirm IMR','Complete Reconciliation','Confirm Full Receipt','Close Transaction']
+};
+/* The log status each action writes - the "to" pill in Update Status. */
+var ACTION_RESULT={
+  'Approve SCR':'SCR Approved','Return SCR':'SCR Returned','Reject SCR':'SCR Rejected',
+  'Generate PO':'PO Generated','Approve PO':'PO Approved','Return PO':'PO Returned',
+  'Create Shipment':'Shipment Created','Confirm Shipment':'Shipment Confirmed',
+  'Goods Release & Issue':'Goods Release & Issue','Return Shipment':'Shipment Returned',
+  'Approve Delivery Note':'Delivery Note Approved','Return Delivery Note':'Delivery Note Returned',
+  'Generate Challan':'Challan Generated','Confirm Gate Outward':'Gate Outward Confirmed',
+  'Return Gate Outward':'Gate Outward Returned','Create ASN':'ASN Created','Clear ASN':'ASN QC Cleared',
+  'Confirm Gate Inward':'Gate Inward Confirmed','Create IMR':'IMR Created','Confirm IMR':'IMR Confirmed',
+  'Complete Reconciliation':'Reconciliation Completed','Confirm Full Receipt':'Full Receipt Confirmed',
+  'Close Transaction':'Transaction Closed'
+};
+var PO_ACTIONS=['Generate PO','Approve PO','Return PO'];
+
 /* The four actions that need more than a status and a comment. Picking one in
    the log form opens its own form instead of saving straight away. */
 var FORM_ACTIONS=['Create Shipment','Create ASN','Create IMR','Short Close','Generate PO'];
@@ -206,7 +240,7 @@ var SAMPLE_DEALS=[
    vendor:{code:'21044',name:'Gujarat Galva Coatings LLP',city:'Ankleshwar',addr:'GIDC Estate, Ankleshwar, Gujarat 393002'},
    item:{name:'Galvanised I-Beam ISMB 300',type:'Finished Product',qty:120,uom:'Each',price:95,hsn:'7308',due:'25 Oct 2026'},
    issues:[['SKU_52133_3814 — ISMB 300 Beam 6 m','Zone D','7216']],
-   stage:'scr',created:'24 Sep 2026',asns:0,imrs:0,received:0},
+   stage:'po',po:{no:'37756',status:'Approved'},created:'24 Sep 2026',asns:0,imrs:0,received:0},
   {id:'SCR-2026-50119',title:'CNC turning of pump impeller shafts',base:'Production Order',baseRef:'PO-100041 — Impeller Shaft',
    process:'Job Work',workType:'Job',planner:'Rahul Verma',buyer:'Madan Mohan',
    vendor:{code:'21005',name:'Sri Venkateswara Aerospace Pvt.ltd',city:'Hyderabad',addr:'Hyderabad, Telangana 500084'},
@@ -230,7 +264,7 @@ var SAMPLE_DEALS=[
    vendor:{code:'21052',name:'Precision Hydraulics & Co.',city:'Ahmedabad',addr:'Vatva GIDC, Ahmedabad, Gujarat 382445'},
    item:{name:'Re-chromed Cylinder Rod',type:'Repaired Item',qty:6,uom:'Each',price:3800,hsn:'8412',due:'10 Oct 2026'},
    issues:[['SKU_51870_3814 — Hydraulic Cylinder Rod Ø80','Zone E','8412']],
-   stage:'shipment',po:{no:'37735',status:'Approved'},created:'12 Sep 2026',asns:0,imrs:0,received:0},
+   stage:'outbound',sub:'challan',po:{no:'37735',status:'Approved'},created:'12 Sep 2026',asns:0,imrs:0,received:0},
   {id:'SCR-2026-50096',title:'Machining of valve body castings',base:'Production Order',baseRef:'PO-100022 — Gate Valve 8"',
    process:'Job Work',workType:'Job',planner:'Rahul Verma',buyer:'Madan Mohan',
    vendor:{code:'21009',name:'Kalyani Precision Components',city:'Rajkot',addr:'Aji GIDC, Rajkot, Gujarat 360003'},
@@ -242,7 +276,7 @@ var SAMPLE_DEALS=[
    vendor:{code:'21036',name:'Om Sai Pipe Fabricators',city:'Bharuch',addr:'Dahej SEZ, Bharuch, Gujarat 392130'},
    item:{name:'Rolled Pipe Spool 12"',type:'Semi-Finished',qty:22,uom:'Each',price:1400,hsn:'7306',due:'06 Oct 2026'},
    issues:[['SKU_51944_3814 — CS Pipe 12" SCH40 6 m','Zone D','7304']],
-   stage:'outbound',po:{no:'37726',status:'Approved'},created:'06 Sep 2026',asns:0,imrs:0,received:0},
+   stage:'outbound',sub:'gate',po:{no:'37726',status:'Approved'},created:'06 Sep 2026',asns:0,imrs:0,received:0},
   {id:'SCR-2026-50085',title:'Laser cutting of bracket profiles',base:'Production Order',baseRef:'PO-100017 — Mounting Bracket',
    process:'Job Work',workType:'Job',planner:'Neha Joshi',buyer:'Madan Mohan',
    vendor:{code:'21061',name:'Tecno Laser Cut Pvt. Ltd.',city:'Vapi',addr:'Phase II GIDC, Vapi, Gujarat 396195'},
@@ -254,7 +288,7 @@ var SAMPLE_DEALS=[
    vendor:{code:'21018',name:'Bharat Heat Treaters Pvt. Ltd.',city:'Pune',addr:'Bhosari MIDC, Pune, Maharashtra 411026'},
    item:{name:'Hardened Crane Wheel Ø500',type:'Repaired Item',qty:8,uom:'Each',price:2100,hsn:'8431',due:'30 Sep 2026'},
    issues:[['SKU_51702_3814 — Crane Wheel Ø500','Zone E','8431']],
-   stage:'asn',po:{no:'37714',status:'Approved'},created:'29 Aug 2026',asns:2,imrs:0,received:0},
+   stage:'asn',sub:'vendor',po:{no:'37714',status:'Approved'},created:'29 Aug 2026',asns:2,imrs:0,received:0},
   {id:'SCR-2026-50072',title:'Welding of skid base assemblies',base:'Production Order',baseRef:'PO-100009 — Compressor Skid',
    process:'Job Work',workType:'Job',planner:'Kinjal Sisodiya',buyer:'Madan Mohan',
    vendor:{code:'21027',name:'Shree Ganesh Engineering Works',city:'Vadodara',addr:'Makarpura GIDC, Vadodara, Gujarat 390010'},
@@ -287,13 +321,7 @@ var SAMPLE_PEOPLE={
   'Delivery Note Approver':'Anita Desai','Finance / F&A / IDT':'Pooja Mehta',
   'Security User':'Ramesh Yadav','Vendor User':'Vendor Portal User','QC User':'Harish Kulkarni'
 };
-var SAMPLE_PENDING={
-  scr:'PMG Approver',po:'Buyer',shipment:'Stores User',outbound:'Delivery Note Approver',asn:'QC User',
-  imr:'Stores User',reconciliation:'Finance / F&A',closure:'Finance / F&A',closed:'—'
-};
-function samplePending(d){
-  return d.stage==='po'&&d.po.status==='Created'?'PO Approver':SAMPLE_PENDING[d.stage];
-}
+function samplePending(d){var n=sampleNextOf(d);return n?n.role:'—';}
 function sampleDeal(id){return SAMPLE_DEALS.filter(function(d){return d.id===id;})[0];}
 function stageReached(d,key){return STAGE_ORDER.indexOf(d.stage)>=STAGE_ORDER.indexOf(key);}
 function stagePassed(d,key){return STAGE_ORDER.indexOf(d.stage)>STAGE_ORDER.indexOf(key);}
@@ -302,12 +330,23 @@ function sampleShip(d){
   if(d.stage==='closed')return 'Closed';
   if(!stageReached(d,'shipment'))return 'Not Started';
   if(d.stage==='shipment')return 'Created';
-  if(d.stage==='outbound')return 'Freezed Outbound Release';
+  if(d.stage==='outbound')return d.sub==='gate'||d.sub==='confirm'?'Challan Generated':'Freezed Outbound Release';
   return 'Challan Generated';
 }
 function scrToneOf(s){return s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
-function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':'in-progress';}
+function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':s==='Freezed Outbound Release'?'created':'in-progress';}
 function poToneOf(s){return {Draft:'draft',Created:'created',Approved:'approved',Closed:'closed'}[s]||'sc-idle';}
+/* The Update Status pills (from -> to) sit on one blue -> green ramp
+   (sc-r1 blue ... sc-r5 deep green, subcontracting.css), by how far through
+   the transaction the status sits. Status badges elsewhere keep ADT's tones. */
+function rampTone(status){
+  var t=String(status);
+  if(/^Transaction Closed|^PO Closed/.test(t))return 'sc-r5';
+  if(/Reconcil|Full Receipt|Short Clos/.test(t))return 'sc-r4';
+  if(/ASN|Gate Inward|IMR/.test(t))return 'sc-r3';
+  if(/Shipment|Goods Release|Delivery Note|Challan|Gate Outward|Outbound|Transfer Order/.test(t))return 'sc-r2';
+  return 'sc-r1';
+}
 function fmtAmt(n){return n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
 var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtDate(d){return ('0'+d.getDate()).slice(-2)+' '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
@@ -325,6 +364,17 @@ function logTs(l){return Date.parse(l.date+' '+l.time)||0;}
 /* The milestones a sample deal has completed, oldest first. Each one is a
    log entry and a workflow card, so the two tabs can never disagree. */
 function sampleMilestones(d){
+  var m=sampleMilestonesBase(d);
+  /* A step taken from the listing replaces the generated entry for that
+     status (its last occurrence) with who actually did it, when, and why. */
+  Object.keys(d.notes||{}).forEach(function(st){
+    for(var i=m.length-1;i>=0;i--)if(m[i].status===st){
+      var n=d.notes[st];m[i]=Object.assign({},m[i],{by:n.by,role:n.role,comment:n.comment,date:n.date,time:n.time});break;
+    }
+  });
+  return m;
+}
+function sampleMilestonesBase(d){
   var m=[],day=0,po=d.po?d.po.no:'',
       add=function(status,role,by,comment){
         day+=1+(m.length%3);
@@ -335,34 +385,44 @@ function sampleMilestones(d){
   if(!stagePassed(d,'scr'))return m;
   add('SCR Approved','PMG Approver',SAMPLE_PEOPLE['PMG Approver'],'Approved. PO '+po+' created in Draft.');
   if(d.po.status!=='Draft')add('PO Generated','Buyer',d.buyer,'Commercial fields completed against the rate contract.');
-  if(!stagePassed(d,'po'))return m;
+  if(!stagePassed(d,'po')){
+    if(d.po.status==='Approved')add('PO Approved','PO Approver',SAMPLE_PEOPLE['PO Approver'],'PO '+po+' approved.');
+    return m;
+  }
   add('PO Approved','PO Approver',SAMPLE_PEOPLE['PO Approver'],'PO '+po+' approved.');
   add('Shipment Created','Planner',d.planner,'Shipment raised for '+d.item.qty+' '+d.item.uom+'.');
   if(!stagePassed(d,'shipment'))return m;
   add('Goods Release & Issue','Stores User',SAMPLE_PEOPLE['Stores User'],'Issue material released against the Transfer Order.');
   add('Delivery Note Generated','Stores User','System','Delivery Note generated after Goods Release & Issue.');
-  if(!stagePassed(d,'outbound'))return m;
+  /* outbound runs in four hands: DN approval, challan, gate, confirmation */
+  var ob=d.stage==='outbound'?['dn','challan','gate','confirm'].indexOf(d.sub||'dn'):4;
+  if(ob<1)return m;
   add('Delivery Note Approved','Delivery Note Approver',SAMPLE_PEOPLE['Delivery Note Approver'],'Quantities match the Transfer Order.');
+  if(ob<2)return m;
   add('Challan Generated','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'Delivery Challan issued as the gate pass copy.');
+  if(ob<3)return m;
   add('Gate Outward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'Vehicle cleared at the main gate.');
+  if(ob<4)return m;
   add('Shipment Confirmed','Planner',d.planner,'Material Position updated to At Vendor.');
   for(var a=1;a<=d.asns;a++){
     add('ASN Created','Vendor User',SAMPLE_PEOPLE['Vendor User'],'ASN '+a+' raised by the vendor.');
-    if(d.stage!=='asn'||a<d.asns){
-      add('ASN QC Cleared','QC User',SAMPLE_PEOPLE['QC User'],'ASN '+a+' passed inspection.');
-      add('Gate Inward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'ASN '+a+' received at the gate.');
-    }
+    var asnDone=d.stage!=='asn'||a<d.asns||d.sub==='vendor';
+    if(asnDone||d.sub==='gatein')add('ASN QC Cleared','QC User',SAMPLE_PEOPLE['QC User'],'ASN '+a+' passed inspection.');
+    if(asnDone)add('Gate Inward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'ASN '+a+' received at the gate.');
   }
   if(!stagePassed(d,'asn'))return m;
   for(var i=1;i<=d.imrs;i++){
     add('IMR Created','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' raised against a gate-cleared ASN.');
-    if(d.stage!=='imr')add('IMR Confirmed','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' posted to stock.');
+    if(d.stage!=='imr'||i<d.imrs||d.sub==='create')add('IMR Confirmed','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' posted to stock.');
   }
   if(!stagePassed(d,'imr'))return m;
   if(!stagePassed(d,'reconciliation'))return m;
   add('Reconciliation Completed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],
     'Expected '+d.item.qty+', received '+d.received+'.');
-  if(!stagePassed(d,'closure'))return m;
+  if(!stagePassed(d,'closure')){
+    if(d.sub==='close')add('Full Receipt Confirmed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'All receivable quantity received.');
+    return m;
+  }
   add('Full Receipt Confirmed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'All receivable quantity received.');
   add('Transaction Closed','Finance / F&A / IDT',SAMPLE_PEOPLE['Finance / F&A / IDT'],'SCR, PO, Shipment and Challan closed.');
   return m;
@@ -386,12 +446,13 @@ function liveStage(){
 function dealRows(){
   var rows=!liveExists()?[]:[{id:LIVE_ID,live:true,base:L().base,title:L().title,
     planner:'Kinjal Sisodiya',vendor:'Sri Venkateswara Aerospace Pvt.ltd',vendorSub:'21005 · Hyderabad',
-    process:'Job Work',scr:scrLabel(),ship:shipLabel(),pending:pendingWith(),stage:liveStage(),
+    process:'Job Work',scr:scrLabel(),ship:shipLabel(),pending:pendingWith(),stage:liveStage(),cur:liveCurrent(),
     asns:state.asns.length,imrs:state.imrs.length}];
   SAMPLE_DEALS.forEach(function(d){
     rows.push({id:d.id,base:d.base,title:d.title,planner:d.planner,vendor:d.vendor.name,
       vendorSub:d.vendor.code+' · '+d.vendor.city,process:d.process,scr:sampleScr(d),ship:sampleShip(d),
-      pending:samplePending(d),stage:d.stage,asns:d.asns,imrs:d.imrs});
+      pending:samplePending(d),stage:d.stage,asns:d.asns,imrs:d.imrs,
+      cur:(function(m){return m[m.length-1].status;})(sampleMilestones(d))});
   });
   return rows;
 }
@@ -636,7 +697,8 @@ function shipLabel(){
     :'Challan Generated';
 }
 function shipTone(){
-  return state.shipment==='none'?'sc-idle':state.shipment==='closed'?'closed':'in-progress';
+  return state.shipment==='none'?'sc-idle':state.shipment==='closed'?'closed'
+    :state.shipment==='outbound_released'?'created':'in-progress';
 }
 function poLabel(){return state.po==='none'?'Not Created':state.po.charAt(0).toUpperCase()+state.po.slice(1);}
 function poTone(){
@@ -931,7 +993,11 @@ function dealsPageHTML(){
       +'<td><div class="lp-c-plain">'+esc(r.pending)+'</div></td>'
       +'<td>'+badge(scrToneOf(r.scr),r.scr)+'</td>'
       +'<td>'+badge(shipToneOf(r.ship),r.ship)+'</td>'
-      +'<td><button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal(\''+r.id+'\')">'+ICO.hamburger+'</button></td>'
+      +'<td><div class="ct-action-wrap">'
+        +'<button class="ct-action-btn" title="'+esc(r.cur)+'" onclick="event.stopPropagation();scRowMenu(this,\''+r.id+'\')">'
+          +'<span>'+esc(r.cur)+'</span>'+ICO_DOWN+'</button>'
+        +'<button class="lp-action-btn" title="View details" onclick="event.stopPropagation();scOpenDeal(\''+r.id+'\')">'+ICO.hamburger+'</button>'
+      +'</div></td>'
       +'</tr>';
   }).join('')||emptyRow(7,'No deals match','Change the search or filters, or Reset to see every deal.');
 
@@ -1142,6 +1208,32 @@ function fieldCard(ico,label,value,wide){
 function secHead(title,right){
   return '<div class="lp-sb-view-header"><span class="lp-sb-section-title">'+esc(title)+'</span>'+(right||'')+'</div>';
 }
+/* A section head whose table can be opened full-width in a popup. The panel
+   is narrow, so a twelve-column item table only shows its first few columns
+   there; the expand button shows the same table in a wide modal. */
+var ICO_EXPAND='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+function tableHead(title){
+  return secHead(title,'<button class="sc-expand-btn" type="button" title="Expand" aria-label="Expand '+esc(title)+'" onclick="scExpandTable(this)">'+ICO_EXPAND+'</button>');
+}
+function scExpandTable(btn){
+  var head=btn.closest('.lp-sb-view-header'),wrap=head&&head.nextElementSibling;
+  if(!wrap||!wrap.classList.contains('sc-rec-wrap'))return;
+  var title=head.querySelector('.lp-sb-section-title').textContent;
+  var id=usRow&&usRow.back?usRow.id:state.dealOpen?state.dealSel:state.orderOpen?state.orderSel:'';
+  var n=wrap.querySelectorAll('tbody tr').length;
+  /* Expanded from inside a popup (a View SCR, say): that popup is kept and
+     comes back when this one closes, instead of being lost. */
+  var root=document.getElementById('sc-modal-root');
+  if(root.innerHTML)modalStack.push(root.innerHTML);
+  root.innerHTML=
+    '<div class="ct-modal-overlay" onclick="if(event.target===this)scCloseModal()">'
+    +'<div class="ct-modal sc-table-modal" role="dialog" aria-modal="true">'
+      +'<div class="ct-modal-hdr"><div><div class="ct-modal-title">'+esc(title)+'</div>'
+      +'<div class="ct-modal-sub">'+esc((id?id+' · ':'')+n+(n===1?' line':' lines'))+'</div></div>'
+      +'<button class="ct-modal-close" onclick="scCloseModal()" title="Close">'+ICO.close+'</button></div>'
+      +wrap.outerHTML
+    +'</div></div>';
+}
 function recTable(head,rows){
   return '<div class="sc-rec-wrap"><table class="sc-rec-table"><thead><tr>'
     +head.map(function(h){return '<th>'+esc(h)+'</th>';}).join('')
@@ -1220,8 +1312,8 @@ function dealDetailsHTML(){
   return secHead('SCR Header Details',viewBtn('View SCR','scr'))+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
-    +secHead('Receivable Item Details')+recv
-    +secHead('Issue Item Details')+issue;
+    +tableHead('Receivable Item Details')+recv
+    +tableHead('Issue Item Details')+issue;
 }
 
 /* ── WORKFLOW ─────────────────────────────────────────────────────────────
@@ -1254,13 +1346,78 @@ function wfRow(title,meta,description,actions,isLast){
       +(actions?'<div class="sc-wf-actions">'+actions+'</div>':'')
     +'</div></div>';
 }
-function viewBtn(label,type,index){
-  return '<button class="btn-outline btn-sm" onclick="scOpenView(\''+type+'\''+(index!==undefined?','+index:'')+')">'+ICO.eye+' '+esc(label)+'</button>';
+function viewBtn(label,type,index,id){
+  var args="'"+type+"',"+(index!=null?index:'null')+(id&&id!==LIVE_ID?",'"+id+"'":'');
+  return '<button class="btn-outline btn-sm" onclick="scOpenView('+args+')">'+ICO.eye+' '+esc(label)+'</button>';
 }
+/* WHAT EACH LOG ENTRY CAN BE OPENED TO. Every step that produces or confirms
+   a document gets a View button on its log and workflow card, so a
+   confirmation always shows what was confirmed. ASNs and IMRs are numbered:
+   the k-th "ASN QC Cleared" is the k-th ASN, because QC clears in order. */
+var VIEW_OF={
+  'SCR Submitted':['View SCR','scr'],'SCR Approved':['View SCR','scr'],
+  'PO Auto-Created':['View PO','po'],'PO Generated':['View PO','po'],'PO Approved':['View PO','po'],
+  'Shipment Created':['View Shipment','shipment'],'Shipment Confirmed':['View Shipment','shipment'],
+  'Outbound Key Generated':['View Outbound Key','outbound'],
+  'Delivery Note Generated':['View Delivery Note','deliverynote'],'Delivery Note Approved':['View Delivery Note','deliverynote'],
+  'Challan Generated':['View Challan','challan'],'Gate Outward Confirmed':['View Challan','challan'],
+  'Reconciliation Completed':['View Reconciliation','reconciliation'],'Full Receipt Confirmed':['View Reconciliation','reconciliation']
+};
+function attachViews(list,id){
+  var c={'ASN Created':0,'ASN QC Cleared':0,'Gate Inward Confirmed':0,'IMR Created':0,'IMR Confirmed':0};
+  return list.map(function(l){
+    var e=Object.assign({},l),imr=/IMR/.test(l.status);
+    if(l.status in c)e.view=viewBtn(imr?'View IMR':'View ASN',imr?'imr':'asn',c[l.status]++,id);
+    else if(VIEW_OF[l.status])e.view=viewBtn(VIEW_OF[l.status][0],VIEW_OF[l.status][1],null,id);
+    return e;
+  });
+}
+/* The document a pending step acts on - shown as "Review before you
+   confirm" in Update Status and on the pending workflow card. */
+var REVIEW={
+  'Approve SCR':['View SCR','scr'],'Return SCR':['View SCR','scr'],'Reject SCR':['View SCR','scr'],
+  'Approve PO':['View PO','po'],'Return PO':['View PO','po'],
+  'Goods Release & Issue':['View Shipment','shipment'],'Return Shipment':['View Shipment','shipment'],
+  'Approve Delivery Note':['View Delivery Note','deliverynote'],'Return Delivery Note':['View Delivery Note','deliverynote'],
+  'Confirm Gate Outward':['View Challan','challan'],'Return Gate Outward':['View Challan','challan'],
+  'Confirm Shipment':['View Shipment','shipment'],
+  'Clear ASN':['View ASN','asn'],'Confirm Gate Inward':['View ASN','asn'],
+  'Confirm IMR':['View IMR','imr'],
+  'Confirm Full Receipt':['View Reconciliation','reconciliation'],'Close Transaction':['View Reconciliation','reconciliation']
+};
+function reviewOf(id,action){
+  var r=REVIEW[action];if(!r)return null;
+  var idx=null;
+  if(r[1]==='asn'||r[1]==='imr'){
+    if(id===LIVE_ID){
+      idx=r[1]==='imr'?state.imrs.findIndex(function(m){return m.status==='Created';})
+        :action==='Clear ASN'?state.asns.findIndex(function(a){return a.qc==='Created';})
+        :state.asns.findIndex(function(a){return a.qc==='QC Cleared'&&!a.gateIn;});
+      if(idx<0)return null;
+    }else{
+      var d=sampleDeal(id);if(!d)return null;
+      idx=Math.max(0,(r[1]==='imr'?d.imrs:d.asns)-1);
+    }
+  }
+  return {label:r[0],type:r[1],index:idx};
+}
+function reviewBtn(id,action){var rv=reviewOf(id,action);return rv?viewBtn(rv.label,rv.type,rv.index,id):'';}
 /* The lifecycle runs to twenty-odd stages, so it is grouped — with the section
    head the Details tab and every other ADT panel already use, not a second
    heading style. */
+/* THE VENDOR SEES ITS OWN PART ONLY. A Vendor User's Logs and Workflow carry
+   just the two ASN stages - the one it raises and the QC result on it - and
+   the pending step only when it is one of those two. Every other role sees
+   the full trail. Filtered here, in the two shared builders, so the live and
+   sample records, SCR and PO alike, all follow the one rule. */
+var VENDOR_STAGES=['ASN Created','ASN QC Cleared'],VENDOR_PENDING=['Create ASN','Clear ASN'];
+function isVendor(){return state.role==='Vendor User';}
+function vendorView(list){
+  return isVendor()?list.filter(function(e){return VENDOR_STAGES.indexOf(e.status)>=0;}):list;
+}
 function wfTimelineHTML(events,pending){
+  events=vendorView(events);
+  if(pending&&isVendor()&&VENDOR_PENDING.indexOf(pending.action)<0)pending=null;
   var rows=events.map(function(e){return {title:e.status,meta:wfMeta(e),desc:esc(e.comment),actions:e.view||''};});
   if(pending)rows.push({title:pending.action+' — Pending',meta:{user:'Pending with '+pending.role,date:'',time:''},
     desc:'Awaiting <b>'+esc(pending.role)+'</b>.',actions:pending.actions||''});
@@ -1280,18 +1437,9 @@ function liveEvents(){
   var all=state.dealLogs.slice().reverse().concat(state.poLogs.slice().reverse());
   all=all.map(function(l,i){return {l:l,i:i};})
     .sort(function(a,b){return logTs(a.l)-logTs(b.l)||a.i-b.i;}).map(function(x){return x.l;});
-  var asn=0,imr=0;
-  var views={'SCR Submitted':['View SCR','scr'],'PO Generated':['View PO','po'],'Shipment Created':['View Shipment','shipment'],
-    'Outbound Key Generated':['View Outbound Key','outbound'],'Delivery Note Generated':['View Delivery Note','deliverynote'],
-    'Challan Generated':['View Challan','challan'],'Reconciliation Completed':['View Reconciliation','reconciliation'],
-    'PO Auto-Created':['View PO','po']};
-  return all.map(function(l){
-    var e={status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment};
-    if(l.status==='ASN Created')e.view=viewBtn('View ASN','asn',asn++);
-    else if(l.status==='IMR Created')e.view=viewBtn('View IMR','imr',imr++);
-    else if(views[l.status])e.view=viewBtn(views[l.status][0],views[l.status][1]);
-    return e;
-  });
+  return attachViews(all.map(function(l){
+    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment};
+  }),LIVE_ID);
 }
 /* The live deal's next step: who holds it, and the forward action they take. */
 function liveNext(){
@@ -1304,6 +1452,7 @@ function liveNext(){
 function dealWorkflowHTML(){
   var next=liveNext();
   if(next&&/ PO$/.test(next.action))next.actions=openPOBtn();
+  else if(next)next.actions=reviewBtn(LIVE_ID,next.action);
   return wfTimelineHTML(liveEvents(),next);
 }
 /* PO actions are recorded on the Purchase Order, not the deal — this is the
@@ -1328,21 +1477,16 @@ function handoffBtn(role){
 /* ── LOGS ─────────────────────────────────────────────────────────────────
    Timeline on the left, the form on the right: the shared .lp-logs-wrap, so a
    Sub-Contracting log reads exactly like a log anywhere else in ADT. */
-function logTone(status){
-  var s=String(status).toLowerCase();
-  if(/reject|return/.test(s))return 'unapproved';
-  if(/approv|confirm|clear|complete|closed|close/.test(s))return 'approved';
-  if(/pending|submit|sent/.test(s))return 'pending';
-  if(/generat|creat/.test(s))return 'info';
-  return 'default';
-}
-function logTimelineHTML(logs){
+function logTimelineHTML(logs,id){
+  logs=vendorView(attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
   if(!logs.length)return '<div class="lp-logs-empty">No activity logs yet.</div>';
   var pSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   var cSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
   var tSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  /* logs arrive newest first: the first one is the step being worked now and
+     reads blue (info); everything before it is done and reads green. */
   return '<div class="lp-logs-timeline">'+logs.map(function(l,n){
-    var k=logTone(l.status);
+    var k=n===0?'info':'approved';
     return '<div class="lp-log-row">'
       +'<div class="lp-log-avatar-col"><div class="lp-log-avatar lp-log-avatar--'+k+'">'+pSvg+'</div>'
       +(n<logs.length-1?'<div class="lp-log-connector"></div>':'')+'</div>'
@@ -1355,6 +1499,7 @@ function logTimelineHTML(logs){
           +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(fmtTime(l.time))+'</span></span>'
         +'</div>'
         +'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>'
+        +(l.view?'<div class="sc-log-view">'+l.view+'</div>':'')
       +'</div></div>';
   }).join('')+'</div>';
 }
@@ -1362,7 +1507,7 @@ function logTimelineHTML(logs){
    ADT logs panel is; the status select offers only what this role can do now. */
 function logFormHTML(o){
   return '<div class="lp-logs-form">'
-    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--'+logTone(o.current)+'"></span>'+esc(o.current)+'</div>'
+    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(o.current)+'</div>'
     +'<p class="lp-logs-form-sub">'+o.sub+'</p>'
     +'<div class="lp-logs-form-label">Status <span class="lp-logs-form-req">*</span></div>'
     +(o.readonly
@@ -1554,7 +1699,7 @@ function orderDetailsHTML(){
     '<tr><td>1</td><td><b>'+esc(L().item.name)+'</b></td>'
     +'<td>'+L().item.qty+'</td><td>Each</td><td>'+fmtAmt(poPrice())+'</td><td><b>'+fmtAmt(poValue())+'</b></td></tr>');
   return secHead('PO Header Details',viewBtn('View PO','po'))+head
-    +secHead('PO Lines')+lines;
+    +tableHead('PO Lines')+lines;
 }
 function orderWorkflowHTML(){
   if(state.po==='none'){
@@ -1592,21 +1737,18 @@ function scSubmitOrderLog(){
   if(!action){scToast('Select a status first','error');return;}
   if(action==='Generate PO'){scOpenActionModal(action,comment,'order');return;}
   if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
+  executePOAction(action,comment);
+  scRender();
+}
+function executePOAction(action,comment){
   if(action==='Approve PO'){state.po='approved';state.poApproved=stamp().date;addPOLog('PO Approved',comment);scToast('PO '+LIVE_PO+' approved');}
   if(action==='Return PO'){addPOLog('PO Returned',comment);scToast('PO returned to Buyer','info');}
-  scRender();
 }
 
 /* ══ SAMPLE DEAL PANEL ════════════════════════════════════════════════════
    The same tabs and components as the live deal, filled from the sample
    record. Read-only: the Logs tab says which role and action are next instead
    of offering a form, because only the live deal walks the process. */
-var SAMPLE_NEXT={
-  scr:['PMG Approver','Approve SCR'],po:['Buyer','Generate PO'],
-  shipment:['Stores User','Goods Release & Issue'],outbound:['Delivery Note Approver','Approve Delivery Note'],
-  asn:['QC User','Clear ASN'],imr:['Stores User','Confirm IMR'],
-  reconciliation:['Finance / F&A / IDT','Complete Reconciliation'],closure:['Finance / F&A / IDT','Close Transaction']
-};
 function samplePanelHTML(d){
   var tabs=DEAL_TABS;
   var bar=tabBarHTML(tabs,state.dealTab,'scDealTab','scCloseDeal','sc-deal-tabs');
@@ -1653,22 +1795,46 @@ function sampleDetailsHTML(d){
   return secHead('SCR Header Details')+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
-    +secHead('Receivable Item Details')+recv
-    +secHead('Issue Item Details')+issue;
+    +tableHead('Receivable Item Details')+recv
+    +tableHead('Issue Item Details')+issue;
 }
+/* Who a sample deal is waiting on, and for what. d.sub is the step inside a
+   stage that several roles share (outbound, ASN, IMR, closure). */
 function sampleNextOf(d){
-  var n=d.stage==='po'&&d.po.status==='Created'?['PO Approver','Approve PO']:SAMPLE_NEXT[d.stage];
+  var F='Finance / F&A / IDT',n=null,sub=d.sub;
+  if(d.stage==='scr')n=['PMG Approver','Approve SCR'];
+  else if(d.stage==='po')n=d.po.status==='Draft'?['Buyer','Generate PO']
+    :d.po.status==='Created'?['PO Approver','Approve PO']:['Planner','Create Shipment'];
+  else if(d.stage==='shipment')n=['Stores User','Goods Release & Issue'];
+  else if(d.stage==='outbound')n=sub==='challan'?[F,'Generate Challan']:sub==='gate'?['Security User','Confirm Gate Outward']
+    :sub==='confirm'?['Planner','Confirm Shipment']:['Delivery Note Approver','Approve Delivery Note'];
+  else if(d.stage==='asn')n=sub==='vendor'?['Vendor User','Create ASN']:sub==='gatein'?['Security User','Confirm Gate Inward']:['QC User','Clear ASN'];
+  else if(d.stage==='imr')n=sub==='create'?['Stores User','Create IMR']:['Stores User','Confirm IMR'];
+  else if(d.stage==='reconciliation')n=[F,'Complete Reconciliation'];
+  else if(d.stage==='closure')n=sub==='close'?[F,'Close Transaction']:[F,'Confirm Full Receipt'];
   return n?{action:n[1],role:n[0]}:null;
 }
 function sampleWorkflowHTML(d){
-  return wfTimelineHTML(sampleMilestones(d),sampleNextOf(d));
+  var next=sampleNextOf(d);
+  if(next)next.actions=reviewBtn(d.id,next.action);
+  return wfTimelineHTML(attachViews(sampleMilestones(d),d.id),next);
 }
 function sampleLogsHTML(d){
   var logs=sampleMilestones(d).slice().reverse(),next=sampleNextOf(d);
-  var form=logFormHTML({id:'sc-sample',readonly:true,opts:next?[next.action]:[],current:logs[0].status,
-    sub:next?'Next action is pending with <b>'+esc(next.role)+'</b>.':'The transaction is closed. No further actions.',
-    note:'Sample record — read-only. Open <b>'+LIVE_ID+'</b> to record actions.'});
-  return '<div class="lp-logs-wrap">'+logTimelineHTML(logs)+form+'</div>';
+  /* The same live form as the listing's Update Status: it offers what this
+     role can do on this deal now, and Submit moves the deal on. */
+  var form=logFormHTML({id:'sc-sample',opts:rowAvailable(d.id),submit:'scSubmitSampleLog',current:logs[0].status,
+    sub:next?'Next action is pending with <b>'+esc(next.role)+'</b>.':'The transaction is closed. No further actions.'});
+  return '<div class="lp-logs-wrap">'+logTimelineHTML(logs,d.id)+form+'</div>';
+}
+function scSubmitSampleLog(){
+  var d=sampleDeal(state.dealSel);if(!d)return;
+  var action=csValue('sc-sample-status');
+  var comment=(document.getElementById('sc-sample-comment')||{value:''}).value.trim();
+  if(!action){scToast('Select a status first','error');return;}
+  if(!comment){scToast('Remarks / Comment is mandatory','error');return;}
+  advanceSample(d,action,comment);
+  scRender();
 }
 
 /* ── SAMPLE PO PANEL ──────────────────────────────────────────────────────  */
@@ -1696,15 +1862,15 @@ function sampleOrderPanelHTML(d){
       +fieldCard(ICO.tag,'Tax Code','GST-05 — GST @ 5%')
       +fieldCard(ICO.money,'PO Value',fmtAmt(value))
       +'</div>'
-      +secHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
+      +tableHead('PO Lines')+recTable(['#','Receivable Item','Quantity','UOM','Price / Unit','Line Value'],
         '<tr><td>1</td><td><b>'+esc(it.name)+'</b></td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td><td>'+fmtAmt(it.price)+'</td><td><b>'+fmtAmt(value)+'</b></td></tr>');
   }else if(state.orderTab==='workflow'){
     var pend=d.po.status==='Draft'?{action:'Generate PO',role:'Buyer'}:d.po.status==='Created'?{action:'Approve PO',role:'PO Approver'}:null;
-    body=wfTimelineHTML(poLogs,pend);
+    body=wfTimelineHTML(attachViews(poLogs,d.id),pend);
   }else{
-    body='<div class="lp-logs-wrap">'+logTimelineHTML(poLogs.slice().reverse())
+    body='<div class="lp-logs-wrap">'+logTimelineHTML(poLogs.slice().reverse(),d.id)
       +logFormHTML({id:'sc-sample-po',readonly:true,opts:[],current:'PO '+d.po.status,
-        sub:'Purchase Order '+esc(d.po.no)+'.',note:'Sample record — read-only.'})+'</div>';
+        sub:'Purchase Order '+esc(d.po.no)+'.'})+'</div>';
   }
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
@@ -1796,6 +1962,158 @@ function executeDealAction(action,comment){
   }
 }
 
+/* ══ LISTING ACTIONS ══════════════════════════════════════════════════════
+   The ACTION cell is ADT's split control: the dark button names where the
+   deal stands and opens the logged-in role's actions as a numbered menu;
+   the hamburger opens the panel. An action the deal is ready for is live,
+   the rest are greyed. Picking one opens Update Status - from -> to, the
+   status, a comment - which writes the same log the panel's form would. */
+var ICO_DOWN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+var ICO_ARROW='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+function liveCurrent(){var ev=liveEvents();return ev.length?ev[ev.length-1].status:scrLabel();}
+function rowActionsFor(){return ROW_ACTIONS[state.role]||[];}
+/* The actions on offer that this deal is ready for, in menu order. */
+function rowAvailable(id){
+  var list=rowActionsFor();
+  if(id===LIVE_ID){
+    var ok=validDealActions().concat(validPOActions());
+    return list.filter(function(a){return ok.indexOf(a)>=0;});
+  }
+  var d=sampleDeal(id),n=d&&sampleNextOf(d);
+  if(!n||!SAMPLE_STEP[n.action])return [];
+  if(state.role!=='Super Admin'&&roleKey(n.role)!==state.role)return [];
+  return list.indexOf(n.action)>=0?[n.action]:[];
+}
+function rowMenuEl(){
+  var m=document.getElementById('sc-row-menu');
+  if(!m){
+    m=document.createElement('div');m.id='sc-row-menu';m.className='ct-action-menu';
+    m.addEventListener('click',function(e){e.stopPropagation();});
+    document.body.appendChild(m);
+  }
+  return m;
+}
+function scCloseRowMenu(){var m=document.getElementById('sc-row-menu');if(m){m.classList.remove('open');m.dataset.id='';}}
+function scRowMenu(btn,id){
+  var m=rowMenuEl();
+  if(m.classList.contains('open')&&m.dataset.id===id){scCloseRowMenu();return;}
+  scCloseAllDD();
+  var list=rowActionsFor(),ok=rowAvailable(id);
+  m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
+    +(list.length?list.map(function(a,i){
+      var on=ok.indexOf(a)>=0;
+      return '<div class="ct-act-item'+(on?' sc-act-avail':' done')+'"'
+        +(on?' onclick="scRowAction(\''+id+'\','+i+')"':' title="Not available at this stage"')+'>'
+        +'<span class="ct-act-step '+(on?'current':'next')+'">'+(i+1)+'</span>'+esc(a)+'</div>';
+    }).join(''):'<div class="ct-act-item done">No actions for this role</div>');
+  m.dataset.id=id;m.classList.add('open');
+  var r=btn.getBoundingClientRect(),w=240;
+  scPlaceMenu(m,{left:r.right-w,right:r.right,top:r.top,bottom:r.bottom,width:w});
+}
+document.addEventListener('click',scCloseRowMenu);
+document.addEventListener('scroll',function(e){
+  var m=document.getElementById('sc-row-menu');
+  if(m&&m.classList.contains('open')&&!m.contains(e.target))scCloseRowMenu();
+},true);
+window.addEventListener('resize',scCloseRowMenu);
+document.addEventListener('keydown',function(e){if(e.key==='Escape')scCloseRowMenu();});
+
+var usRow=null;
+function scRowAction(id,i){
+  scCloseRowMenu();
+  var action=rowActionsFor()[i];if(action)scOpenUS(id,action,'');
+}
+function usReviewHTML(id,action){
+  var rv=reviewOf(id,action);if(!rv)return '';
+  return '<div class="sc-us-review"><div><div class="sc-us-review-t">Review before you confirm</div>'
+    +'<div class="sc-us-review-s">Open the '+esc(rv.label.replace(/^View /,''))+' this step acts on.</div></div>'
+    +'<button class="btn-outline btn-sm" type="button" onclick="scUSReview()">'+ICO.eye+' '+esc(rv.label)+'</button></div>';
+}
+/* The viewer shares the modal root, so the form is put away and brought back
+   with its status and comment when the viewer closes (scCloseModal). */
+function scUSReview(){
+  if(!usRow)return;
+  usRow.action=csValue('sc-us-status');
+  usRow.comment=(document.getElementById('sc-us-comment')||{value:''}).value;
+  var rv=reviewOf(usRow.id,usRow.action);if(!rv)return;
+  usRow.back=true;
+  scOpenView(rv.type,rv.index,usRow.id);
+}
+function scOpenUS(id,action,comment){
+  var r=dealRows().filter(function(x){return x.id===id;})[0];if(!r)return;
+  usRow={id:id};
+  var res=ACTION_RESULT[action]||action;
+  var body='<div class="sc-us-flow">'+badge(rampTone(r.cur),r.cur)
+      +'<span class="sc-us-arrow">'+ICO_ARROW+'</span><span id="sc-us-next">'+badge(rampTone(res),res)+'</span></div>'
+    +'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>'
+    +field('Status',csField('sc-us-status',rowAvailable(id),action,'Select Status','scUSPicked'),true,true)
+    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving?">'+esc(comment||'')+'</textarea>',true,true);
+  var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
+    +'<div class="ct-modal-btns">'
+      +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+      +'<button class="btn-primary" onclick="scUSSubmit()">Submit</button>'
+    +'</div>';
+  document.getElementById('sc-modal-root').innerHTML=
+    modalShell('Update Status',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot);
+  var c=document.getElementById('sc-us-comment');if(c)c.focus();
+}
+function scUSPicked(val){
+  var res=ACTION_RESULT[val]||val,el=document.getElementById('sc-us-next');
+  if(el)el.innerHTML=badge(rampTone(res),res);
+  var rv=document.getElementById('sc-us-review');
+  if(rv&&usRow)rv.innerHTML=usReviewHTML(usRow.id,val);
+}
+function scUSViewLog(){
+  var id=usRow&&usRow.id;scCloseModal();if(!id)return;
+  if(!(state.dealOpen&&state.dealSel===id))scOpenDeal(id);
+  scDealTab('logs');
+}
+function scUSSubmit(){
+  var id=usRow&&usRow.id;if(!id)return;
+  var action=csValue('sc-us-status');
+  var comment=(document.getElementById('sc-us-comment')||{value:''}).value.trim();
+  if(!action){scToast('Select a status first','error');return;}
+  if(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0){
+    scOpenActionModal(action,comment,PO_ACTIONS.indexOf(action)>=0?'order':'deal');return;
+  }
+  if(!comment){scToast('Comment is mandatory','error');return;}
+  if(id===LIVE_ID){
+    if(PO_ACTIONS.indexOf(action)>=0)executePOAction(action,comment);
+    else executeDealAction(action,comment);
+  }else advanceSample(sampleDeal(id),action,comment);
+  scCloseModal();
+  scRender();
+}
+
+/* A sample deal moves one stage per action; its log entries are generated
+   from the stage, with the step just taken signed by who took it. */
+var SAMPLE_STEP={
+  'Approve SCR':function(d,i){d.stage='po';d.po=d.po||{no:String(37760+i),status:'Draft'};d.po.status='Draft';},
+  'Generate PO':function(d){d.po.status='Created';},
+  'Approve PO':function(d){d.po.status='Approved';},
+  'Create Shipment':function(d){d.stage='shipment';},
+  'Goods Release & Issue':function(d){d.stage='outbound';d.sub='dn';},
+  'Approve Delivery Note':function(d){d.sub='challan';},
+  'Generate Challan':function(d){d.sub='gate';},
+  'Confirm Gate Outward':function(d){d.sub='confirm';},
+  'Confirm Shipment':function(d){d.stage='asn';d.sub='vendor';},
+  'Create ASN':function(d){d.asns++;d.sub='qc';},
+  'Clear ASN':function(d){d.sub='gatein';},
+  'Confirm Gate Inward':function(d){d.stage='imr';d.sub='create';},
+  'Create IMR':function(d){d.imrs++;d.sub='confirm';},
+  'Confirm IMR':function(d){d.stage='reconciliation';d.sub='';d.received=d.item.qty;},
+  'Complete Reconciliation':function(d){d.stage='closure';d.sub='receipt';},
+  'Confirm Full Receipt':function(d){d.sub='close';},
+  'Close Transaction':function(d){d.stage='closed';d.sub='';d.po.status='Closed';}
+};
+function advanceSample(d,action,comment){
+  var step=d&&SAMPLE_STEP[action];if(!step)return;
+  step(d,SAMPLE_DEALS.indexOf(d));
+  var t=stamp();d.notes=d.notes||{};
+  d.notes[ACTION_RESULT[action]]={by:who(),role:state.role,comment:comment,date:t.date,time:t.time};
+  scToast(d.id+': '+(ACTION_RESULT[action]||action));
+}
+
 /* ══ POPUPS ═══════════════════════════════════════════════════════════════
    One root, one shell (.ct-modal), one footer contract: Cancel on the left of
    the primary, primary last. Everything inside is .policy-form-section /
@@ -1815,9 +2133,13 @@ function modalShell(title,sub,bodyHTML,footHTML,wide){
       +'<div class="ct-modal-foot" style="margin:0;position:sticky;bottom:0;border-radius:0 0 16px 16px">'+footHTML+'</div>'
     +'</div></div>';
 }
+var modalStack=[];
 function scCloseModal(){
-  document.getElementById('sc-modal-root').innerHTML='';
+  var root=document.getElementById('sc-modal-root');
+  if(modalStack.length){root.innerHTML=modalStack.pop();return;}
+  root.innerHTML='';
   pendingAction=null;
+  if(usRow&&usRow.back){usRow.back=false;scOpenUS(usRow.id,usRow.action,usRow.comment);}
 }
 function section(title,inner){
   return '<div class="policy-form-section" style="padding:20px 0;border-bottom:1px solid #f1f3f5">'
@@ -2177,7 +2499,8 @@ function scSubmitAction(){
 function docCell(label,value){return '<div class="sc-doc-cell"><strong>'+esc(label)+'</strong><span>'+(value||'—')+'</span></div>';}
 function docGrid(cols,cells){return '<div class="sc-doc-grid cols-'+cols+'">'+cells+'</div>';}
 
-function scOpenView(type,index){
+function scOpenView(type,index,id){
+  if(id&&id!==LIVE_ID){sampleView(type,index,id);return;}
   var title='',sub='',body='';
 
   if(type==='scr'){title='SCR Details';sub=LIVE_ID;body=dealDetailsHTML();}
@@ -2337,6 +2660,50 @@ function scOpenView(type,index){
   var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>';
   document.getElementById('sc-modal-root').innerHTML=
     modalShell(title,sub,'<div style="padding:18px 0 4px">'+body+'</div>',foot,true);
+}
+
+/* A sample deal's documents, built from its own record. */
+function sampleView(type,index,id){
+  var d=sampleDeal(id);if(!d)return;
+  var n=id.slice(-5),po=d.po?d.po.no:'—',it=d.item,k=(index||0)+1,title='',sub='',body='';
+  var g=function(cards){return '<div class="lp-sb-detail-grid">'+cards+'</div>';};
+  var common=fieldCard(ICO.doc,'SCR No.',esc(id))+fieldCard(ICO.cart,'PO No.',esc(po))
+    +fieldCard(ICO.handshake,'Vendor / Sub-Contractor',esc(d.vendor.code+' — '+d.vendor.name));
+  if(type==='scr'){title='SCR Details';sub=id;body=sampleDetailsHTML(d);}
+  else if(type==='po'&&d.po){title='Purchase Order';sub='PO '+po;
+    body=g(fieldCard(ICO.check,'PO Status',badge(poToneOf(d.po.status),d.po.status))+common
+      +fieldCard(ICO.user,'Buyer',esc(d.buyer))+fieldCard(ICO.cube,'Receivable Item',esc(it.name))
+      +fieldCard(ICO.hash,'Quantity',it.qty+' '+esc(it.uom))+fieldCard(ICO.money,'PO Value',fmtAmt(it.qty*it.price)));}
+  else if(type==='shipment'){title='Shipment';sub='SHP-2026-0'+n;
+    body=g(fieldCard(ICO.box,'Shipment ID',sub)+common+fieldCard(ICO.user,'Planner',esc(d.planner))
+      +fieldCard(ICO.cube,'Issue Material',esc(d.issues[0][0]))+fieldCard(ICO.globe,'From Warehouse','Hazira Works')
+      +fieldCard(ICO.cal,'Expected Return',esc(it.due)));}
+  else if(type==='outbound'){title='Outbound Key';sub='OBK/26/'+n;
+    body=g(fieldCard(ICO.hash,'Outbound Key No.',sub)+common+fieldCard(ICO.cube,'Issue Material',esc(d.issues[0][0])));}
+  else if(type==='deliverynote'){title='Delivery Note';sub='DN/26/'+n;
+    body=g(fieldCard(ICO.doc,'Delivery Note No.',sub)+common+fieldCard(ICO.cube,'Issue Material',esc(d.issues[0][0]))
+      +fieldCard(ICO.globe,'Warehouse','Hazira Works')+fieldCard(ICO.user,'Approver',esc(SAMPLE_PEOPLE['Delivery Note Approver'])));}
+  else if(type==='challan'){title='Delivery Challan';sub='CHL/26/'+n;
+    body=g(fieldCard(ICO.doc,'Challan No.',sub)+common+fieldCard(ICO.globe,'Ship To',esc(d.vendor.addr))
+      +fieldCard(ICO.cube,'Material',esc(d.issues[0][0]))+fieldCard(ICO.truck,'Transporter','TransCore Logistics'));}
+  else if(type==='asn'){
+    var qc=d.stage!=='asn'||k<d.asns||d.sub==='gatein'||d.sub==='vendor';
+    title='ASN';sub='ASN-'+n+'-'+k;
+    body=g(fieldCard(ICO.hash,'ASN No.',sub)+common+fieldCard(ICO.cube,'Receivable Item',esc(it.name))
+      +fieldCard(ICO.hash,'Advised Qty',Math.ceil(it.qty/Math.max(1,d.asns))+' '+esc(it.uom))
+      +fieldCard(ICO.check,'QC Status',badge(qc?'approved':'pending',qc?'QC Cleared':'Created')));}
+  else if(type==='imr'){
+    var ok=d.stage!=='imr'||k<d.imrs||d.sub==='create';
+    title='IMR';sub='IMR-'+n+'-'+k;
+    body=g(fieldCard(ICO.hash,'IMR No.',sub)+common+fieldCard(ICO.cube,'Receivable Item',esc(it.name))
+      +fieldCard(ICO.globe,'Receiving Warehouse','Hazira Works')
+      +fieldCard(ICO.check,'Status',badge(ok?'approved':'created',ok?'Confirmed':'Created')));}
+  else if(type==='reconciliation'){title='Reconciliation';sub=id;
+    body=g(fieldCard(ICO.hash,'Expected Qty',it.qty+' '+esc(it.uom))+fieldCard(ICO.hash,'Received Qty',d.received+' '+esc(it.uom))
+      +fieldCard(ICO.hash,'Open Qty',Math.max(0,it.qty-d.received)+' '+esc(it.uom))+common);}
+  if(!body)return;
+  document.getElementById('sc-modal-root').innerHTML=modalShell(title,sub,'<div style="padding:18px 0 4px">'+body+'</div>',
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>',true);
 }
 
 /* ══ BOOT ═════════════════════════════════════════════════════════════════  */

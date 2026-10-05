@@ -213,11 +213,9 @@
   background:var(--light);border:1px solid var(--border)}
 
 /* ── LISTING FILTERS ──────────────────────────────────────────────────────
-   Search and every select share one width, so the row reads as a set. A
-   label longer than the box ends in an ellipsis; the title attribute gives
-   the full text on hover. */
-.sc-filters .lp-search-input,
-.sc-filters .cs-wrap{flex:0 0 190px;width:190px;min-width:0}
+   ADT's standard widths (main.css / leaves.css): a 150px search, and each
+   select sized to its label with a 120px floor. A placeholder longer than
+   the search box ends in an ellipsis; its title gives the full text. */
 .sc-filters .cs-trigger{min-width:0;gap:8px}
 .sc-filters .cs-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc-filters .cs-chevron{flex-shrink:0}
@@ -232,3 +230,57 @@
    card. Status badges and IDs stay on one line. */
 .sc-split .lp-table .lp-c-plain{white-space:normal;overflow-wrap:break-word;min-width:110px}
 .sc-split .lp-table th,.sc-split .lp-table td{padding-left:12px;padding-right:12px}
+/* EXPAND A PANEL TABLE. The button sits at the right of the section head
+   (tableHead() in js/subcontracting.js); the popup shows the same table at
+   full width, so every column is readable without scrolling sideways. */
+.sc-expand-btn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);cursor:pointer;padding:0;
+  transition:background var(--t-fast,.15s) ease,color var(--t-fast,.15s) ease}
+.sc-expand-btn:hover{background:var(--btn-tint-bg,#f3f4f6);color:var(--btn-accent,var(--navy))}
+.sc-table-modal{width:min(1320px,96vw);max-height:84vh;padding:24px 24px 26px}
+.sc-table-modal .ct-modal-hdr{align-items:flex-start;margin-bottom:16px}
+.sc-table-modal .ct-modal-sub{margin:4px 0 0}
+.sc-table-modal .sc-rec-wrap{border-radius:12px;scrollbar-width:none}
+.sc-table-modal .sc-rec-wrap::-webkit-scrollbar{display:none}
+.sc-table-modal .sc-rec-table th{background:#fafbfc;padding:12px;white-space:normal;vertical-align:bottom}
+.sc-table-modal .sc-rec-table td{padding:14px 12px;white-space:normal}
+.sc-table-modal .sc-rec-table .lp-status-badge{white-space:nowrap}
+/* ONE STATUS RAMP, BLUE TO GREEN, for the from -> to pills in Update Status
+   (rampTone): blue while a step is open (SCR, PO, shipment and outbound), then teal, to green once
+   done and deep green when the transaction is closed. Status badges in the
+   listings and panels keep ADT's usual tones. Values are ADT's own status
+   tokens (main.css). */
+.lp-status-badge.sc-r1,.ct-sb-badge.sc-r1{background:var(--st-p3-bg);color:var(--st-p3-fg);border-color:var(--st-p3-bd)}
+.lp-status-badge.sc-r2,.ct-sb-badge.sc-r2{background:var(--st-info-bg);color:var(--st-info-fg);border-color:var(--st-info-bd)}
+.lp-status-badge.sc-r3,.ct-sb-badge.sc-r3{background:var(--st-p2-bg);color:var(--st-p2-fg);border-color:var(--st-p2-bd)}
+.lp-status-badge.sc-r4,.ct-sb-badge.sc-r4{background:var(--st-ok-bg);color:var(--st-ok-fg);border-color:var(--st-ok-bd)}
+.lp-status-badge.sc-r5,.ct-sb-badge.sc-r5{background:var(--st-p8-bg);color:var(--st-p8-fg);border-color:var(--st-p8-bd)}
+
+/* LISTING ACTIONS. The split control is ADT's .ct-action-* (leaves.css); the
+   button is a little wider here because a deal's status is a longer phrase
+   than a contract's. The menu is one node on <body> (scRowMenu) so the pinned
+   ACTION cell's stacking context cannot clip it. */
+.sc-split .ct-action-btn{width:104px;justify-content:space-between}
+.sc-split .ct-action-btn span{max-width:none;flex:1;min-width:0;text-align:left}
+#sc-row-menu{min-width:240px}
+.sc-act-head{padding:9px 14px 7px;font-size:10.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--gray);border-bottom:1px solid #f1f5f9}
+.ct-act-item.sc-act-avail{font-weight:600}
+
+/* UPDATE STATUS popup: from -> to, then the status and the comment. */
+.sc-us-body{padding:14px 0 18px;display:flex;flex-direction:column;gap:16px}
+.sc-us-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sc-us-arrow{display:inline-flex;color:#94a3b8}
+.sc-us-comment{min-height:96px;width:100%}
+.sc-us-log{border:none;background:none;padding:0;font:600 13px 'Inter',sans-serif;color:var(--navy);cursor:pointer}
+.sc-us-log:hover{text-decoration:underline}
+/* REVIEW BEFORE YOU CONFIRM. Update Status names the document the step acts
+   on and opens it; log cards carry the same View for what they produced or
+   confirmed. */
+.sc-us-review{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;
+  border:1px solid var(--st-info-bd);background:var(--st-info-bg);border-radius:10px}
+.sc-us-review-t{font-size:12.5px;font-weight:700;color:var(--navy)}
+.sc-us-review-s{font-size:12px;color:var(--gray);margin-top:2px}
+.sc-us-review .btn-sm{flex-shrink:0;background:#fff}
+#sc-us-review:empty{display:none}
+.sc-log-view{margin-top:10px}
