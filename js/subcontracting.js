@@ -2279,19 +2279,12 @@ function scOpenCreateSCR(){
     +'</div>');
 
   var recv=section('Receivable Item Details',
-    recTable(['#','Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt Date','Rate Contract','Line Status'],
-      '<tr id="sc-recv-row-1"><td>1</td><td>'+select('r1-item',['Fabricated End Frame'])+'</td><td>Finished Product</td>'
-      +'<td>'+input('r1-qty','10')+'</td><td>Each</td><td>'+input('r1-price','250')+'</td>'
-      +'<td>'+select('r1-wh',['Hazira Works'])+'</td><td>'+select('r1-hsn',['0202'])+'</td>'
-      +'<td>'+input('r1-date','2026-10-30','date')+'</td><td>RC-123</td><td>'+badge('open','Open')+'</td></tr>')
-    +'<button class="btn-outline btn-sm" style="margin-top:10px" onclick="scAddReceivable()">'+ICO.plus+' Add Receivable Item</button>');
+    '<div class="sc-item-list" id="sc-recv-list">'+recvCardHTML(1,'Fabricated End Frame','10','250','0202')+'</div>'
+    +'<button class="btn-outline btn-sm sc-item-add" onclick="scAddReceivable()">'+ICO.plus+' Add Receivable Item</button>');
 
   var issue=section('Issue Item Details',
-    recTable(['#','For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Location','Storage Zone','Free Issue Material','Tax Code','HSN','BOM Ratio'],
-      '<tr><td>1</td><td>Fabricated End Frame</td><td>'+select('i1-item',['SKU_52297_3814 — Mild Steel Plate 10 mm'])+'</td>'
-      +'<td>Raw Material</td><td>'+input('i1-qty','10')+'</td><td>Each</td><td>Hazira Works</td><td>Main Store</td>'
-      +'<td>Zone A</td><td>Yes</td><td>GST-05</td><td>0202</td><td>1:1</td></tr>')
-    +'<button class="btn-outline btn-sm" style="margin-top:10px" onclick="scAddIssue()">'+ICO.plus+' Add Issue Item</button>');
+    '<div class="sc-item-list" id="sc-issue-list">'+issueCardHTML(1,'Fabricated End Frame','SKU_52297_3814 — Mild Steel Plate 10 mm','10','Zone A','0202')+'</div>'
+    +'<button class="btn-outline btn-sm sc-item-add" onclick="scAddIssue()">'+ICO.plus+' Add Issue Item</button>');
 
   scrDraftFiles=[];
   var attach=section('Attachments','<div id="sc-scr-att">'+scrAttachHTML()+'</div>');
@@ -2334,25 +2327,70 @@ function scScrFileRemove(i){
   var f=scrDraftFiles.splice(i,1)[0];if(f&&f.url)URL.revokeObjectURL(f.url);
   document.getElementById('sc-scr-att').innerHTML=scrAttachHTML();
 }
+/* LINE ITEMS AS CARDS. Each receivable / issue item is one card: a header
+   naming it, then its fields in a four-column grid of the form's own
+   controls - so a whole item is filled in place, with no sideways scroll.
+   Field ids are unchanged (r1-qty, i1-item, ...), so submit reads them as
+   before. Items added after the first can be removed. */
+function itemField(label,control,req,span){
+  return '<div class="ep-form-group'+(span?' sc-span2':'')+'"><label class="ep-form-label">'+esc(label)
+    +(req?' <span class="req">*</span>':'')+'</label>'+control+'</div>';
+}
+function itemRO(label,value,span){return itemField(label,'<div class="sc-ro">'+esc(value)+'</div>',false,span);}
+function itemCard(kind,n,title,status,grid){
+  return '<div class="sc-item-card" data-kind="'+kind+'">'
+    +'<div class="sc-item-head"><span class="sc-item-no">'+n+'</span><span class="sc-item-title">'+esc(title)+'</span>'
+    +(status?badge('open',status):'')
+    +(n>1?'<button class="sc-item-del" type="button" title="Remove item" onclick="scRemoveItem(this)">'+ICO.close+'</button>':'')
+    +'</div><div class="sc-item-grid">'+grid+'</div></div>';
+}
+function recvCardHTML(n,item,qty,price,hsn){
+  var k='r'+n;
+  return itemCard('recv',n,'Receivable Item '+n,'Open',
+     itemField('Receivable Item',select(k+'-item',[item]),true,true)
+    +itemRO('Item Type','Finished Product')
+    +itemRO('UOM','Each')
+    +itemField('Expected Qty',input(k+'-qty',qty,'number'),true)
+    +itemField('Est. Price / Unit',input(k+'-price',price,'number'),true)
+    +itemField('Receiving Warehouse',select(k+'-wh',['Hazira Works']))
+    +itemField('HSN',select(k+'-hsn',[hsn]))
+    +itemField('Expected Receipt Date',input(k+'-date','2026-10-30','date'))
+    +itemRO('Rate Contract','RC-123'));
+}
+function issueCardHTML(n,forItem,item,qty,zone,hsn){
+  var k='i'+n;
+  return itemCard('issue',n,'Issue Item '+n,'',
+     itemRO('For Receivable Item',forItem)
+    +itemField('Issue Item',select(k+'-item',[item]),true,true)
+    +itemField('Issue Qty',input(k+'-qty',qty,'number'),true)
+    +itemRO('Item Type','Raw Material')
+    +itemRO('UOM','Each')
+    +itemRO('Warehouse','Hazira Works')
+    +itemRO('Storage Location','Main Store')
+    +itemRO('Storage Zone',zone)
+    +itemRO('Free Issue Material','Yes')
+    +itemRO('Tax Code','GST-05')
+    +itemRO('HSN',hsn)
+    +itemRO('BOM Ratio','1:1'));
+}
 function scAddReceivable(){
-  var tb=document.querySelector('#sc-recv-row-1').parentElement;
-  var n=tb.children.length+1;
-  var tr=document.createElement('tr');
-  tr.innerHTML='<td>'+n+'</td><td>'+select('r'+n+'-item',['Machined Shaft'])+'</td><td>Finished Product</td>'
-    +'<td>'+input('r'+n+'-qty','5')+'</td><td>Each</td><td>'+input('r'+n+'-price','350')+'</td>'
-    +'<td>'+select('r'+n+'-wh',['Hazira Works'])+'</td><td>'+select('r'+n+'-hsn',['0203'])+'</td>'
-    +'<td>'+input('r'+n+'-date','2026-10-30','date')+'</td><td>RC-123</td><td>'+badge('open','Open')+'</td>';
-  tb.appendChild(tr);
+  var list=document.getElementById('sc-recv-list');if(!list)return;
+  var n=list.children.length+1;
+  list.insertAdjacentHTML('beforeend',recvCardHTML(n,'Machined Shaft','5','350','0203'));
 }
 function scAddIssue(){
-  var tbs=document.querySelectorAll('#sc-modal-root .sc-rec-table tbody');
-  var tb=tbs[tbs.length-1];
-  var n=tb.children.length+1;
-  var tr=document.createElement('tr');
-  tr.innerHTML='<td>'+n+'</td><td>Machined Shaft</td><td>'+select('i'+n+'-item',['SKU_52288_3814 — Carbon Steel Billet'])+'</td>'
-    +'<td>Raw Material</td><td>'+input('i'+n+'-qty','5')+'</td><td>Each</td><td>Hazira Works</td><td>Main Store</td>'
-    +'<td>Zone B</td><td>Yes</td><td>GST-05</td><td>0206</td><td>1:1</td>';
-  tb.appendChild(tr);
+  var list=document.getElementById('sc-issue-list');if(!list)return;
+  var n=list.children.length+1;
+  list.insertAdjacentHTML('beforeend',issueCardHTML(n,'Machined Shaft','SKU_52288_3814 — Carbon Steel Billet','5','Zone B','0206'));
+}
+function scRemoveItem(btn){
+  var card=btn.closest('.sc-item-card'),list=card&&card.parentElement;if(!card)return;
+  card.remove();
+  /* renumber the headers that remain; field ids stay as they were */
+  Array.prototype.forEach.call(list.children,function(c,i){
+    c.querySelector('.sc-item-no').textContent=i+1;
+    c.querySelector('.sc-item-title').textContent=(c.dataset.kind==='recv'?'Receivable Item ':'Issue Item ')+(i+1);
+  });
 }
 function scSaveDraftSCR(){scCloseModal();scToast('SCR saved as Draft','info');}
 function scSubmitSCR(){
