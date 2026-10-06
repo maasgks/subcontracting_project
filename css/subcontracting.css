@@ -393,3 +393,25 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-tpl-signname{font-size:13px;min-height:18px}
 .sc-tpl-signline{border-bottom:1px solid #111;width:70%;margin:14px 0 6px}
 .sc-tpl-foot{display:flex;justify-content:space-between;gap:12px;padding:7px 10px;font-size:11px;color:#333}
+/* OUTBOUND KEY DETAILS (scOpenOBK): the key card, references as label/value
+   rows, and one card per issue material. Colours are the theme's info blue. */
+.sc-obk{padding:14px 0 6px}
+.sc-obk-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;margin-bottom:18px;
+  border:1px solid var(--st-info-bd);background:var(--st-info-bg);border-radius:12px}
+.sc-obk-label{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--gray)}
+.sc-obk-no{font-size:24px;font-weight:800;color:var(--st-info-fg);letter-spacing:-.3px;margin:4px 0 8px}
+.sc-obk-qr{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.sc-obk-qr svg{display:block;border-radius:4px}
+.sc-obk-qr span{font-size:10.5px;color:var(--gray)}
+.sc-kv-list{margin-bottom:18px}
+.sc-kv{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:9px 2px;border-bottom:1px solid #f1f3f5;font-size:13px}
+.sc-kv:last-child{border-bottom:none}
+.sc-kv span{color:var(--gray);flex-shrink:0}
+.sc-kv b{font-weight:600;color:var(--navy);text-align:right}
+.sc-obk-item{border:1px solid var(--border);border-radius:12px;padding:12px 14px 4px;margin-bottom:10px}
+.sc-obk-item-top{display:flex;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid #f1f3f5}
+.sc-obk-item-top b{display:block;font-size:13px;color:var(--navy)}
+.sc-obk-item-top span{display:block;font-size:12px;color:var(--gray);margin-top:2px}
+.sc-obk-qty{font-size:13px;font-weight:700;color:var(--st-info-fg);white-space:nowrap}
+.sc-obk-item .sc-kv{padding:7px 0;font-size:12.5px}
+@media print{.sc-obk-hero,.sc-tpl-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}}

@@ -1378,31 +1378,31 @@ function tplCell(label,value,cls){
   return '<div class="sc-tpl-cell'+(cls?' '+cls:'')+'"><div class="sc-tpl-label">'+esc(label)+'</div>'
     +'<div class="sc-tpl-value">'+(value===''||value==null?'—':value)+'</div></div>';
 }
-function scOpenOBK(id){
-  var x=dealDocs(id);if(!x.obk)return;
-  var released=!!x.dn;
+function scOpenDN(id){
+  var x=dealDocs(id);if(!x.dn)return;
+  var day=x.dn.date.split(' ').slice(0,3).join(' ');
   var doc='<div class="sc-tpl">'
     +'<div class="sc-tpl-grid">'
-      +'<div class="sc-tpl-cell sc-span2 sc-tpl-titlecell"><div class="sc-tpl-title">OUTBOUND KEY</div><div class="sc-tpl-sub">Sub-Contracting Material Dispatch</div></div>'
-      +tplCell('Status','<b>'+(released?'Released':'Generated')+'</b>')
+      +'<div class="sc-tpl-cell sc-span2 sc-tpl-titlecell"><div class="sc-tpl-title">DELIVERY NOTE</div><div class="sc-tpl-sub">Sub-Contracting</div></div>'
+      +tplCell('Status','<b>'+(x.dn.approved?'Approved':'Generated')+'</b>')
       +tplCell('SCR No.','<b class="sc-tpl-big">'+esc(x.scr)+'</b>')
-      +tplCell('Outbound Key No.','<b class="sc-tpl-big">'+esc(x.obk.no)+'</b>')
-      +tplCell('Outbound Key Date',esc(x.obk.date))
+      +tplCell('Delivery Note No.','<b class="sc-tpl-big">'+esc(x.dn.no)+'</b>')
+      +tplCell('Delivery Note Date',esc(x.dn.date))
       +tplCell('PO No.',esc(x.po))
       +tplCell('Shipment No.',esc(x.ship?x.ship.no:''))
-      +tplCell('Vendor / Consignee',esc(x.vcode+' — '+x.vendor),'sc-span3')
+      +tplCell('Vendor / Consignee',esc(x.vendor),'sc-span3')
       +tplCell('Dispatching Unit / Location','Hazira Works')
       +tplCell('Address',esc(x.addr)+', India','sc-span3')
       +tplCell('Expected Date of Return','30 Oct 2026')
-      +tplCell('Transfer Order No.',esc(x.obk.to),'sc-span2')
-      +tplCell('Material Position',released?'At Staging':'MAAS_STAGING','sc-span2')
+      +tplCell('Delivery Note Approver','Chandra Mohan','sc-span3')
+      +tplCell('Your / Our Reference','')
       +tplCell('Remarks','','sc-span4')
     +'</div>'
     +'<div class="sc-tpl-band">ITEM DETAILS</div>'
-    +'<table class="sc-tpl-table"><thead><tr><th>Item No</th><th>Issue Item / Material Code</th><th>Item Description</th><th>Project</th>'
-      +'<th class="r">Quantity</th><th>UOM</th><th>Warehouse</th><th>Storage Location</th></tr></thead><tbody>'
-      +x.items.map(function(r,i){return '<tr><td class="c">'+(i+1)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.desc)+'</td><td>'+esc(x.project)+'</td>'
-        +'<td class="r">'+r.qty+'</td><td>'+esc(r.uom)+'</td><td>Hazira Works</td><td>Main Store</td></tr>';}).join('')
+    +'<table class="sc-tpl-table"><thead><tr><th class="c">Item No</th><th>Issue Item / Material Code</th><th>Item Description</th>'
+      +'<th class="r">Quantity</th><th>UOM</th></tr></thead><tbody>'
+      +x.items.map(function(r,i){return '<tr><td class="c">'+(i+1)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.desc)+'</td>'
+        +'<td class="r">'+r.qty+'</td><td>'+esc(r.uom)+'</td></tr>';}).join('')
     +'</tbody></table>'
     +'<div class="sc-tpl-band">PACKAGE / VEHICLE / TRANSPORT DETAILS</div>'
     +'<div class="sc-tpl-grid sc-tpl-grid3">'
@@ -1412,19 +1412,79 @@ function scOpenOBK(id){
       +tplCell('Insurance Applicable','Yes')+tplCell('Insured By / Insurance Details','')+tplCell('Loading / Unloading Contact','ATUL')
     +'</div>'
     +'<div class="sc-tpl-grid sc-tpl-grid3 sc-tpl-sign">'
-      +[['PREPARED BY',x.preparedBy,x.obk.date.split(' ').slice(0,3).join(' ')],
-        ['AUTHORIZED BY (APPROVER)',released?'Chandra Mohan':'',released?x.obk.date.split(' ').slice(0,3).join(' '):''],
+      +[['PREPARED BY',x.preparedBy,day],
+        ['AUTHORIZED BY (APPROVER)',x.dn.approved?'Chandra Mohan':'',x.dn.approved?day:''],
         ['RECEIVED BY','','']].map(function(g){
         return '<div class="sc-tpl-cell"><div class="sc-tpl-signhead">'+g[0]+'</div>'
           +'<div class="sc-tpl-signname">'+(esc(g[1])||'—')+'</div><div class="sc-tpl-signline"></div>'
           +'<div class="sc-tpl-label">(Name &amp; Signature)</div><div class="sc-tpl-label">Date: '+(esc(g[2])||'________')+'</div></div>';
       }).join('')
     +'</div>'
-    +'<div class="sc-tpl-foot"><span>(This is a computer generated Outbound Key and does not require any physical signature)</span><span>Page 1 of 1</span></div>'
+    +'<div class="sc-tpl-foot"><span>(This is a computer generated Delivery Note and does not require any physical signature)</span><span>Page 1 of 1</span></div>'
   +'</div>';
-  document.getElementById('sc-modal-root').innerHTML=modalShell('Outbound Key',x.obk.no+' · '+x.scr,
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Delivery Note',x.dn.no+' · '+x.scr,
     '<div style="padding:16px 0 6px">'+doc+'</div>',
-    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>',true);
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button>'
+      +'<button class="btn-primary" onclick="scPrintModal()">'+ICO_PRINT+' Print</button></div>',true);
+}
+/* OUTBOUND KEY DETAILS - the gate document: a key card (number, status and a
+   code to scan at the gate), its basic references, and one card per issue
+   material. The code is a drawn placeholder, not a scannable QR. */
+var ICO_PRINT='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+var ICO_DL='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>';
+function qrPlaceholder(text){
+  var n=21,h=0,i,cells='';
+  for(i=0;i<text.length;i++)h=(h*31+text.charCodeAt(i))>>>0;
+  var finder=function(r,c){
+    var f=[[0,0],[0,n-7],[n-7,0]];
+    for(var k=0;k<3;k++){var dr=r-f[k][0],dc=c-f[k][1];
+      if(dr>=0&&dr<7&&dc>=0&&dc<7)return (dr===0||dr===6||dc===0||dc===6||(dr>=2&&dr<=4&&dc>=2&&dc<=4))?1:0;
+      if(dr>=-1&&dr<8&&dc>=-1&&dc<8)return 0;}
+    return -1;
+  };
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++){
+    var f=finder(r,c),on;
+    if(f>=0)on=f;else{h=(h*1103515245+12345)>>>0;on=(h>>>16)&1;}
+    if(on)cells+='<rect x="'+c+'" y="'+r+'" width="1" height="1"/>';
+  }
+  return '<svg viewBox="-1 -1 '+(n+2)+' '+(n+2)+'" width="68" height="68" shape-rendering="crispEdges"><rect x="-1" y="-1" width="'+(n+2)+'" height="'+(n+2)+'" fill="#fff"/><g fill="#111">'+cells+'</g></svg>';
+}
+function scOpenOBK(id){
+  var x=dealDocs(id);if(!x.obk)return;
+  var released=!!x.dn;
+  var kv=function(k,v){return '<div class="sc-kv"><span>'+esc(k)+'</span><b>'+esc(v)+'</b></div>';};
+  var body='<div class="sc-obk">'
+    +'<div class="sc-obk-hero"><div class="sc-obk-hero-l"><div class="sc-obk-label">OUTBOUND KEY NO.</div>'
+      +'<div class="sc-obk-no">'+esc(x.obk.no)+'</div>'+badge(released?'approved':'created',released?'Released':'Generated')+'</div>'
+      +'<div class="sc-obk-qr">'+qrPlaceholder(x.obk.no)+'<span>Scan at gate</span></div></div>'
+    +secHead('Basic Details')
+    +'<div class="sc-kv-list">'+kv('Shipment No.',x.ship?x.ship.no:'—')+kv('SCR No.',x.scr)+kv('PO No.',x.po)+kv('Transfer Order No.',x.obk.to)+'</div>'
+    +secHead('Material to be Issued')
+    +x.items.map(function(r){
+      return '<div class="sc-obk-item"><div class="sc-obk-item-top"><div><b>'+esc(r.code)+'</b><span>'+esc(r.desc)+'</span></div>'
+        +'<div class="sc-obk-qty">'+r.qty+' '+esc(r.uom)+'</div></div>'
+        +kv('Project',x.project)+kv('Warehouse','Hazira Works')+kv('Storage Location','Main Store · Hazira Works')+'</div>';
+    }).join('')
+  +'</div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Outbound Key Details',
+    'Generated '+x.obk.date+' by '+x.preparedBy,body,
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scPrintModal(true)">'+ICO_DL+' Download PDF</button>'
+      +'<button class="btn-primary" onclick="scPrintModal()">'+ICO_PRINT+' Print</button></div>');
+}
+/* Print the open popup's body on its own. Download PDF uses the same print
+   window - the browser's "Save as PDF" destination writes the file. */
+function scPrintModal(pdf){
+  var body=document.querySelector('#sc-modal-root .sc-modal-body'),
+      title=document.querySelector('#sc-modal-root .ct-modal-title');
+  if(!body)return;
+  var links=Array.prototype.map.call(document.querySelectorAll('link[rel="stylesheet"]'),function(l){return '<link rel="stylesheet" href="'+l.href+'">';}).join('');
+  var w=window.open('','_blank');
+  if(!w){scToast('Allow pop-ups to print','error');return;}
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title?title.textContent:'Document')+'</title>'+links
+    +'<style>body{background:#fff;padding:24px;overflow:auto;height:auto}</style></head><body>'+body.innerHTML+'</body></html>');
+  w.document.close();
+  w.onload=function(){w.focus();w.print();};
+  if(pdf)scToast('Choose "Save as PDF" in the print dialog','info');
 }
 function docEmpty(ico,title,sub){
   return '<div class="sc-empty"><div class="sc-empty-ico">'+ico+'</div>'
@@ -1460,7 +1520,7 @@ var DOC_TABS={
   },
   deliverynote:function(x){
     if(!x.dn)return docEmpty(ICO.doc,'Delivery Note not generated yet','It is generated when the Stores User releases the goods.');
-    return secHead('Delivery Note Details')+docGridCards(
+    return secHead('Delivery Note Details','<button class="btn-outline btn-sm" onclick="scOpenDN(\''+x.scr+'\')">'+ICO.eye+' View Delivery Note</button>')+docGridCards(
        fieldCard(ICO.doc,'Delivery Note No.',esc(x.dn.no))
       +fieldCard(ICO.check,'Status',badge(x.dn.approved?'approved':'created',x.dn.approved?'Approved':'Generated'))
       +fieldCard(ICO.cal,'Delivery Note Date',esc(x.dn.date))
