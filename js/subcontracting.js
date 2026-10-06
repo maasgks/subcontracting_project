@@ -1279,7 +1279,7 @@ function scExpandTable(btn){
   var root=document.getElementById('sc-modal-root');
   if(root.innerHTML)modalStack.push(root.innerHTML);
   root.innerHTML=
-    '<div class="ct-modal-overlay" onclick="if(event.target===this)scCloseModal()">'
+    '<div class="ct-modal-overlay">'
     +'<div class="ct-modal sc-table-modal" role="dialog" aria-modal="true">'
       +'<div class="ct-modal-hdr"><div><div class="ct-modal-title">'+esc(title)+'</div>'
       +'<div class="ct-modal-sub">'+esc((id?id+' · ':'')+n+(n===1?' line':' lines'))+'</div></div>'
@@ -1296,8 +1296,9 @@ function recTable(head,rows){
 /* ══ DEAL PANEL ═══════════════════════════════════════════════════════════  */
 /* Logs and Workflow always close the tab row, Logs first: the log is where
    an action is taken, the workflow is where it is read back afterwards. */
-var DEAL_TABS=[{id:'details',label:'Details'},{id:'attachments',label:'Attachments'},
-               {id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
+var DEAL_TABS=[{id:'details',label:'Details'},{id:'shipment',label:'Shipment'},{id:'deliverynote',label:'Delivery Note'},
+               {id:'challan',label:'Challan'},{id:'asn',label:'ASN'},{id:'imr',label:'IMR'},
+               {id:'attachments',label:'Attachments'},{id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
 var ORDER_TABS=[{id:'details',label:'Details'},{id:'logs',label:'Logs'},{id:'workflow',label:'Workflow'}];
 function dealPanelHTML(){
   if(state.dealSel!==LIVE_ID)return samplePanelHTML(sampleDeal(state.dealSel));
@@ -1307,10 +1308,246 @@ function dealPanelHTML(){
   if(state.dealTab==='details')body=dealDetailsHTML();
   else if(state.dealTab==='workflow')body=dealWorkflowHTML();
   else if(state.dealTab==='logs')body=dealLogsHTML();
+  else if(DOC_TABS[state.dealTab])body=DOC_TABS[state.dealTab](dealDocs(LIVE_ID));
   else body=attachmentsHTML(LIVE_ID);
 
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
+
+/* ══ DOCUMENT TABS ═════════════════════════════════════════════════════════
+   Shipment, Delivery Note, Challan, ASN and IMR each get a tab in the deal
+   panel, laid out like Details: section heads, field cards, and the line
+   table where there is one. dealDocs() reads one deal - live or sample - into
+   a single shape, so the five tabs are written once for both. A document the
+   deal has not reached yet shows the panel's empty state saying who makes it. */
+function dealDocs(id){
+  var ISSUE=[['SKU_52297_3814','Mild Steel Plate 10 mm','0202'],['SKU_52288_3814','Carbon Steel Billet','0206'],
+             ['SKU_52287_3814','Alloy Steel Forging Block','0203']];
+  if(id===LIVE_ID){
+    return {scr:LIVE_ID,po:LIVE_PO,vendor:'Sri Venkateswara Aerospace Pvt.ltd',vcode:'21005',addr:'Hyderabad, Telangana 500084',
+      planner:'Kinjal Sisodiya',shipStatus:shipLabel(),project:'Industrial Structure Fabrication',preparedBy:'Sagar Kohli',
+      obk:state.shipment!=='none'?{no:'OBK/26/0152',date:'25 Sep 2026 11:19',to:'TO/26/0152'}:null,
+      ship:state.shipment!=='none'?{no:'SHP-2026-035307',date:'25 Sep 2026'}:null,
+      dn:state.deliveryNote!=='none'?{no:'DN/26/0123',date:'25 Sep 2026 11:19',approved:state.deliveryNote==='approved'}:null,
+      challan:state.challan!=='none'?{no:'CHL/26/0103',date:'25 Sep 2026 11:21',
+        status:state.challan==='gate_cleared'?'Gate Cleared':state.challan==='closed'?'Closed':'Generated'}:null,
+      items:ISSUE.map(function(r){return {code:r[0],desc:r[1],hsn:r[2],qty:10,uom:'Each'};}),
+      uom:'Each',
+      asns:state.asns.map(function(a){return {no:a.no,qty:a.qty,qc:a.qc,gateIn:a.gateIn};}),
+      imrs:state.imrs.map(function(m){return {no:m.no,asnNo:m.asnNo,qty:m.qty,status:m.status};})};
+  }
+  var d=sampleDeal(id),n=id.slice(-5),it=d.item,asns=[],imrs=[],k;
+  var obStep=d.stage==='outbound'?['dn','challan','gate','confirm'].indexOf(d.sub||'dn'):(stagePassed(d,'outbound')?4:-1);
+  for(k=1;k<=d.asns;k++){
+    var last=d.stage==='asn'&&k===d.asns;
+    asns.push({no:'ASN-'+n+'-'+k,qty:Math.ceil(it.qty/Math.max(1,d.asns)),
+      qc:!last||d.sub==='gatein'||d.sub==='vendor'?'QC Cleared':'Created',gateIn:!last||d.sub==='vendor'});
+  }
+  for(k=1;k<=d.imrs;k++){
+    var open=d.stage==='imr'&&k===d.imrs&&d.sub!=='create';
+    imrs.push({no:'IMR-'+n+'-'+k,asnNo:'ASN-'+n+'-'+Math.min(k,Math.max(1,d.asns)),
+      qty:Math.ceil(it.qty/Math.max(1,d.imrs)),status:open?'Created':'Confirmed'});
+  }
+  return {scr:d.id,po:d.po?d.po.no:'—',vendor:d.vendor.name,vcode:d.vendor.code,addr:d.vendor.addr,
+    planner:d.planner,shipStatus:sampleShip(d),project:(d.baseRef.split(' — ')[1]||d.baseRef),preparedBy:d.planner,
+    obk:stageReached(d,'shipment')&&d.stage!=='po'?{no:'OBK/26/'+n,date:addDays(d.created,8)+' 11:19',to:'TO/26/'+n}:null,
+    ship:stageReached(d,'shipment')&&!(d.stage==='po')?{no:'SHP-2026-0'+n,date:addDays(d.created,8)}:null,
+    dn:obStep>=0?{no:'DN/26/'+n,date:addDays(d.created,10),approved:obStep>=1}:null,
+    challan:obStep>=2?{no:'CHL/26/'+n,date:addDays(d.created,11),status:obStep>=3?'Gate Cleared':'Generated'}:null,
+    items:d.issues.map(function(r){var c=r[0].split(' — ');return {code:c[0],desc:c[1]||c[0],hsn:r[2],qty:it.qty,uom:it.uom};}),
+    uom:it.uom,asns:asns,imrs:imrs};
+}
+function transportCards(x,full){
+  return fieldCard(ICO.cube,'Package Type / Details','Plate Bundle')
+    +fieldCard(ICO.hash,'Number of Packages','1')
+    +fieldCard(ICO.cube,'Package Weight','1000 '+esc(x.uom))
+    +fieldCard(ICO.truck,'Mode of Dispatch','Road Transport')
+    +fieldCard(ICO.truck,'Transporter','TransCore Logistics')
+    +fieldCard(ICO.truck,'Vehicle No.','AP47TD8451')
+    +(full?fieldCard(ICO.user,'Driver Details','')+fieldCard(ICO.doc,'LR / Transport Reference No.',''):'')
+    +fieldCard(ICO.cal,'LR / Transport Date','26 Sep 2026')
+    +fieldCard(ICO.shield,'Insurance Applicable','Yes')
+    +(full?fieldCard(ICO.shield,'Insured By / Insurance Details',''):'')
+    +fieldCard(ICO.user,'Loading / Unloading Contact','ATUL');
+}
+/* OUTBOUND KEY - a printable document in the bordered form layout: title
+   block, numbered references, item table, transport grid, three signature
+   boxes and the computer-generated footer. Built from dealDocs(), so the
+   live deal and every sample render their own. */
+function tplCell(label,value,cls){
+  return '<div class="sc-tpl-cell'+(cls?' '+cls:'')+'"><div class="sc-tpl-label">'+esc(label)+'</div>'
+    +'<div class="sc-tpl-value">'+(value===''||value==null?'—':value)+'</div></div>';
+}
+function scOpenOBK(id){
+  var x=dealDocs(id);if(!x.obk)return;
+  var released=!!x.dn;
+  var doc='<div class="sc-tpl">'
+    +'<div class="sc-tpl-grid">'
+      +'<div class="sc-tpl-cell sc-span2 sc-tpl-titlecell"><div class="sc-tpl-title">OUTBOUND KEY</div><div class="sc-tpl-sub">Sub-Contracting Material Dispatch</div></div>'
+      +tplCell('Status','<b>'+(released?'Released':'Generated')+'</b>')
+      +tplCell('SCR No.','<b class="sc-tpl-big">'+esc(x.scr)+'</b>')
+      +tplCell('Outbound Key No.','<b class="sc-tpl-big">'+esc(x.obk.no)+'</b>')
+      +tplCell('Outbound Key Date',esc(x.obk.date))
+      +tplCell('PO No.',esc(x.po))
+      +tplCell('Shipment No.',esc(x.ship?x.ship.no:''))
+      +tplCell('Vendor / Consignee',esc(x.vcode+' — '+x.vendor),'sc-span3')
+      +tplCell('Dispatching Unit / Location','Hazira Works')
+      +tplCell('Address',esc(x.addr)+', India','sc-span3')
+      +tplCell('Expected Date of Return','30 Oct 2026')
+      +tplCell('Transfer Order No.',esc(x.obk.to),'sc-span2')
+      +tplCell('Material Position',released?'At Staging':'MAAS_STAGING','sc-span2')
+      +tplCell('Remarks','','sc-span4')
+    +'</div>'
+    +'<div class="sc-tpl-band">ITEM DETAILS</div>'
+    +'<table class="sc-tpl-table"><thead><tr><th>Item No</th><th>Issue Item / Material Code</th><th>Item Description</th><th>Project</th>'
+      +'<th class="r">Quantity</th><th>UOM</th><th>Warehouse</th><th>Storage Location</th></tr></thead><tbody>'
+      +x.items.map(function(r,i){return '<tr><td class="c">'+(i+1)+'</td><td>'+esc(r.code)+'</td><td>'+esc(r.desc)+'</td><td>'+esc(x.project)+'</td>'
+        +'<td class="r">'+r.qty+'</td><td>'+esc(r.uom)+'</td><td>Hazira Works</td><td>Main Store</td></tr>';}).join('')
+    +'</tbody></table>'
+    +'<div class="sc-tpl-band">PACKAGE / VEHICLE / TRANSPORT DETAILS</div>'
+    +'<div class="sc-tpl-grid sc-tpl-grid3">'
+      +tplCell('Package Type / Details','Plate Bundle')+tplCell('Number of Packages','1')+tplCell('Package Weight','1000 '+esc(x.uom))
+      +tplCell('Mode of Dispatch','Road Transport')+tplCell('Transporter','TransCore Logistics')+tplCell('Vehicle No.','AP47TD8451')
+      +tplCell('Driver Details','')+tplCell('LR / Transport Reference No.','')+tplCell('LR / Transport Date','26 Sep 2026')
+      +tplCell('Insurance Applicable','Yes')+tplCell('Insured By / Insurance Details','')+tplCell('Loading / Unloading Contact','ATUL')
+    +'</div>'
+    +'<div class="sc-tpl-grid sc-tpl-grid3 sc-tpl-sign">'
+      +[['PREPARED BY',x.preparedBy,x.obk.date.split(' ').slice(0,3).join(' ')],
+        ['AUTHORIZED BY (APPROVER)',released?'Chandra Mohan':'',released?x.obk.date.split(' ').slice(0,3).join(' '):''],
+        ['RECEIVED BY','','']].map(function(g){
+        return '<div class="sc-tpl-cell"><div class="sc-tpl-signhead">'+g[0]+'</div>'
+          +'<div class="sc-tpl-signname">'+(esc(g[1])||'—')+'</div><div class="sc-tpl-signline"></div>'
+          +'<div class="sc-tpl-label">(Name &amp; Signature)</div><div class="sc-tpl-label">Date: '+(esc(g[2])||'________')+'</div></div>';
+      }).join('')
+    +'</div>'
+    +'<div class="sc-tpl-foot"><span>(This is a computer generated Outbound Key and does not require any physical signature)</span><span>Page 1 of 1</span></div>'
+  +'</div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Outbound Key',x.obk.no+' · '+x.scr,
+    '<div style="padding:16px 0 6px">'+doc+'</div>',
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>',true);
+}
+function docEmpty(ico,title,sub){
+  return '<div class="sc-empty"><div class="sc-empty-ico">'+ico+'</div>'
+    +'<div class="sc-empty-title">'+esc(title)+'</div><div class="sc-empty-sub">'+esc(sub)+'</div></div>';
+}
+function docGridCards(cards){return '<div class="lp-sb-detail-grid" style="margin-bottom:20px">'+cards+'</div>';}
+var DOC_TABS={
+  shipment:function(x){
+    if(!x.ship)return docEmpty(ICO.box,'Shipment not created yet','The Planner creates the shipment once the PO is approved.');
+    return secHead('Shipment Details',x.obk?'<button class="btn-outline btn-sm" onclick="scOpenOBK(\''+x.scr+'\')">'+ICO.eye+' View Outbound Key</button>':'')+docGridCards(
+       fieldCard(ICO.box,'Shipment ID',esc(x.ship.no))
+      +fieldCard(ICO.check,'Shipment Status',badge(shipToneOf(x.shipStatus),x.shipStatus))
+      +fieldCard(ICO.doc,'SCR No.',esc(x.scr))
+      +fieldCard(ICO.cart,'PO No.',esc(x.po))
+      +fieldCard(ICO.user,'Created By',esc(x.planner))
+      +fieldCard(ICO.cal,'Created On',esc(x.ship.date))
+      +fieldCard(ICO.user,'Delivery Note Approver','Chandra Mohan')
+      +fieldCard(ICO.tag,'Challan Type','Production Material Challan')
+      +fieldCard(ICO.truck,'Logistics Required','Yes')
+      +fieldCard(ICO.cal,'Expected Return','30 Oct 2026'))
+    +secHead('Package / Vehicle / Transport')+docGridCards(
+       fieldCard(ICO.cube,'Package Type','Plate Bundle')
+      +fieldCard(ICO.hash,'No. of Packages','1')
+      +fieldCard(ICO.cube,'Package Weight','1000 '+esc(x.uom))
+      +fieldCard(ICO.truck,'Mode of Dispatch','Road Transport')
+      +fieldCard(ICO.truck,'Transporter','TransCore Logistics')
+      +fieldCard(ICO.truck,'Vehicle No.','AP47TD8451')
+      +fieldCard(ICO.cal,'LR / Transport Date','26 Sep 2026')
+      +fieldCard(ICO.shield,'Insurance Applicable','Yes')
+      +fieldCard(ICO.user,'Loading / Unloading Contact','ATUL'))
+    +tableHead('Issue Material')+recTable(['#','Material Code','Description','Qty','UOM','Warehouse','Storage Location'],
+      x.items.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc(r.code)+'</b></td><td>'+esc(r.desc)+'</td><td>'+r.qty+'</td><td>'+esc(r.uom)+'</td><td>Hazira Works</td><td>Main Store</td></tr>';}).join(''));
+  },
+  deliverynote:function(x){
+    if(!x.dn)return docEmpty(ICO.doc,'Delivery Note not generated yet','It is generated when the Stores User releases the goods.');
+    return secHead('Delivery Note Details')+docGridCards(
+       fieldCard(ICO.doc,'Delivery Note No.',esc(x.dn.no))
+      +fieldCard(ICO.check,'Status',badge(x.dn.approved?'approved':'created',x.dn.approved?'Approved':'Generated'))
+      +fieldCard(ICO.cal,'Delivery Note Date',esc(x.dn.date))
+      +fieldCard(ICO.box,'Shipment No.',esc(x.ship?x.ship.no:'—'))
+      +fieldCard(ICO.doc,'SCR No.',esc(x.scr))
+      +fieldCard(ICO.cart,'PO No.',esc(x.po))
+      +fieldCard(ICO.handshake,'Vendor / Consignee',esc(x.vcode+' — '+x.vendor))
+      +fieldCard(ICO.globe,'Address',esc(x.addr))
+      +fieldCard(ICO.globe,'Dispatching Unit','Hazira Works')
+      +fieldCard(ICO.cal,'Expected Date of Return','30 Oct 2026')
+      +fieldCard(ICO.user,'Delivery Note Approver','Chandra Mohan')
+      +fieldCard(ICO.doc,'Your / Our Reference','')
+      +fieldCard(ICO.doc,'Remarks',''))
+    +tableHead('Item Details')+recTable(['Item No','Material Code','Item Description','Quantity','UOM'],
+      x.items.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc(r.code)+'</b></td><td>'+esc(r.desc)+'</td><td>'+r.qty+'</td><td>'+esc(r.uom)+'</td></tr>';}).join(''))
+    +secHead('Package / Vehicle / Transport')+docGridCards(transportCards(x,true))
+    +secHead('Sign-off')+docGridCards(
+       fieldCard(ICO.user,'Prepared By',esc(x.preparedBy)+'<span class="sc-sub-line">'+esc(x.dn.date.split(' ').slice(0,3).join(' '))+'</span>')
+      +fieldCard(ICO.user,'Authorized By (Approver)',x.dn.approved?'Chandra Mohan<span class="sc-sub-line">'+esc(x.dn.date.split(' ').slice(0,3).join(' '))+'</span>':'')
+      +fieldCard(ICO.user,'Received By',''));
+  },
+  challan:function(x){
+    if(!x.challan)return docEmpty(ICO.file||ICO.doc,'Challan not generated yet','F&A generates the challan once the Delivery Note is approved.');
+    return secHead('Challan Details')+docGridCards(
+       fieldCard(ICO.doc,'Challan No.',esc(x.challan.no))
+      +fieldCard(ICO.check,'Status',badge(x.challan.status==='Generated'?'created':'approved',x.challan.status))
+      +fieldCard(ICO.cal,'Challan Date',esc(x.challan.date))
+      +fieldCard(ICO.doc,'Delivery Note No.',esc(x.dn?x.dn.no:'—'))
+      +fieldCard(ICO.box,'Shipment No.',esc(x.ship?x.ship.no:'—'))
+      +fieldCard(ICO.cart,'PO No.',esc(x.po))
+      +fieldCard(ICO.handshake,'Vendor',esc(x.vcode+' — '+x.vendor))
+      +fieldCard(ICO.globe,'Vendor Address',esc(x.addr))
+      +fieldCard(ICO.hash,'Vendor GSTIN','27AAPFU0939F1ZV')
+      +fieldCard(ICO.globe,'Dispatching Unit','Hazira Works')
+      +fieldCard(ICO.tag,'Nature / Reason','Job Work · Billable')
+      +fieldCard(ICO.doc,'Your / Our Reference','TEST1')
+      +fieldCard(ICO.truck,'Mode','Road Transport')
+      +fieldCard(ICO.cal,'Expected Date of Return','30 Oct 2026'))
+    +tableHead('Item Details')+recTable(['Item No.','Material Code','Description','HSN','Qty','UOM'],
+      x.items.map(function(r,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc(r.code)+'</b></td><td>'+esc(r.desc)+'</td><td>'+esc(r.hsn)+'</td><td>'+r.qty+'</td><td>'+esc(r.uom)+'</td></tr>';}).join(''))
+    +secHead('Logistics')+docGridCards(
+       fieldCard(ICO.cube,'Package','Plate Bundle')
+      +fieldCard(ICO.hash,'No. of Packages','1')
+      +fieldCard(ICO.cube,'Package Weight','1000 '+esc(x.uom))
+      +fieldCard(ICO.truck,'Transporter','TransCore Logistics')
+      +fieldCard(ICO.truck,'Vehicle No.','AP47TD8451')
+      +fieldCard(ICO.cal,'LR Date','26 Sep 2026'))
+    +secHead('Sign-off')+docGridCards(
+       fieldCard(ICO.user,'Prepared By',esc(x.preparedBy))
+      +fieldCard(ICO.user,'F&A','')
+      +fieldCard(ICO.user,'Authorized By',esc(x.preparedBy)));
+  },
+  asn:function(x){
+    if(!x.asns.length)return docEmpty(ICO.search||ICO.doc,'No ASN yet','The vendor raises an ASN once the shipment is confirmed.');
+    return secHead('ASN Summary')+recTable(['ASN No.','Shipment No.','Advised Qty','QC Status','Gate Inward'],
+      x.asns.map(function(a){return '<tr><td><b>'+esc(a.no)+'</b></td><td>'+esc(x.ship?x.ship.no:'—')+'</td><td>'+a.qty+' '+esc(x.uom)+'</td>'
+        +'<td>'+badge(a.qc==='QC Cleared'?'approved':'pending',a.qc)+'</td>'
+        +'<td>'+badge(a.gateIn?'approved':'pending',a.gateIn?'Confirmed':'Pending')+'</td></tr>';}).join(''))
+    +x.asns.map(function(a){
+      return secHead(a.no)+docGridCards(
+         fieldCard(ICO.doc,'ASN No.',esc(a.no))
+        +fieldCard(ICO.box,'Shipment No.',esc(x.ship?x.ship.no:'—'))
+        +fieldCard(ICO.doc,'SCR No.',esc(x.scr))
+        +fieldCard(ICO.cart,'PO No.',esc(x.po))
+        +fieldCard(ICO.cube,'Advised Qty',a.qty+' '+esc(x.uom))
+        +fieldCard(ICO.check,'QC Status',badge(a.qc==='QC Cleared'?'approved':'pending',a.qc))
+        +fieldCard(ICO.shield,'Gate Inward',badge(a.gateIn?'approved':'pending',a.gateIn?'Confirmed':'Pending')));
+    }).join('');
+  },
+  imr:function(x){
+    if(!x.imrs.length)return docEmpty(ICO.clipboard||ICO.doc,'No IMR yet','Stores raises an IMR against a gate-cleared ASN.');
+    return secHead('IMR Summary')+recTable(['IMR No.','ASN No.','Receipt Qty','Status'],
+      x.imrs.map(function(m){return '<tr><td><b>'+esc(m.no)+'</b></td><td>'+esc(m.asnNo)+'</td><td>'+m.qty+' '+esc(x.uom)+'</td>'
+        +'<td>'+badge(m.status==='Confirmed'?'approved':'created',m.status)+'</td></tr>';}).join(''))
+    +x.imrs.map(function(m){
+      return secHead(m.no)+docGridCards(
+         fieldCard(ICO.doc,'IMR No.',esc(m.no))
+        +fieldCard(ICO.doc,'ASN No.',esc(m.asnNo))
+        +fieldCard(ICO.box,'Shipment No.',esc(x.ship?x.ship.no:'—'))
+        +fieldCard(ICO.doc,'SCR No.',esc(x.scr))
+        +fieldCard(ICO.cart,'PO No.',esc(x.po))
+        +fieldCard(ICO.cube,'Receipt Qty',m.qty+' '+esc(x.uom))
+        +fieldCard(ICO.globe,'Receiving Warehouse','Hazira Works')
+        +fieldCard(ICO.check,'Status',badge(m.status==='Confirmed'?'approved':'created',m.status)));
+    }).join('');
+  }
+};
 
 function dealDetailsHTML(){
   /* 20px under a group, as on Payroll — the gap is what separates two grids of
@@ -1403,30 +1640,37 @@ function viewBtn(label,type,index,id){
   var args="'"+type+"',"+(index!=null?index:'null')+(id&&id!==LIVE_ID?",'"+id+"'":'');
   return '<button class="btn-outline btn-sm" onclick="scOpenView('+args+')">'+ICO.eye+' '+esc(label)+'</button>';
 }
-/* WHAT EACH LOG ENTRY CAN BE OPENED TO. Every step that produces or confirms
-   a document gets a View button on its log and workflow card, so a
-   confirmation always shows what was confirmed. ASNs and IMRs are numbered:
-   the k-th "ASN QC Cleared" is the k-th ASN, because QC clears in order. */
-var VIEW_OF={
-  'SCR Submitted':['View SCR','scr'],'SCR Approved':['View SCR','scr'],
-  'PO Auto-Created':['View PO','po'],'PO Generated':['View PO','po'],'PO Approved':['View PO','po'],
-  'Shipment Created':['View Shipment','shipment'],'Shipment Confirmed':['View Shipment','shipment'],
-  'Outbound Key Generated':['View Outbound Key','outbound'],
-  'Delivery Note Generated':['View Delivery Note','deliverynote'],'Delivery Note Approved':['View Delivery Note','deliverynote'],
-  'Challan Generated':['View Challan','challan'],'Gate Outward Confirmed':['View Challan','challan'],
-  'Reconciliation Completed':['View Reconciliation','reconciliation'],'Full Receipt Confirmed':['View Reconciliation','reconciliation']
+/* WORKFLOW VIEW BUTTONS. Only the entries that create a document carry one,
+   and it opens that document's tab in the panel - no popup. PO Generated
+   opens the PO's own panel on the Orders page. */
+var WF_VIEW={
+  'SCR Submitted':['View SCR','details'],'PO Generated':['View PO','po'],
+  'Shipment Created':['View Shipment','shipment'],'Delivery Note Generated':['View Delivery Note','deliverynote'],
+  'Challan Generated':['View Challan','challan'],'ASN Created':['View ASN','asn'],'IMR Created':['View IMR','imr']
 };
+function wfViewBtn(status,id){
+  var v=WF_VIEW[status];if(!v)return '';
+  return '<button class="btn-outline btn-sm" onclick="scGoTab(\''+v[1]+'\',\''+id+'\')">'+ICO.eye+' '+esc(v[0])+'</button>';
+}
 function attachViews(list,id){
-  var c={'ASN Created':0,'ASN QC Cleared':0,'Gate Inward Confirmed':0,'IMR Created':0,'IMR Confirmed':0};
-  return list.map(function(l){
-    var e=Object.assign({},l),imr=/IMR/.test(l.status);
-    if(l.status in c)e.view=viewBtn(imr?'View IMR':'View ASN',imr?'imr':'asn',c[l.status]++,id);
-    else if(VIEW_OF[l.status])e.view=viewBtn(VIEW_OF[l.status][0],VIEW_OF[l.status][1],null,id);
-    return e;
-  });
+  return list.map(function(l){var e=Object.assign({},l);e.view=wfViewBtn(l.status,id);return e;});
+}
+function scGoTab(tab,id){
+  if(tab==='po'){
+    var no=id===LIVE_ID?LIVE_PO:((sampleDeal(id)||{}).po||{}).no;if(!no)return;
+    if(state.page==='orders'&&state.orderOpen&&state.orderSel===no){scOrderTab('details');return;}
+    state.page='orders';state.stageFilter=null;state.stageLabel='';state.orderPage=1;
+    state.orderFilter={q:'',status:'',buyer:''};
+    state.dealOpen=false;state.orderOpen=false;
+    scRender();scOpenOrder(no);scOrderTab('details');return;
+  }
+  if(state.page==='deals'&&state.dealOpen&&state.dealSel===id){scDealTab(tab);return;}
+  state.page='deals';state.stageFilter=null;state.stageLabel='';
+  state.orderOpen=false;state.dealOpen=false;
+  scRender();scOpenDeal(id);scDealTab(tab);
 }
 /* The document a pending step acts on - shown as "Review before you
-   confirm" in Update Status and on the pending workflow card. */
+   confirm" in Update Status. */
 var REVIEW={
   'Approve SCR':['View SCR','scr'],'Return SCR':['View SCR','scr'],'Reject SCR':['View SCR','scr'],
   'Approve PO':['View PO','po'],'Return PO':['View PO','po'],
@@ -1505,7 +1749,6 @@ function liveNext(){
 function dealWorkflowHTML(){
   var next=liveNext();
   if(next&&/ PO$/.test(next.action))next.actions=openPOBtn();
-  else if(next)next.actions=reviewBtn(LIVE_ID,next.action);
   return wfTimelineHTML(liveEvents(),next);
 }
 /* PO actions are recorded on the Purchase Order, not the deal — this is the
@@ -1531,7 +1774,7 @@ function handoffBtn(role){
    Timeline on the left, the form on the right: the shared .lp-logs-wrap, so a
    Sub-Contracting log reads exactly like a log anywhere else in ADT. */
 function logTimelineHTML(logs,id){
-  logs=vendorView(attachViews(logs.slice().reverse(),id||LIVE_ID).reverse());
+  logs=vendorView(logs);
   if(!logs.length)return '<div class="lp-logs-empty">No activity logs yet.</div>';
   var pSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
   var cSvg='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
@@ -1552,7 +1795,6 @@ function logTimelineHTML(logs,id){
           +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(fmtTime(l.time))+'</span></span>'
         +'</div>'
         +(l.comment?'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>':'')
-        +(l.view?'<div class="sc-log-view">'+l.view+'</div>':'')
       +'</div></div>';
   }).join('')+'</div>';
 }
@@ -1762,7 +2004,7 @@ function orderWorkflowHTML(){
     :state.po==='created'?{action:'Approve PO',role:'PO Approver'}:null;
   var ev=state.poLogs.slice().reverse().map(function(l){
     return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,
-      view:l.status==='PO Generated'?viewBtn('View PO','po'):''};
+      view:wfViewBtn(l.status,LIVE_ID)};
   });
   return wfTimelineHTML(ev,pending);
 }
@@ -1808,6 +2050,7 @@ function samplePanelHTML(d){
   if(t==='details')body=sampleDetailsHTML(d);
   else if(t==='workflow')body=sampleWorkflowHTML(d);
   else if(t==='logs')body=sampleLogsHTML(d);
+  else if(DOC_TABS[t])body=DOC_TABS[t](dealDocs(d.id));
   else body=attachmentsHTML(d.id);
   return bar+'<div class="lp-isb-body">'+body+'</div>';
 }
@@ -1869,7 +2112,6 @@ function sampleNextOf(d){
 }
 function sampleWorkflowHTML(d){
   var next=sampleNextOf(d);
-  if(next)next.actions=reviewBtn(d.id,next.action);
   return wfTimelineHTML(attachViews(sampleMilestones(d),d.id),next);
 }
 function sampleLogsHTML(d){
@@ -2197,20 +2439,25 @@ function advanceSample(d,action,comment){
    .ep-form-* — the same two components every creation form in ADT is built
    from. */
 function modalShell(title,sub,bodyHTML,footHTML,wide){
-  return '<div class="ct-modal-overlay" onclick="if(event.target===this)scCloseModal()">'
-    +'<div class="ct-modal'+(wide?' ct-modal--form':'')+'" role="dialog" aria-modal="true" style="padding:0">'
-      +'<div style="padding:24px 28px 0">'
+  return '<div class="ct-modal-overlay">'
+    +'<div class="ct-modal sc-modal'+(wide?' ct-modal--form':'')+'" role="dialog" aria-modal="true">'
+      +'<div class="sc-modal-head">'
         +'<div class="ct-modal-hdr" style="margin-bottom:6px">'
           +'<div><div class="ct-modal-title">'+esc(title)+'</div></div>'
           +'<button class="ct-modal-close" onclick="scCloseModal()" title="Close">'+ICO.close+'</button>'
         +'</div>'
         +(sub?'<div class="ct-modal-sub" style="margin:0 0 4px">'+esc(sub)+'</div>':'')
       +'</div>'
-      +'<div style="padding:0 28px">'+bodyHTML+'</div>'
-      +'<div class="ct-modal-foot" style="margin:0;position:sticky;bottom:0;border-radius:0 0 16px 16px">'+footHTML+'</div>'
+      +'<div class="sc-modal-body">'+bodyHTML+'</div>'
+      +'<div class="ct-modal-foot sc-modal-foot">'+footHTML+'</div>'
     +'</div></div>';
 }
 var modalStack=[];
+document.addEventListener('wheel',function(e){
+  var root=document.getElementById('sc-modal-root');
+  if(!root||!root.innerHTML)return;
+  if(!e.target.closest||!e.target.closest('.sc-modal-body,.sc-table-modal,.cs-dropdown,.ct-action-menu'))e.preventDefault();
+},{passive:false});
 function scCloseModal(){
   var root=document.getElementById('sc-modal-root');
   if(modalStack.length){root.innerHTML=modalStack.pop();return;}
