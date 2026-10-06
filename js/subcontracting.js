@@ -1599,7 +1599,7 @@ function dealDetailsHTML(){
   }).join('');
   var issue=recTable(['For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Location','Storage Zone','FIM','Tax Code','HSN','BOM Ratio'],issues);
 
-  return secHead('SCR Header Details',viewBtn('View SCR','scr'))+head
+  return secHead('SCR Header Details')+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
     +tableHead('Receivable Item Details')+recv
