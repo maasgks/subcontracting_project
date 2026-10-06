@@ -1347,10 +1347,10 @@ function dealDetailsHTML(){
   );
 
   var recv=recTable(
-    ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open','Status'],
+    ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open'],
     '<tr><td><b>'+esc(L().item.name)+'</b></td><td>Finished Product</td><td>'+L().item.qty+'</td><td>Each</td><td>'+fmtAmt(L().item.price)+'</td>'
     +'<td>Hazira Works</td><td>0202</td><td>'+esc(L().item.date)+'</td><td>'+confirmedReceived()+'</td><td>'+openReceiptQty()+'</td>'
-    +'<td>'+badge(state.closed?'closed':'open',state.closed?'Closed':'Open')+'</td></tr>');
+    +'</tr>');
 
   var issues=[
     ['SKU_52297_3814 — Mild Steel Plate 10 mm','Zone A','0202'],
@@ -1835,10 +1835,10 @@ function sampleDetailsHTML(d){
     +fieldCard(ICO.globe,'Vendor Address',esc(d.vendor.addr))
   );
   var recv=recTable(
-    ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open','Status'],
+    ['Receivable Item','Item Type','Expected Qty','UOM','Est. Price / Unit','Receiving Warehouse','HSN','Expected Receipt','Received','Open'],
     '<tr><td><b>'+esc(it.name)+'</b></td><td>'+esc(it.type)+'</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td><td>'+fmtAmt(it.price)+'</td>'
     +'<td>Hazira Works</td><td>'+esc(it.hsn)+'</td><td>'+esc(it.due)+'</td><td>'+d.received+'</td><td>'+(closed?0:open)+'</td>'
-    +'<td>'+badge(closed?'closed':'open',closed?'Closed':'Open')+'</td></tr>');
+    +'</tr>');
   var issue=recTable(['For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Zone','FIM','HSN'],
     d.issues.map(function(r){
       return '<tr><td>'+esc(it.name)+'</td><td><b>'+esc(r[0])+'</b></td><td>Raw Material</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td>'
@@ -2352,7 +2352,7 @@ function itemCard(kind,n,title,status,grid){
 }
 function recvCardHTML(n,item,qty,price,hsn){
   var k='r'+n;
-  return itemCard('recv',n,'Receivable Item '+n,'Open',
+  return itemCard('recv',n,'Receivable Item '+n,'',
      itemField('Receivable Item',select(k+'-item',[item]),true,true)
     +itemRO('Item Type','Finished Product')
     +itemRO('UOM','Each')
