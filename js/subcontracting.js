@@ -2382,7 +2382,10 @@ function scRowMenu(btn,id,scope){
         +esc(a)+'</div>';
     }).join(''):'<div class="ct-act-item done">No actions for this role</div>');
   m.dataset.id=id;m.classList.add('open');
-  var r=btn.getBoundingClientRect(),w=240;
+  /* As wide as its longest item, so the space after the text matches the
+     space before it; right-aligned under the button. */
+  m.style.width='max-content';m.style.maxHeight='';
+  var r=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
   scPlaceMenu(m,{left:r.right-w,right:r.right,top:r.top,bottom:r.bottom,width:w});
 }
 document.addEventListener('click',scCloseRowMenu);

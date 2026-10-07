@@ -262,7 +262,8 @@
    ACTION cell's stacking context cannot clip it. */
 .sc-split .ct-action-btn{width:104px;justify-content:space-between}
 .sc-split .ct-action-btn span{max-width:none;flex:1;min-width:0;text-align:left}
-#sc-row-menu{min-width:240px}
+#sc-row-menu{min-width:0}
+#sc-row-menu .ct-act-item,#sc-row-menu .sc-act-head{white-space:nowrap}
 .sc-act-head{padding:9px 14px 7px;font-size:10.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
   color:var(--gray);border-bottom:1px solid #f1f5f9}
 .ct-act-item.sc-act-avail{font-weight:600}
