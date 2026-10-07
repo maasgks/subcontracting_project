@@ -415,3 +415,5 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-obk-qty{font-size:13px;font-weight:700;color:var(--st-info-fg);white-space:nowrap}
 .sc-obk-item .sc-kv{padding:7px 0;font-size:12.5px}
 @media print{.sc-obk-hero,.sc-tpl-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* The Reason field a Return asks for, in the Logs form and Update Status. */
+.lp-logs-form .sc-reason-input{width:100%;box-sizing:border-box;margin-bottom:4px}

@@ -81,7 +81,7 @@ var SC_ROLES=['Planner','PMG Approver','Buyer','PO Approver','Stores User',
 /* Which log entries a role may write. The listing, the dashboard and the Add
    Log select all read this one map. */
 var ROLE_ACTIONS={
-  'Planner':['Create Shipment','Confirm Shipment'],
+  'Planner':['Submit SCR','Create Shipment','Confirm Shipment'],
   'PMG Approver':['Approve SCR','Return SCR','Reject SCR','Confirm Shipment'],
   'Buyer':['Generate PO','Return SCR'],
   'PO Approver':['Approve PO','Return PO'],
@@ -91,7 +91,7 @@ var ROLE_ACTIONS={
   'Security User':['Confirm Gate Outward','Return Gate Outward','Confirm Gate Inward'],
   'Vendor User':['Create ASN'],
   'QC User':['Clear ASN','Return ASN'],
-  'Super Admin':['Approve SCR','Return SCR','Reject SCR','Generate PO','Return PO','Approve PO',
+  'Super Admin':['Approve SCR','Return SCR','Reject SCR','Submit SCR','Generate PO','Return PO','Approve PO',
     'Create Shipment','Confirm Shipment','Goods Release & Issue','Return Shipment',
     'Approve Delivery Note','Return Delivery Note','Generate Challan','Return Challan',
     'Confirm Gate Outward','Return Gate Outward','Create ASN','Clear ASN','Return ASN',
@@ -103,7 +103,7 @@ var ROLE_ACTIONS={
    menu). Narrower than ROLE_ACTIONS: the listing offers each role its forward
    actions; the Add Log form in the panel still carries the full set. */
 var ROW_ACTIONS={
-  'Planner':['Create Shipment','Confirm Shipment'],
+  'Planner':['Submit SCR','Create Shipment','Confirm Shipment'],
   'PMG Approver':['Approve SCR','Return SCR','Reject SCR'],
   'Buyer':['Generate PO'],
   'PO Approver':['Approve PO','Return PO'],
@@ -113,7 +113,7 @@ var ROW_ACTIONS={
   'Security User':['Confirm Gate Outward','Return Gate Outward','Confirm Gate Inward'],
   'Vendor User':['Create ASN'],
   'QC User':['Clear ASN'],
-  'Super Admin':['Approve SCR','Return SCR','Reject SCR','Generate PO','Approve PO','Return PO',
+  'Super Admin':['Approve SCR','Return SCR','Reject SCR','Submit SCR','Generate PO','Approve PO','Return PO',
     'Create Shipment','Goods Release & Issue','Return Shipment','Approve Delivery Note','Return Delivery Note',
     'Generate Challan','Confirm Gate Outward','Return Gate Outward','Confirm Shipment','Create ASN','Clear ASN',
     'Confirm Gate Inward','Create IMR','Confirm IMR','Complete Reconciliation','Confirm Full Receipt','Close Transaction']
@@ -129,13 +129,13 @@ var ACTION_RESULT={
   'Return Gate Outward':'Gate Outward Returned','Create ASN':'ASN Created','Clear ASN':'ASN QC Cleared',
   'Confirm Gate Inward':'Gate Inward Confirmed','Create IMR':'IMR Created','Confirm IMR':'IMR Confirmed',
   'Complete Reconciliation':'Reconciliation Completed','Confirm Full Receipt':'Full Receipt Confirmed',
-  'Close Transaction':'Transaction Closed'
+  'Close Transaction':'Transaction Closed','Submit SCR':'SCR Submitted'
 };
 var PO_ACTIONS=['Generate PO','Approve PO','Return PO'];
 
 /* The four actions that need more than a status and a comment. Picking one in
    the log form opens its own form instead of saving straight away. */
-var FORM_ACTIONS=['Create Shipment','Create ASN','Create IMR','Short Close','Generate PO'];
+var FORM_ACTIONS=['Create Shipment','Create ASN','Create IMR','Short Close','Generate PO','Submit SCR'];
 
 var SC_STAGES=[
   {key:'scr',title:'SCR Approval',count:8,icon:ICO.file},
@@ -325,7 +325,7 @@ function samplePending(d){var n=sampleNextOf(d);return n?n.role:'—';}
 function sampleDeal(id){return SAMPLE_DEALS.filter(function(d){return d.id===id;})[0];}
 function stageReached(d,key){return STAGE_ORDER.indexOf(d.stage)>=STAGE_ORDER.indexOf(key);}
 function stagePassed(d,key){return STAGE_ORDER.indexOf(d.stage)>STAGE_ORDER.indexOf(key);}
-function sampleScr(d){return d.rejected?'Rejected':d.stage==='scr'?'Sent for Approval':d.stage==='closed'?'Closed':'Approved';}
+function sampleScr(d){return d.rejected?'Rejected':d.returned?'SCR Returned':d.stage==='scr'?'Sent for Approval':d.stage==='closed'?'Closed':'Approved';}
 function sampleShip(d){
   if(d.stage==='closed')return 'Closed';
   if(!stageReached(d,'shipment'))return 'Not Started';
@@ -333,7 +333,7 @@ function sampleShip(d){
   if(d.stage==='outbound')return d.sub==='gate'||d.sub==='confirm'?'Challan Generated':'Freezed Outbound Release';
   return 'Challan Generated';
 }
-function scrToneOf(s){return s==='Rejected'?'unapproved':s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
+function scrToneOf(s){return s==='Rejected'||s==='SCR Returned'?'unapproved':s==='Sent for Approval'?'pending':s==='Closed'?'closed':'approved';}
 function shipToneOf(s){return s==='Not Started'?'sc-idle':s==='Closed'?'closed':s==='Freezed Outbound Release'?'created':'in-progress';}
 function poToneOf(s){return {Draft:'draft',Created:'created',Approved:'approved',Closed:'closed'}[s]||'sc-idle';}
 /* The Update Status pills (from -> to) sit on one blue -> green ramp
@@ -436,7 +436,7 @@ function sampleMilestonesBase(d){
 function liveStage(){
   if(!liveExists())return 'none';
   if(state.closed)return 'closed';
-  if(state.scr==='sent')return 'scr';
+  if(state.scr==='sent'||state.scr==='returned')return 'scr';
   if(state.po!=='approved')return 'po';
   if(state.shipment==='none'||!state.goodsIssue)return 'shipment';
   if(!state.shipmentConfirmed)return 'outbound';
@@ -645,6 +645,7 @@ function validDealActions(role){
        for every action, rather than adding a closed-check to each. */
     if(state.closed)return false;
     if(['Approve SCR','Return SCR','Reject SCR'].indexOf(a)>=0)return state.scr==='sent';
+    if(a==='Submit SCR')return state.scr==='returned';
     if(a==='Create Shipment')return state.po==='approved'&&state.shipment==='none';
     if(a==='Goods Release & Issue'||a==='Return Shipment')return state.shipment==='created'&&!state.goodsIssue;
     if(a==='Approve Delivery Note'||a==='Return Delivery Note')return state.deliveryNote==='generated';
@@ -674,6 +675,7 @@ function validPOActions(role){
 
 function pendingWith(){
   if(!liveExists())return '—';
+  if(state.scr==='returned')return 'Planner';
   if(state.scr==='sent')return 'PMG Approver';
   if(state.scr==='approved'&&state.po==='draft')return 'Buyer';
   if(state.po==='created')return 'PO Approver';
@@ -691,8 +693,8 @@ function pendingWith(){
   return '—';
 }
 
-function scrLabel(){return state.scr==='none'?'Not Created':state.scr==='sent'?'Sent for Approval':state.scr==='closed'?'Closed':'Approved';}
-function scrTone(){return state.scr==='none'?'sc-idle':state.scr==='sent'?'pending':state.scr==='closed'?'closed':'approved';}
+function scrLabel(){return state.scr==='none'?'Not Created':state.scr==='returned'?'SCR Returned':state.scr==='sent'?'Sent for Approval':state.scr==='closed'?'Closed':'Approved';}
+function scrTone(){return state.scr==='none'?'sc-idle':state.scr==='returned'?'unapproved':state.scr==='sent'?'pending':state.scr==='closed'?'closed':'approved';}
 function shipLabel(){
   return state.shipment==='none'?'Not Started'
     :state.shipment==='closed'?'Closed'
@@ -1026,7 +1028,7 @@ function dealsPageHTML(){
         +'<div class="lp-filter-bar-row sc-filters">'
           +'<input class="lp-search-input" id="sc-deal-q" type="text" value="'+esc(f.q)+'" placeholder="Search Deal ID, title, vendor" title="Search Deal ID, title, vendor" oninput="scSyncReset()" onkeydown="scSearchKey(event,\'scSearchDeals\')">'
           +csField('sc-f-process',['Job Work','Processing','Repair'],f.process,'Sub-Contracting Process','scSyncReset')
-          +csField('sc-f-scr',['Sent for Approval','Approved','Closed'],f.scr,'SCR Status','scSyncReset')
+          +csField('sc-f-scr',['Sent for Approval','SCR Returned','Approved','Closed'],f.scr,'SCR Status','scSyncReset')
           +csField('sc-f-ship',['Not Started','Created','Freezed Outbound Release','Challan Generated','Closed'],f.ship,'Shipment Status','scSyncReset')
           +'<button class="lp-pill-clear" id="sc-reset" onclick="scResetFilters()"'+(filtersActive()?'':' hidden')+'>'+ICO.close+' Reset</button>'
           +'<button class="lp-pill-search" onclick="scSearchDeals()">Search</button>'
@@ -1659,7 +1661,7 @@ function dealDetailsHTML(){
   }).join('');
   var issue=recTable(['For Receivable Item','Issue Item','Item Type','Issue Qty','UOM','Warehouse','Storage Location','Storage Zone','FIM','Tax Code','HSN','BOM Ratio'],issues);
 
-  return secHead('SCR Header Details')+head
+  return (state.scr==='returned'?returnNoteHTML(LIVE_ID):'')+secHead('SCR Header Details',state.scr==='returned'?scrEditBtn(LIVE_ID):'')+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
     +tableHead('Receivable Item Details')+recv
@@ -1669,7 +1671,7 @@ function dealDetailsHTML(){
 /* ── WORKFLOW ─────────────────────────────────────────────────────────────
    THE SAME CARD EVERY WORKFLOW TAB IN ADT RENDERS. wfTimelineHTML() in
    pages.js fixes the anatomy: title, a meta row of who and when, a
-   "Description:" line, one dot, and an optional footer for whatever that stage
+   "Remarks:" line, one dot, and an optional footer for whatever that stage
    has to open. This module reproduces it exactly rather than adding a second
    workflow card to the app.
 
@@ -1692,7 +1694,7 @@ function wfRow(title,meta,description,actions,isLast){
         +(meta.date?'<span class="lp-wf-meta-item">'+cSvg+'<span>'+esc(meta.date)+'</span></span>':'')
         +(meta.time?'<span class="lp-wf-meta-sep">|</span><span class="lp-wf-meta-item"><span>'+esc(meta.time)+'</span></span>':'')
       +'</div>'
-      +(description?'<div class="lp-wf-desc"><span class="lp-wf-desc-label">Description:</span><span class="lp-wf-desc-text">'+description+'</span></div>':'')
+      +(description?'<div class="lp-wf-desc"><span class="lp-wf-desc-label">Remarks:</span><span class="lp-wf-desc-text">'+description+'</span></div>':'')
       +(actions?'<div class="sc-wf-actions">'+actions+'</div>':'')
     +'</div></div>';
 }
@@ -1775,7 +1777,10 @@ function vendorView(list){
 function wfTimelineHTML(events,pending){
   events=vendorView(events);
   if(pending&&isVendor()&&VENDOR_PENDING.indexOf(pending.action)<0)pending=null;
-  var rows=events.map(function(e){return {title:e.status,meta:wfMeta(e),desc:esc(e.comment),actions:e.view||''};});
+  var rows=events.map(function(e){
+    var desc=e.reason?'<b>Reason:</b> '+esc(e.reason)+(e.comment?' · '+esc(e.comment):''):esc(e.comment);
+    return {title:e.status,meta:wfMeta(e),desc:desc,actions:e.view||''};
+  });
   if(pending)rows.push({title:pending.action+' — Pending',meta:{user:'Pending with '+pending.role,date:'',time:''},
     desc:'Awaiting <b>'+esc(pending.role)+'</b>.',actions:pending.actions||''});
   if(!rows.length)return '<div class="lp-wf-empty">No workflow activity yet.</div>';
@@ -1795,7 +1800,7 @@ function liveEvents(){
   all=all.map(function(l,i){return {l:l,i:i};})
     .sort(function(a,b){return logTs(a.l)-logTs(b.l)||a.i-b.i;}).map(function(x){return x.l;});
   return attachViews(all.map(function(l){
-    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment};
+    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,reason:l.reason};
   }),LIVE_ID);
 }
 /* The live deal's next step: who holds it, and the forward action they take. */
@@ -1854,22 +1859,25 @@ function logTimelineHTML(logs,id){
           +'<span class="lp-log-meta-item">'+cSvg+'<span>'+esc(l.date)+'</span></span>'
           +'<span class="lp-log-meta-item">'+tSvg+'<span>'+esc(fmtTime(l.time))+'</span></span>'
         +'</div>'
-        +(l.comment?'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Comment:</span>'+esc(l.comment)+'</div>':'')
+        +(l.reason?'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Reason:</span>'+esc(l.reason)+'</div>':'')
+        +(l.comment?'<div class="lp-log-comment-row"><span class="lp-log-comment-label">Remarks:</span>'+esc(l.comment)+'</div>':'')
       +'</div></div>';
   }).join('')+'</div>';
 }
 /* The Add Log card. Headed by the record's CURRENT status, the way every
    ADT logs panel is; the status select offers only what this role can do now. */
 function logFormHTML(o){
+  LOG_HOOKS[o.id]=o.hook||'';
   return '<div class="lp-logs-form">'
     +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(o.current)+'</div>'
     +'<p class="lp-logs-form-sub">'+o.sub+'</p>'
     +'<div class="lp-logs-form-label">Status <span class="lp-logs-form-req">*</span></div>'
     +(o.readonly
       ?'<div class="cs-wrap"><button type="button" class="cs-trigger" disabled style="cursor:default"><span class="cs-value">'+esc(o.opts[0]||'—')+'</span></button></div>'
-      :csField(o.id+'-status',o.opts,'','Select Status',o.hook))
-    +'<div class="lp-logs-form-label">Comment</div>'
-    +'<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="Enter comment"'+(o.readonly?' disabled':'')+'></textarea>'
+      :csField(o.id+'-status',o.opts,'','Select Status','scLogPicked'))
+    +(o.readonly?'':reasonFieldHTML(o.id,'',true))
+    +'<div class="lp-logs-form-label">Remarks</div>'
+    +'<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="Enter remarks"'+(o.readonly?' disabled':'')+'></textarea>'
     +'<div class="sc-logs-btns">'
       +'<button class="btn-outline" onclick="scResetLogForm(\''+o.id+'\')"'+(o.readonly?' disabled':'')+'>Cancel</button>'
       +'<button class="lp-logs-save-btn" onclick="'+o.submit+'()"'+(o.readonly?' disabled':'')+'>Submit</button>'
@@ -1879,6 +1887,7 @@ function logFormHTML(o){
 }
 function scResetLogForm(id){
   var t=document.getElementById(id+'-comment');if(t)t.value='';
+  var rs=document.getElementById(id+'-reason');if(rs)rs.value='';toggleReason(id,'');
   csValues[id+'-status']='';
   var tr=document.querySelector('[data-csid="'+id+'-status"]');
   if(tr){tr.querySelector('.cs-value').textContent='Select Status';tr.classList.add('cs-placeholder');}
@@ -1912,8 +1921,10 @@ function scSubmitDealLog(){
   var action=csValue('sc-deal-status');
   var comment=(document.getElementById('sc-deal-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
+  var reason=readReason('sc-deal');
+  if(reasonMissing(action,reason))return;
   if(FORM_ACTIONS.indexOf(action)>=0){scOpenActionModal(action,comment,'deal');return;}
-  executeDealAction(action,comment);
+  withReason(reason,function(){executeDealAction(action,comment);});
   scRender();
 }
 
@@ -2063,7 +2074,7 @@ function orderWorkflowHTML(){
   var pending=state.po==='draft'?{action:'Generate PO',role:'Buyer'}
     :state.po==='created'?{action:'Approve PO',role:'PO Approver'}:null;
   var ev=state.poLogs.slice().reverse().map(function(l){
-    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,
+    return {status:l.status,by:l.by,date:l.date,time:l.time,comment:l.comment,reason:l.reason,
       view:wfViewBtn(l.status,LIVE_ID)};
   });
   return wfTimelineHTML(ev,pending);
@@ -2091,7 +2102,9 @@ function scSubmitOrderLog(){
   var comment=(document.getElementById('sc-po-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
   if(action==='Generate PO'){scOpenActionModal(action,comment,'order');return;}
-  executePOAction(action,comment);
+  var reason=readReason('sc-po');
+  if(reasonMissing(action,reason))return;
+  withReason(reason,function(){executePOAction(action,comment);});
   scRender();
 }
 function executePOAction(action,comment){
@@ -2147,7 +2160,7 @@ function sampleDetailsHTML(d){
       return '<tr><td>'+esc(it.name)+'</td><td><b>'+esc(r[0])+'</b></td><td>Raw Material</td><td>'+it.qty+'</td><td>'+esc(it.uom)+'</td>'
         +'<td>Hazira Works</td><td>'+esc(r[1])+'</td><td>Yes</td><td>'+esc(r[2])+'</td></tr>';
     }).join(''));
-  return secHead('SCR Header Details')+head
+  return (d.returned?returnNoteHTML(d.id):'')+secHead('SCR Header Details',d.returned?scrEditBtn(d.id):'')+head
     +secHead('SCR Base Details')+base
     +secHead('Vendor Details')+vendor
     +tableHead('Receivable Item Details')+recv
@@ -2157,6 +2170,7 @@ function sampleDetailsHTML(d){
    stage that several roles share (outbound, ASN, IMR, closure). */
 function sampleNextOf(d){
   if(d.rejected)return null;
+  if(d.returned)return {action:'Submit SCR',role:'Planner'};
   var F='Finance / F&A / IDT',n=null,sub=d.sub;
   if(d.stage==='scr')n=['PMG Approver','Approve SCR'];
   else if(d.stage==='po')n=d.po.status==='Draft'?['Buyer','Generate PO']
@@ -2187,7 +2201,10 @@ function scSubmitSampleLog(){
   var action=csValue('sc-sample-status');
   var comment=(document.getElementById('sc-sample-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
-  advanceSample(d,action,comment);
+  if(action==='Submit SCR'){scOpenResubmit(d.id);return;}
+  var reason=readReason('sc-sample');
+  if(reasonMissing(action,reason))return;
+  withReason(reason,function(){advanceSample(d,action,comment);});
   scRender();
 }
 
@@ -2250,7 +2267,7 @@ function who(){
 function logEntry(status,comment){
   var s=stamp(),auto=AUTO_STATUSES.indexOf(status)>=0;
   comment=String(comment||'').replace(/^\s*—\s*/,'').trim();
-  return {status:status,comment:comment,by:auto?'System':who(),role:auto?'System':state.role,
+  return {status:status,comment:comment,reason:auto?'':curReason,by:auto?'System':who(),role:auto?'System':state.role,
     date:s.date,time:s.time,portal:'Web'};
 }
 function addDealLog(status,comment){state.dealLogs.unshift(logEntry(status,comment));}
@@ -2265,7 +2282,7 @@ function executeDealAction(action,comment){
     state.poCreated=state.poLogs[0].date;
     scToast('SCR approved','success','PO '+LIVE_PO+' created in Draft for the Buyer.');
   }
-  else if(action==='Return SCR'){addDealLog('SCR Returned',comment);scToast('SCR returned to Planner','info');}
+  else if(action==='Return SCR'){state.scr='returned';addDealLog('SCR Returned',comment);scToast('SCR returned to the Planner','info','The Planner edits it and submits it again.');}
   else if(action==='Reject SCR'){addDealLog('SCR Rejected',comment);scToast('SCR rejected','error');}
   else if(action==='Goods Release & Issue'){
     state.goodsIssue=true;state.shipment='outbound_released';state.deliveryNote='generated';
@@ -2336,7 +2353,7 @@ function rowAvailable(id){
     return list.filter(function(a){return ok.indexOf(a)>=0;});
   }
   var d=sampleDeal(id),n=d&&sampleNextOf(d);
-  if(!n||!SAMPLE_STEP[n.action])return [];
+  if(!n||!(SAMPLE_STEP[n.action]||n.action==='Submit SCR'))return [];
   if(state.role!=='Super Admin'&&roleKey(n.role)!==state.role)return [];
   var here=[n.action].concat(SAMPLE_ALT[n.action]||[]);
   return list.filter(function(a){return here.indexOf(a)>=0;});
@@ -2382,6 +2399,7 @@ function scRowAction(id,i){
   var action=rowActionsFor()[i];if(!action)return;
   /* A step that creates something opens its own form, not just a status
      change: Create Shipment on any deal; every form step on the live deal. */
+  if(action==='Submit SCR'){scOpenResubmit(id);return;}
   if(action==='Create Shipment'||action==='Generate PO'||(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0)){
     scOpenActionModal(action,'',PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);return;
   }
@@ -2411,7 +2429,8 @@ function scOpenUS(id,action,comment){
       +'<span class="sc-us-arrow">'+ICO_ARROW+'</span><span id="sc-us-next">'+badge(rampTone(res),res)+'</span></div>'
     +'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>'
     +field('Status',csField('sc-us-status',rowAvailable(id),action,'Select Status','scUSPicked'),true,true)
-    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving? (optional)">'+esc(comment||'')+'</textarea>',false,true);
+    +reasonFieldHTML('sc-us',action)
+    +field('Remarks','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving? (optional)">'+esc(comment||'')+'</textarea>',false,true);
   var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
@@ -2426,6 +2445,7 @@ function scUSPicked(val){
   if(el)el.innerHTML=badge(rampTone(res),res);
   var rv=document.getElementById('sc-us-review');
   if(rv&&usRow)rv.innerHTML=usReviewHTML(usRow.id,val);
+  toggleReason('sc-us',val);
 }
 function scUSViewLog(){
   var id=usRow&&usRow.id;scCloseModal();if(!id)return;
@@ -2437,13 +2457,17 @@ function scUSSubmit(){
   var action=csValue('sc-us-status');
   var comment=(document.getElementById('sc-us-comment')||{value:''}).value.trim();
   if(!action){scToast('Select a status first','error');return;}
+  var reason=readReason('sc-us');
+  if(reasonMissing(action,reason))return;
   if(id===LIVE_ID&&FORM_ACTIONS.indexOf(action)>=0){
     scOpenActionModal(action,comment,PO_ACTIONS.indexOf(action)>=0?'order':'deal');return;
   }
-  if(id===LIVE_ID){
-    if(PO_ACTIONS.indexOf(action)>=0)executePOAction(action,comment);
-    else executeDealAction(action,comment);
-  }else advanceSample(sampleDeal(id),action,comment);
+  withReason(reason,function(){
+    if(id===LIVE_ID){
+      if(PO_ACTIONS.indexOf(action)>=0)executePOAction(action,comment);
+      else executeDealAction(action,comment);
+    }else advanceSample(sampleDeal(id),action,comment);
+  });
   scCloseModal();
   scRender();
 }
@@ -2481,8 +2505,10 @@ function advanceSample(d,action,comment){
   if(!d)return;
   if(!SAMPLE_STEP[action]){
     var t0=stamp();d.extra=d.extra||[];
-    d.extra.push({status:ACTION_RESULT[action]||action,role:state.role,by:who(),comment:comment,date:t0.date,time:t0.time,portal:'Web',seq:++scSeq});
+    d.extra.push({status:ACTION_RESULT[action]||action,role:state.role,by:who(),comment:comment,reason:curReason,date:t0.date,time:t0.time,portal:'Web',seq:++scSeq});
     if(action==='Reject SCR')d.rejected=true;
+    if(action==='Return SCR')d.returned=true;
+    if(action==='Submit SCR')d.returned=false;
     scToast(d.id+': '+(ACTION_RESULT[action]||action),action==='Reject SCR'?'error':'info');
     return;
   }
@@ -2559,21 +2585,22 @@ function scSeg(btn){
 }
 
 /* ── CREATE SCR ───────────────────────────────────────────────────────────  */
-function scOpenCreateSCR(){
+function scOpenCreateSCR(ed){
+  var bases=['Production Order','Project','Maintenance Order'];
   var header=section('SCR Header Details',
     '<div class="policy-form-grid">'
-    +field('SCR Title',input('f-title','Sub-contracting for shaft machining'),true)
-    +field('SCR Base',select('f-base',['Production Order','Project']),true)
-    +field('Nature of SCR / Work Type',input('f-nature','Job'),true)
+    +field('SCR Title',input('f-title',ed?ed.title:'Sub-contracting for shaft machining'),true)
+    +field('SCR Base',csField('f-base',bases,ed?ed.base:'Production Order'),true)
+    +field('Nature of SCR / Work Type',input('f-nature',ed?ed.nature:'Job'),true)
     +field('Purchase Office',select('f-office',['PUR-121 — Manufacturing Procurement']),true)
-    +field('Buyer',select('f-buyer',['Madan Mohan','Gagan Tej']))
+    +field('Buyer',csField('f-buyer',['Madan Mohan','Gagan Tej'],ed?ed.buyer:'Madan Mohan'))
     +field('Approver',select('f-approver',['PMG Approver']))
     +'<div class="sc-yn-grid ep-form-full">'
       +segField('SCR Unpeg',true)+segField('Inter-Unit',false)+segField('Partial Material as FIM',true)
       +segField('Billable',true)+segField('Logistics Required',true)
     +'</div>'
-    +field('Remarks','<textarea class="ep-form-input" id="f-remarks" style="min-height:76px">For urgent processing</textarea>',false,true)
-    +field('Header Text','<textarea class="ep-form-input" id="f-headtext" style="min-height:76px">Additional header information</textarea>',false,true)
+    +field('Remarks','<textarea class="ep-form-input" id="f-remarks" style="min-height:76px">'+esc(ed?ed.remarks:'For urgent processing')+'</textarea>',false,true)
+    +field('Header Text','<textarea class="ep-form-input" id="f-headtext" style="min-height:76px">'+esc(ed?ed.head:'Additional header information')+'</textarea>',false,true)
     +'</div>');
 
   var base=section('SCR Base Details — Production Order / Project',
@@ -2592,7 +2619,7 @@ function scOpenCreateSCR(){
     +'</div>');
 
   var recv=section('Receivable Item Details',
-    '<div class="sc-item-list" id="sc-recv-list">'+recvCardHTML(1,'Fabricated End Frame','10','250','0202')+'</div>'
+    '<div class="sc-item-list" id="sc-recv-list">'+(ed?recvCardHTML(1,ed.item.name,String(ed.item.qty),String(ed.item.price),ed.item.hsn||'0202'):recvCardHTML(1,'Fabricated End Frame','10','250','0202'))+'</div>'
     +'<button class="btn-outline btn-sm sc-item-add" onclick="scAddReceivable()">'+ICO.plus+' Add Receivable Item</button>');
 
   var issue=section('Issue Item Details',
@@ -2602,6 +2629,17 @@ function scOpenCreateSCR(){
   scrDraftFiles=[];
   var attach=section('Attachments','<div id="sc-scr-att">'+scrAttachHTML()+'</div>');
 
+  if(ed){
+    /* EDIT & RESUBMIT: why it came back, what changed, and one way out. */
+    var resub=returnNoteHTML(ed.id,true);
+    document.getElementById('sc-modal-root').innerHTML=modalShell('Edit SCR',ed.id+' · returned to the Planner',
+      resub+header+base+vendor+recv+issue,
+      '<span class="hr-actions-sub" style="margin-right:auto">Submitting sends the SCR back to the PMG Approver.</span>'
+      +'<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+      +'<button class="btn-outline" onclick="scResubmitSCR(\''+ed.id+'\',false)">Save Changes</button>'
+      +'<button class="btn-primary" onclick="scResubmitSCR(\''+ed.id+'\',true)">Submit for Approval</button></div>',true);
+    return;
+  }
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Submitting sends the SCR to the PMG Approver.</span>'
     +'<div class="ct-modal-btns">'
       +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
@@ -2706,6 +2744,101 @@ function scRemoveItem(btn){
   });
 }
 function scSaveDraftSCR(){scCloseModal();scToast('SCR saved as Draft','info');}
+/* ── RETURN SCR FLOW ─────────────────────────────────────────────────────────
+   Return SCR sends the request back to the Planner: SCR Status reads "SCR
+   Returned", the deal joins the Planner's queue, and its Details tab opens
+   with the approver's reason and an Edit button. Edit (or Submit SCR from the
+   menu) opens the SCR form filled with the current details: Save Changes
+   keeps it with the Planner, Submit for Approval logs "SCR Submitted" and
+   puts it back with the PMG Approver as Sent for Approval. Works the same on the
+   live deal and the samples. */
+/* Edit on the Details tab: only while a returned SCR is with the Planner,
+   and only for the Planner (or Super Admin). */
+var ICO_EDIT='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+function scrEditBtn(id){
+  if(state.role!=='Planner'&&state.role!=='Super Admin')return '';
+  return '<button class="btn-outline btn-sm" onclick="scOpenResubmit(\''+id+'\')">'+ICO_EDIT+' Edit</button>';
+}
+/* EVERY RETURN CARRIES A REASON. Return SCR, Return PO and the other returns
+   ask for a mandatory Reason field of their own - the comment stays optional.
+   The reason travels on the log entry (logEntry reads curReason, set for the
+   length of the one action) and shows as its own line in Logs and Workflow. */
+var RETURN_ACTIONS=['Return SCR','Return PO','Return Shipment','Return Delivery Note','Return Gate Outward'];
+var curReason='';
+function needsReason(action){return RETURN_ACTIONS.indexOf(action)>=0;}
+function reasonMissing(action,reason){
+  if(needsReason(action)&&!reason){scToast('Enter the reason for the return','error');return true;}
+  return false;
+}
+function readReason(formId){return ((document.getElementById(formId+'-reason')||{}).value||'').trim();}
+function withReason(reason,fn){curReason=reason||'';try{fn();}finally{curReason='';}}
+function reasonFieldHTML(formId,action,logStyle){
+  var show=needsReason(action);
+  return '<div id="'+formId+'-reason-wrap"'+(show?'':' style="display:none"')+(logStyle?'':' class="ep-form-group ep-form-full"')+'>'
+    +(logStyle?'<div class="lp-logs-form-label">Reason <span class="lp-logs-form-req">*</span></div>'
+              :'<label class="ep-form-label">Reason <span class="req">*</span></label>')
+    +'<input class="ep-form-input sc-reason-input" id="'+formId+'-reason" placeholder="Why is it being returned?"></div>';
+}
+function toggleReason(formId,action){
+  var w=document.getElementById(formId+'-reason-wrap');if(w)w.style.display=needsReason(action)?'':'none';
+}
+/* the Logs forms show the Reason field when a Return is picked, then run
+   whatever hook the form already had */
+var LOG_HOOKS={};
+function scLogPicked(val,csid){
+  var fid=csid.replace(/-status$/,'');toggleReason(fid,val);
+  var h=LOG_HOOKS[fid];if(h&&typeof window[h]==='function')window[h](val,csid);
+}
+function lastReturn(id){
+  if(id===LIVE_ID)return state.dealLogs.filter(function(l){return l.status==='SCR Returned';})[0]||null;
+  var d=sampleDeal(id);return d?((d.extra||[]).filter(function(l){return l.status==='SCR Returned';}).slice(-1)[0]||null):null;
+}
+function returnNoteHTML(id,inForm){
+  var r=lastReturn(id);if(!r)return '';
+  return '<div class="info-box sc-return-note" style="margin:'+(inForm?'14px 0 4px':'0 0 18px')+'"><span class="ib-icon">'+ICO.info+'</span><div>'
+    +'<strong>SCR returned by '+esc(r.by)+' · '+esc(r.date)+'</strong>'
+    +esc(r.reason||r.comment||'No reason was added.')
+    +(inForm?'':'<br>Edit the details and submit the SCR again.')+'</div></div>';
+}
+function scOpenResubmit(id){
+  var ed;
+  if(id===LIVE_ID){
+    var l=L();
+    ed={id:id,title:l.title,base:l.base,nature:l.nature||'Job',buyer:l.buyer,remarks:l.remarks||'',head:l.headText||'',
+      item:{name:l.item.name,qty:l.item.qty,price:l.item.price}};
+  }else{
+    var d=sampleDeal(id);if(!d)return;
+    ed={id:id,title:d.title,base:d.base,nature:d.workType,buyer:d.buyer,remarks:'',head:d.title,
+      item:{name:d.item.name,qty:d.item.qty,price:d.item.price,hsn:d.item.hsn}};
+  }
+  scOpenCreateSCR(ed);
+}
+function scResubmitSCR(id,submit){
+  var v=function(k){var el=document.getElementById(k);return el?String(el.value).trim():csValue(k);};
+  var title=v('f-title'),qty=parseInt(v('r1-qty'),10),price=parseFloat(v('r1-price'));
+  if(!title){scToast('SCR Title is mandatory','error');return;}
+  if(!(qty>0)||!(price>0)){scToast('Enter the receivable quantity and price','error');return;}
+  var note='Updated after return and submitted again.';
+  if(submit===undefined)submit=true;
+  if(id===LIVE_ID){
+    var cur=L();
+    state.scrData={title:title,base:v('f-base')||cur.base,nature:v('f-nature')||cur.nature,buyer:v('f-buyer')||cur.buyer,
+      remarks:v('f-remarks'),headText:v('f-headtext'),item:{name:v('r1-item')||cur.item.name,qty:qty,price:price,date:cur.item.date}};
+    EXPECTED_QTY=qty;
+    if(submit){
+      state.scr='sent';
+      addDealLog('SCR Submitted',note);
+      scToast(id+' submitted','success','Back with the PMG Approver for approval.');
+    }else scToast('Changes saved','success','Submit the SCR when it is ready.');
+  }else{
+    var d=sampleDeal(id);if(!d)return;
+    d.title=title;d.base=v('f-base')||d.base;d.buyer=v('f-buyer')||d.buyer;d.item.qty=qty;d.item.price=price;
+    if(submit)advanceSample(d,'Submit SCR',note);
+    else scToast('Changes saved','success','Submit the SCR when it is ready.');
+  }
+  scCloseModal();
+  scRender();
+}
 function scSubmitSCR(){
   var v=function(id){var el=document.getElementById(id);return el?String(el.value).trim():csValue(id);};
   var title=v('f-title'),qty=parseInt(v('r1-qty'),10),price=parseFloat(v('r1-price'));
@@ -2732,6 +2865,7 @@ function scSubmitSCR(){
 
 /* ── THE FORM-BACKED ACTIONS ──────────────────────────────────────────────  */
 function scOpenActionModal(action,comment,context,dealId){
+  if(action==='Submit SCR'){scOpenResubmit(dealId||LIVE_ID);return;}
   var did=dealId||LIVE_ID;
   pendingAction={action:action,context:context,id:did};
   var fields='';
@@ -2847,7 +2981,7 @@ function scOpenActionModal(action,comment,context,dealId){
     /* Stacked full width, at the foot of the form: the step being taken as a
        chip, then the comment that goes on its log entry. */
     +field('Status','<div class="sc-action-status">'+badge('created',action)+'</div>',false,true)
-    +field('Comment','<textarea class="ep-form-input sc-action-comment" id="sc-action-comment" placeholder="Add a comment for the log (optional)">'+esc(comment||'')+'</textarea>',false,true)
+    +field('Remarks','<textarea class="ep-form-input sc-action-comment" id="sc-action-comment" placeholder="Add remarks for the log (optional)">'+esc(comment||'')+'</textarea>',false,true)
     +'</div>');
 
   var foot='<span class="hr-actions-sub" style="margin-right:auto">Recorded as a log entry on '
