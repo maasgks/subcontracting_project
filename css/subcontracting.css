@@ -631,3 +631,7 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-feed-quote.is-reason span{color:var(--st-wait-fg);opacity:.75}
 .sc-feed-next{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:0 0 14px;border-bottom:1px dashed #e5e7eb;font-size:12.5px;color:var(--gray)}
 .sc-feed-next b{color:var(--navy)}
+/* A field card's value area lays its children out in a row (leaves.css), so a
+   value with a note under it ran together ("3 3 = subcontracting"). When a
+   card carries a note, value and note stack. */
+.lp-sb-field-value:has(.sc-sub-line){flex-direction:column;align-items:flex-start}

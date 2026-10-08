@@ -1726,7 +1726,7 @@ var DOC_TABS={
       +sapMapGroup('SCR header → Purchase requisition header',[
           ['SCR number',r.num,'Purchase requisition number',r.prNo],
           ['SCR number + title',r.num+' '+r.title,'Description','OpenDhi SCR '+r.num+' '+r.title,'prefixed "OpenDhi SCR"']],
-        [['Document type','NB','NB = standard purchase requisition']])
+        [['Document type','NB','Standard purchase requisition']])
       +sapMapGroup('Line 1 · '+r.item+' → Item 10',[
           ['Line number','1','Item','10','SAP numbers lines 10, 20, 30 …; set when created in SAP, not sent again'],
           ['Finished product',r.item,'Item text',r.item,'set when created in SAP, not sent again'],
@@ -1735,15 +1735,15 @@ var DOC_TABS={
           ['Store','3814','Plant','1710','store ↔ plant link; set when created in SAP, not sent again'],
           ['Expected receipt date',r.due,'Delivery date',r.due],
           ['Vendor',r.vcode+' · '+r.vendor,'Supplier','1000'+r.vcode.slice(-3),'the vendor\'s SAP number; set when created in SAP, not sent again']],
-        [['Item category','3','3 = subcontracting'],
+        [['Item category','3','Subcontracting'],
          ['Material','SG23','SAP\'s subcontracting material; the product is named in the item text'],
-         ['Base unit','PC','unit of the subcontracting material'],
-         ['Price unit','1','the price is per 1 unit'],
+         ['Base unit','PC','Unit of the subcontracting material'],
+         ['Price unit','1','The price is per 1 unit'],
          ['Currency','INR',''],
          ['Company code','1710',''],
          ['Purchasing organisation','1710',''],
-         ['Purchasing group','001','purchasing group (buyer)'],
-         ['Storage location','171A','storage location the goods come back to']]);
+         ['Purchasing group','001','The buyer\'s purchasing group'],
+         ['Storage location','171A','Where the goods come back to']]);
     return '<div class="sc-sap">'+status+hist+map+'</div>';
   },
   shipment:function(x){
