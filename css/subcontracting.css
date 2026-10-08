@@ -156,10 +156,6 @@
 .sc-doc-note{font-size:11.5px;color:var(--gray);line-height:1.6;background:#f8f9fb;border:1px solid var(--border);
   border-radius:8px;padding:11px 13px;margin-top:4px}
 .sc-doc-note b{color:var(--navy)}
-.sc-doc-sig{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
-.sc-doc-sig-block{padding-top:40px;border-top:1.5px solid var(--navy)}
-.sc-doc-sig-name{font-size:12.5px;font-weight:700;color:var(--navy)}
-.sc-doc-sig-label{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
 
 
 /* ── EMPTY STATE ──────────────────────────────────────────────────────────  */
@@ -181,7 +177,6 @@
 @media (max-width:760px){
   .sc-stage-grid{grid-template-columns:1fr}
   .sc-doc-grid.cols-3,.sc-doc-grid.cols-4{grid-template-columns:repeat(2,1fr)}
-  .sc-doc-sig{grid-template-columns:1fr}
 }
 
 /* ── TWO ADDITIONS TO SHARED COMPONENTS, BOTH SCOPED ──────────────────────  */
@@ -230,21 +225,15 @@
    card. Status badges and IDs stay on one line. */
 .sc-split .lp-table .lp-c-plain{white-space:normal;overflow-wrap:break-word;min-width:110px}
 .sc-split .lp-table th,.sc-split .lp-table td{padding-left:12px;padding-right:12px}
-/* EXPAND A PANEL TABLE. The button sits at the right of the section head
-   (tableHead() in js/subcontracting.js); the popup shows the same table at
-   full width, so every column is readable without scrolling sideways. */
-.sc-expand-btn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
-  border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--navy);cursor:pointer;padding:0;
-  transition:background var(--t-fast,.15s) ease,color var(--t-fast,.15s) ease}
-.sc-expand-btn:hover{background:var(--btn-tint-bg,#f3f4f6);color:var(--btn-accent,var(--navy))}
-.sc-table-modal{width:min(1320px,96vw);max-height:84vh;padding:24px 24px 26px}
-.sc-table-modal .ct-modal-hdr{align-items:flex-start;margin-bottom:16px}
-.sc-table-modal .ct-modal-sub{margin:4px 0 0}
-.sc-table-modal .sc-rec-wrap{border-radius:12px;scrollbar-width:none}
-.sc-table-modal .sc-rec-wrap::-webkit-scrollbar{display:none}
-.sc-table-modal .sc-rec-table th{background:#fafbfc;padding:12px;white-space:normal;vertical-align:bottom}
-.sc-table-modal .sc-rec-table td{padding:14px 12px;white-space:normal}
-.sc-table-modal .sc-rec-table .lp-status-badge{white-space:nowrap}
+/* EXPANDED TAB (scExpandTab). The whole tab in a wide popup: tables show
+   every column without a sideways scroll, and the field grid gets more
+   columns. */
+.ct-modal.sc-modal.sc-expand-modal{width:min(1240px,95vw)}
+.sc-expand-modal .sc-rec-wrap{border-radius:12px;scrollbar-width:none}
+.sc-expand-modal .sc-rec-wrap::-webkit-scrollbar{display:none}
+.sc-expand-modal .sc-rec-table th{background:#fafbfc;padding:12px;white-space:normal;vertical-align:bottom}
+.sc-expand-modal .sc-rec-table td{padding:14px 12px;white-space:normal}
+.sc-expand-modal .sc-rec-table .lp-status-badge{white-space:nowrap}
 /* ONE STATUS RAMP, BLUE TO GREEN, for the from -> to pills in Update Status
    (rampTone): blue while a step is open (SCR, PO, shipment and outbound), then teal, to green once
    done and deep green when the transaction is closed. Status badges in the
@@ -354,13 +343,13 @@
 .sc-modal-head{padding:24px 28px 8px;flex-shrink:0}
 .sc-modal-body{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 28px 4px;overscroll-behavior:contain}
 .ct-modal-foot.sc-modal-foot{position:static;margin:0;flex-shrink:0;border-radius:0 0 16px 16px}
-.sc-modal-body,.sc-table-modal{scrollbar-width:thin;scrollbar-color:rgba(15,23,42,.16) transparent}
-.sc-modal-body::-webkit-scrollbar,.sc-table-modal::-webkit-scrollbar{width:6px;height:6px}
-.sc-modal-body::-webkit-scrollbar-track,.sc-table-modal::-webkit-scrollbar-track{background:transparent}
-.sc-modal-body::-webkit-scrollbar-thumb,.sc-table-modal::-webkit-scrollbar-thumb{background:rgba(15,23,42,.16);border-radius:99px}
-.sc-modal-body::-webkit-scrollbar-thumb:hover,.sc-table-modal::-webkit-scrollbar-thumb:hover{background:rgba(15,23,42,.28)}
-.sc-modal-body::-webkit-scrollbar-button,.sc-table-modal::-webkit-scrollbar-button{display:none;height:0;width:0}
-.sc-table-modal{overscroll-behavior:contain}
+.sc-modal-body,.sc-expand-modal{scrollbar-width:thin;scrollbar-color:rgba(15,23,42,.16) transparent}
+.sc-modal-body::-webkit-scrollbar,.sc-expand-modal::-webkit-scrollbar{width:6px;height:6px}
+.sc-modal-body::-webkit-scrollbar-track,.sc-expand-modal::-webkit-scrollbar-track{background:transparent}
+.sc-modal-body::-webkit-scrollbar-thumb,.sc-expand-modal::-webkit-scrollbar-thumb{background:rgba(15,23,42,.16);border-radius:99px}
+.sc-modal-body::-webkit-scrollbar-thumb:hover,.sc-expand-modal::-webkit-scrollbar-thumb:hover{background:rgba(15,23,42,.28)}
+.sc-modal-body::-webkit-scrollbar-button,.sc-expand-modal::-webkit-scrollbar-button{display:none;height:0;width:0}
+.sc-expand-modal{overscroll-behavior:contain}
 body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 /* A line under a field card's value (a date under a name). */
 .sc-sub-line{display:block;font-size:11.5px;font-weight:500;color:var(--gray);margin-top:2px}
@@ -417,4 +406,228 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-obk-item .sc-kv{padding:7px 0;font-size:12.5px}
 @media print{.sc-obk-hero,.sc-tpl-band{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 /* The Reason field a Return asks for, in the Logs form and Update Status. */
-.lp-logs-form .sc-reason-input{width:100%;box-sizing:border-box;margin-bottom:4px}
+.sc-reason-other{margin-top:8px}
+/* CREATE / EDIT SCR PAGE (scrFormPageHTML). Back + title at the top, the form
+   in one card, and the actions in a bar pinned to the bottom of the screen
+   while the form scrolls under it. */
+.sc-form-page{display:flex;flex-direction:column;gap:16px;min-height:100%}
+.sc-form-top{display:flex;align-items:center;gap:14px}
+/* Back reads as a link, not a boxed button: arrow and label, darker on hover. */
+.sc-back-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 4px 0 0;border:0;background:none;
+  color:var(--gray);font:600 13px 'Inter',sans-serif;cursor:pointer;flex-shrink:0;transition:color var(--t-fast,.15s) ease}
+.sc-back-btn:hover{color:var(--navy)}
+.sc-back-btn svg{transition:transform var(--t-fast,.15s) ease}
+.sc-back-btn:hover svg{transform:translateX(-2px)}
+.sc-form-title{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.2px}
+.sc-form-sub{font-size:12.5px;color:var(--gray);margin-top:2px}
+.sc-form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px 24px 8px}
+.sc-form-card .policy-form-section:last-child{border-bottom:0}
+.sc-form-card .sc-return-note{margin-top:18px!important}
+.sc-form-bar{position:sticky;bottom:-28px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin:0 0 -28px;padding:14px 24px 16px;background:#fff;border:1px solid var(--border);border-bottom:0;border-radius:12px 12px 0 0;
+  box-shadow:0 -6px 18px rgba(15,23,42,.06)}
+.sc-form-bar .ct-modal-btns{margin-left:auto}
+/* TAB HEADER CARD (heroCard) - ADT's .hd-sb-hero with the record's icon box,
+   and Expand as a quiet icon button beside the solid Edit. */
+.sc-hero-ico{width:44px;height:44px;flex-shrink:0;border-radius:10px;background:#fff;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--gray)}
+.sc-hero-ico svg{width:20px;height:20px}
+.sc-hero .sc-tab-tools{display:inline-flex;align-items:center;gap:6px}
+.sc-hero-expand{width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:var(--gray);padding:0;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background var(--t-fast,.15s) ease,color var(--t-fast,.15s) ease}
+.sc-hero-expand:hover{background:var(--btn-ghost-bg,#f3f4f6);color:var(--navy)}
+.sc-hero .lp-sb-view-edit-btn{display:inline-flex;align-items:center;gap:6px}
+/* the expanded tab spreads its field cards across more columns */
+.sc-expand-view{padding:14px 0 4px}
+.sc-expand-view .lp-sb-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){.sc-expand-view .lp-sb-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* FIELDS ON THE SCR FORM PAGE take the same shape as in every form popup:
+   the shared rules (form-system.css) are scoped to .ct-modal and form cards,
+   which this page is not - so they are restated for it here. 42px controls,
+   one 8px corner (--r-control) whether typed or picked, 1px borders. */
+.sc-form-page .ep-form-group{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sc-form-page .ep-form-input{height:42px;padding:0 12px;border-radius:var(--r-control)}
+.sc-form-page textarea.ep-form-input{height:auto;min-height:84px;padding:11px 12px;line-height:1.55}
+.sc-form-page .cs-trigger,.sc-form-page .cd-trigger{height:42px;border-radius:var(--r-control)}
+.sc-form-page .cd-trigger{border-width:1px}
+.sc-form-page .req{color:#ef4444}
+/* EDITING IN THE TAB (editFormHTML). The header card's Edit becomes a blue
+   "Editing" pill; the fields sit in a white form card with Cancel / Save at
+   its foot; read-only values stay as grey boxes marked System generated. A
+   tab left with unsaved changes carries a blue dot. */
+.sc-editing-pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:8px;
+  border:1px solid var(--st-info-bd);background:var(--st-info-bg);color:var(--st-info-fg);font-size:12px;font-weight:600;white-space:nowrap}
+.sc-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--st-info-fg);margin-left:6px;vertical-align:middle;position:relative;top:-1px}
+.sc-edit-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px 20px 16px}
+.sc-edit-card .policy-form-grid{gap:16px 16px}
+.sc-edit-card .ep-form-group{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sc-edit-card .ep-form-input{height:42px;padding:0 12px;border-radius:var(--r-control)}
+.sc-edit-card textarea.ep-form-input{height:auto;min-height:84px;padding:11px 12px;line-height:1.55;resize:vertical}
+.sc-edit-card .cs-trigger,.sc-edit-card .cd-trigger{height:42px;border-radius:var(--r-control)}
+.sc-edit-card .sc-ro{min-height:42px;display:flex;align-items:center}
+.sc-sys{font-size:11px;font-weight:500;color:#9ca3af;margin-left:4px}
+.sc-edit-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #f1f3f5}
+/* WORKFLOW: DONE, IN PROGRESS, UPCOMING. Same timeline component; the row
+   state only re-colours its marker - green for a step done, blue for the one
+   in hand, grey and dashed for the steps still to come. */
+.lp-wf-row.is-done{--wf-dot:var(--st-ok-fg);--wf-ring:#bbf7d0;--wf-halo:var(--st-ok-bg)}
+.lp-wf-row.is-current{--wf-dot:#3b82f6;--wf-ring:#bfdbfe;--wf-halo:#eff6ff}
+.lp-wf-row.is-current .lp-wf-card{border-color:var(--st-info-bd)}
+.lp-wf-row.is-upcoming{--wf-dot:#fff;--wf-ring:#cbd5e1;--wf-halo:transparent}
+.lp-wf-row.is-upcoming .lp-wf-connector{background:repeating-linear-gradient(#cbd5e1 0 4px,transparent 4px 8px)}
+.lp-wf-row.is-upcoming .lp-wf-card{background:#fafbfc;border-style:dashed;box-shadow:none;padding-top:12px;padding-bottom:12px}
+.lp-wf-row.is-upcoming .lp-wf-title{color:#64748b;font-weight:600;margin-bottom:5px}
+.lp-wf-row.is-upcoming .lp-wf-meta-row{margin-bottom:0}
+.sc-wf-chip{display:inline-flex;align-items:center;height:20px;padding:0 8px;margin-left:8px;border-radius:99px;
+  font-size:10.5px;font-weight:600;background:var(--st-idle-bg);color:var(--st-idle-fg);vertical-align:middle}
+.sc-wf-chip.is-now{background:var(--st-info-bg);color:var(--st-info-fg)}
+.sc-wf-note{color:#94a3b8;font-style:italic}
+/* LOGS TAB (logsTabHTML): the current-status bar with Add Log, the in-tab
+   Add Log card (same card as editing), and the log as a listing. */
+.sc-logs-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;margin-bottom:14px;
+  border:1px solid var(--border);border-radius:12px;background:var(--light)}
+.sc-logs-bar .lp-logs-form-header{margin-bottom:2px}
+.sc-logs-bar .lp-logs-form-sub{margin:0}
+.sc-logs-note{margin-top:8px;font-size:12.5px;color:var(--gray)}
+.sc-addlog-btn{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.sc-addlog-btn svg{width:12px;height:12px}
+.sc-logadd{margin-bottom:16px}
+.sc-logadd-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px}
+.sc-log-rem{white-space:normal!important;min-width:180px;max-width:320px;line-height:1.45}
+.sc-log-reason{display:block;margin-bottom:2px}
+.sc-logs .sc-rec-table td{vertical-align:top}
+/* Quick actions on the Logs bar: the role's steps as buttons (forward solid,
+   returns outlined); the active one is marked while its composer is open. */
+.sc-quick-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;flex-shrink:0;max-width:60%}
+.sc-quick-btn.is-on{box-shadow:0 0 0 2px var(--st-info-bd)}
+.sc-btn-warn{color:var(--st-bad-fg);border-color:var(--st-bad-bd)}
+.sc-btn-warn:hover{background:var(--st-bad-bg)}
+/* LOGS DESIGN TOGGLE - TEMPORARY. Two tiny icon buttons at the top right of
+   the Logs tab (Table / Timeline). Remove with the design not chosen. */
+.sc-logs-wrap{position:relative}
+.sc-logview{display:flex;justify-content:flex-end;gap:2px;margin:-6px 0 8px}
+.sc-logview button{width:24px;height:22px;padding:0;border:1px solid transparent;border-radius:5px;background:transparent;color:#94a3b8;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.sc-logview button:hover{color:var(--navy);background:var(--btn-ghost-bg,#f3f4f6)}
+.sc-logview button.is-on{color:var(--navy);background:#fff;border-color:var(--border)}
+/* the Reason field inside the Timeline design's side form */
+.lp-logs-form .sc-reason-field{margin-bottom:12px}
+.lp-logs-form .sc-reason-field .ep-form-label{font-size:12px}
+/* HISTORY TABLE - cells wrap so every column fits the panel, no sideways scroll. */
+.sc-hist .sc-rec-wrap{overflow-x:hidden}
+.sc-hist .sc-rec-table{table-layout:fixed}
+.sc-hist .sc-rec-table th,.sc-hist .sc-rec-table td{white-space:normal;overflow-wrap:anywhere;vertical-align:top}
+.sc-hist .sc-rec-table th:nth-child(1),.sc-hist .sc-rec-table td:nth-child(1){width:52px}
+.sc-hist .sc-rec-table th:nth-child(2),.sc-hist .sc-rec-table td:nth-child(2){width:17%}
+.sc-hist .sc-rec-table th:nth-child(3),.sc-hist .sc-rec-table td:nth-child(3){width:15%}
+.sc-hist .sc-rec-table th:nth-child(4),.sc-hist .sc-rec-table td:nth-child(4){width:22%}
+.sc-hist .sc-hist-old{color:var(--gray)}
+.sc-hist .sc-hist-new{font-weight:600;color:var(--navy)}
+/* MOVE BACK (Super Admin) - a quiet per-row action in the Logs table, and a
+   one-line explanation in its composer. */
+.sc-mb-btn{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border:1px solid var(--border);border-radius:6px;
+  background:#fff;color:var(--gray);font:600 11.5px 'Inter',sans-serif;cursor:pointer;white-space:nowrap}
+.sc-mb-btn:hover{color:var(--st-bad-fg);border-color:var(--st-bad-bd);background:var(--st-bad-bg)}
+.sc-mb-note{margin:-6px 0 14px;font-size:12.5px;line-height:1.5;color:var(--gray)}
+/* LOGS STATUS CARDS (logStateCard) - the panel's empty state in a card, its
+   icon tinted by state: blue waiting, green completed, red rejected. */
+.sc-empty.sc-state{border:1px solid var(--border);border-radius:12px;background:var(--light);padding:28px 20px;margin-bottom:14px}
+.sc-state.is-wait .sc-empty-ico{background:var(--st-info-bg);color:var(--st-info-fg)}
+.sc-state.is-done{background:#f6fdf8;border-color:#d1f2dc}
+.sc-state.is-done .sc-empty-ico{background:var(--st-ok-bg);color:var(--st-ok-fg)}
+.sc-state.is-bad .sc-empty-ico{background:var(--st-bad-bg);color:var(--st-bad-fg)}
+.sc-state .sc-empty-title{font-size:14px}
+.sc-state .sc-empty-sub b{color:var(--navy)}
+.sc-state-btn .btn-sm{margin-top:4px!important}
+/* in the Timeline design the card takes the side form's place */
+.lp-logs-form.sc-state-side{padding:0;border:0;box-shadow:none;background:none}
+.lp-logs-form.sc-state-side .sc-state{margin-bottom:0}
+/* SMOOTH TAB SWITCHING (refreshPanel). The panel no longer replays its
+   slide-in when a tab changes or the page re-renders behind an open panel:
+   .sc-still switches the entrance off; the new tab's content just fades in. */
+.lp-split-sb.sc-still{transition:none}
+.lp-split-sb.sc-still .lp-isb-body,.lp-split-sb.sc-still .lp-isb-tabbar{animation:none}
+@keyframes sc-swap-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.lp-isb-body.sc-swap>*{animation:sc-swap-in .18s ease-out both}
+@media (prefers-reduced-motion:reduce){.lp-isb-body.sc-swap>*{animation:none}}
+/* REFERENCE DETAILS (SAP) - panel tables with a one-line caption under each
+   head; the mapping groups header and line fields, arrows OpenDhi -> SAP, and
+   marks the values the integration sets on its own. */
+.sc-sap-read{margin:-10px 0 10px;font-size:12px;color:var(--gray)}
+.sc-rec-wrap+.lp-sb-view-header{margin-top:22px}
+.sc-sap-dir{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:99px;font-size:11px;font-weight:600;
+  background:var(--st-ok-bg);color:var(--st-ok-fg);border:1px solid var(--st-ok-bd);white-space:nowrap}
+.sc-sap-dir.is-in{background:var(--st-info-bg);color:var(--st-info-fg);border-color:var(--st-info-bd)}
+.sc-sap-ok{color:var(--st-ok-fg);font-weight:600}
+.sc-sap-none{text-align:center;color:var(--gray);padding:20px!important}
+/* THE MAPPING (sapMapGroup): per group a title, the fields OpenDhi sends as
+   two-sided rows (field and value, arrow, SAP field and value), and the values
+   the integration sets as the panel's field cards. */
+.sc-map-group{margin-bottom:22px}
+.sc-map-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eef0f3}
+.sc-map-sub{display:flex;align-items:center;gap:6px;margin:12px 0 8px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--gray)}
+.sc-map-sub span{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--light);border:1px solid var(--border);font-size:10px;color:var(--navy);letter-spacing:0}
+.sc-map-list{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff}
+.sc-map-row{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1.15fr);gap:12px;align-items:start;padding:12px 16px;border-bottom:1px solid #f1f3f5}
+.sc-map-row:last-child{border-bottom:0}
+.sc-map-row:hover{background:#fafbfc}
+.sc-map-side{min-width:0}
+.sc-map-side b{display:block;font-size:13px;font-weight:600;color:var(--navy);overflow-wrap:anywhere}
+.sc-map-lbl{display:block;font-size:11px;color:var(--gray);margin-bottom:3px}
+.sc-map-note{display:block;font-size:11.5px;color:#9ca3af;margin-top:3px;line-height:1.4}
+.sc-map-arrow{display:flex;align-items:center;justify-content:center;height:100%;min-height:36px;color:#cbd5e1}
+.sc-map-group .lp-sb-field-value b{font-weight:600}
+/* every Reference table fits the panel: cells wrap, badges and chips stay whole */
+.sc-sap .sc-rec-wrap{overflow-x:hidden}
+.sc-sap .sc-rec-table th,.sc-sap .sc-rec-table td{white-space:normal;overflow-wrap:anywhere}
+.sc-sap .lp-status-badge,.sc-sap .sc-sap-dir{white-space:nowrap;overflow-wrap:normal}
+/* PURCHASE ORDER field on a deal's Details: the number links to the PO, the
+   status sits beside it; before a PO exists the card says so quietly. */
+.sc-po-val{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sc-po-link{display:inline-flex;align-items:center;gap:4px;padding:0;border:0;background:none;cursor:pointer;
+  font:inherit;font-weight:700;color:var(--navy);text-decoration:underline;text-decoration-color:#cbd5e1;text-underline-offset:3px}
+.sc-po-link svg{color:var(--gray);transition:transform var(--t-fast,.15s) ease}
+.sc-po-link:hover{text-decoration-color:var(--navy)}
+.sc-po-link:hover svg{transform:translate(1px,-1px);color:var(--navy)}
+.sc-po-none{color:#9ca3af;font-weight:500}
+/* TIMELINE AS AN ACTIVITY FEED (logsTimelineHTML): day headers, one row per
+   step - a kind icon (approve / return / reject / create / edit / system), the
+   sentence, the time, the change it made and a link to the document, then the
+   reason / remarks quoted. The step still to come leads the feed. */
+.sc-feed{position:relative;padding-left:2px}
+.sc-feed-day{position:relative;margin:14px 0 8px 42px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
+.sc-feed-day:first-child{margin-top:0}
+.sc-feed-row{position:relative;display:flex;gap:12px;padding:0 0 14px}
+.sc-feed-row::before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:#eef0f3}
+.sc-feed-row:last-child::before{display:none}
+.sc-feed-ico{position:relative;z-index:1;width:30px;height:30px;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid}
+.sc-feed-ico svg{width:14px;height:14px}
+.sc-feed-ico.is-ok{background:var(--st-ok-bg);color:var(--st-ok-fg);border-color:var(--st-ok-bd)}
+.sc-feed-ico.is-add{background:var(--st-info-bg);color:var(--st-info-fg);border-color:var(--st-info-bd)}
+.sc-feed-ico.is-back{background:var(--st-wait-bg);color:var(--st-wait-fg);border-color:var(--st-wait-bd)}
+.sc-feed-ico.is-bad{background:var(--st-bad-bg);color:var(--st-bad-fg);border-color:var(--st-bad-bd)}
+.sc-feed-ico.is-edit,.sc-feed-ico.is-sys{background:var(--light);color:var(--gray);border-color:var(--border)}
+.sc-feed-ico.is-next{background:#fff;color:#94a3b8;border:1.5px dashed #cbd5e1}
+.sc-feed-body{flex:1;min-width:0;padding:6px 12px 10px;border-radius:10px;transition:background var(--t-fast,.15s) ease}
+.sc-feed-row:hover .sc-feed-body{background:#fafbfc}
+.sc-feed-row.is-now .sc-feed-body{background:#fff;border:1px solid var(--st-info-bd);box-shadow:0 1px 4px rgba(15,23,42,.05)}
+.sc-feed-row.is-sys .sc-feed-text{color:var(--gray)}
+.sc-feed-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sc-feed-text{font-size:13px;line-height:1.5;color:var(--navy)}
+.sc-feed-text b{font-weight:600}
+.sc-feed-role{color:var(--gray);font-size:12px}
+.sc-feed-time{flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:11.5px;color:#9ca3af;white-space:nowrap;padding-top:2px;cursor:default}
+.sc-feed-now{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:99px;background:var(--st-info-bg);color:var(--st-info-fg);font-size:10.5px;font-weight:700}
+.sc-feed-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin-top:5px;font-size:12px;color:var(--gray)}
+.sc-feed-change s{color:#9ca3af}
+.sc-feed-change b{color:var(--navy);font-weight:600}
+.sc-feed-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;cursor:pointer;font:600 12px 'Inter',sans-serif;color:var(--navy);text-decoration:underline;text-decoration-color:#cbd5e1;text-underline-offset:3px}
+.sc-feed-link:hover{text-decoration-color:var(--navy)}
+.sc-feed-link svg{color:var(--gray)}
+.sc-feed-quote{margin-top:7px;padding:6px 10px;border-left:3px solid var(--border);background:#fafbfc;border-radius:0 8px 8px 0;font-size:12.5px;line-height:1.5;color:var(--navy)}
+.sc-feed-quote span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#9ca3af;margin-bottom:1px}
+.sc-feed-quote.is-reason{border-left-color:var(--st-wait-bd);background:var(--st-wait-bg);color:var(--st-wait-fg)}
+.sc-feed-quote.is-reason span{color:var(--st-wait-fg);opacity:.75}
+.sc-feed-next{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:0 0 14px;border-bottom:1px dashed #e5e7eb;font-size:12.5px;color:var(--gray)}
+.sc-feed-next b{color:var(--navy)}
