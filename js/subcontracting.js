@@ -2902,20 +2902,31 @@ function logsTableHTML(o){
       +'<p class="lp-logs-form-sub">'+o.sub+'</p>'+(o.note&&!o.opts.length?'<div class="sc-logs-note">'+o.note+'</div>':'')+'</div>'
     +(btns?'<div class="sc-quick-actions">'+btns+'</div>':'')
     +'</div>';
-  var form='';
+  /* While an action is being logged the bar and the form become ONE card: the
+     top names the move (current status -> action) with a close button, so the
+     action's button appears once - on the card's footer - not on the bar too. */
   if(adding){
     var back=/^(Return|Reject)/.test(adding);
-    var mb=adding==='Move Back';
-    form='<div class="sc-edit-card sc-logadd"><div class="sc-logadd-title">'+(mb?'Move back to '+esc(la.target):esc(adding))+'</div>'
-      +(mb?'<p class="sc-mb-note">The deal returns to the state right after <b>'+esc(la.target)+'</b>. Later steps stay in the log as history, and the next role picks up from there.</p>':'')
-      +'<div class="policy-form-grid">'
-      +reasonFieldHTML(o.id,adding)
-      +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Remarks</label>'
-        +'<textarea class="ep-form-input" id="'+o.id+'-comment" placeholder="Add remarks (optional) - Ctrl+Enter to submit"'
-        +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')}"></textarea></div>'
-      +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scLogCancel()">Cancel</button>'
-      +(mb?'<button class="btn-outline sc-btn-warn" onclick="scMoveBackSubmit(\''+o.id+'\')">Move Back</button>'
-          :'<button class="'+(back?'btn-outline sc-btn-warn':'btn-primary')+'" onclick="scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')">'+esc(adding)+'</button>')+'</div></div>';
+    var mb=adding==='Move Back',go=mb?'scMoveBackSubmit(\''+o.id+'\')':'scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')';
+    head='<div class="sc-logadd'+(back||mb?' is-back':'')+'">'
+      +'<div class="sc-logadd-head"><div class="sc-logadd-move">'
+        +'<span class="sc-logadd-from">'+esc(o.current)+'</span><span class="sc-logadd-arrow">→</span>'
+        +'<span class="sc-logadd-to">'+(mb?'Move back to '+esc(la.target):esc(adding))+'</span></div>'
+        +'<button type="button" class="sc-logadd-x" title="Cancel" aria-label="Cancel" onclick="scLogCancel()">'
+          +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+      +'<div class="sc-logadd-body">'
+        +(mb?'<p class="sc-mb-note">The deal returns to the state right after <b>'+esc(la.target)+'</b>. Later steps stay in the log as history, and the next role picks up from there.</p>':'')
+        +'<div class="policy-form-grid">'
+        +reasonFieldHTML(o.id,adding)
+        +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Remarks <span class="sc-tl-opt">optional</span></label>'
+          +'<textarea class="ep-form-input" id="'+o.id+'-comment" placeholder="Add a note for the next person"'
+          +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();'+go+'}"></textarea></div>'
+        +'</div></div>'
+      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit</span>'
+        +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()">Cancel</button>'
+        +(mb?'<button class="btn-outline sc-btn-warn" onclick="'+go+'">Move Back</button>'
+            :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">'+esc(adding)+'</button>')
+      +'</div></div></div>';
   }
   var sa=state.role==='Super Admin'&&o.key.indexOf('deal:')===0,mbTargets=sa?moveBackTargets(o.dealId):[];
   var lastIdx={};logs.forEach(function(l,i){lastIdx[l.status]=i;});
@@ -2932,7 +2943,7 @@ function logsTableHTML(o){
         +'</tr>';
     }).join('')):'<div class="lp-logs-empty">No activity logs yet.</div>';
   /* while a log is being added the form has the tab to itself - the list returns on Submit or Cancel */
-  return '<div class="sc-logs">'+head+form+(adding?'':table)+'</div>';
+  return '<div class="sc-logs">'+head+(adding?'':table)+'</div>';
 }
 function scLogQuick(key,id,action){
   if(isFormStep(id,action)){
@@ -3333,13 +3344,17 @@ function sampleWorkflowHTML(d){
   if(next&&d.po&&PO_ACTIONS.indexOf(next.action)>=0)next.actions=openPOBtn(d.po.no);
   return wfTimelineHTML(attachViews(sampleMilestones(d),d.id),next);
 }
+/* PO steps (auto-created, generated, approved, returned...) belong to the
+   Purchase Order's own Logs in Orders - the deal's Logs leave them out. */
+function isPOLog(l){return /^PO /.test(l.status);}
 function sampleLogsHTML(d){
-  var logs=sampleMilestones(d).slice().reverse(),next=sampleNextOf(d);
+  var all=sampleMilestones(d).slice().reverse(),next=sampleNextOf(d);
+  var logs=all.filter(function(l){return !isPOLog(l);});
   /* The same live form as the listing's Update Status: it offers what this
      role can do on this deal now, and Submit moves the deal on. */
   var opts=rowAvailable(d.id);
   var poStep=next&&d.po&&PO_ACTIONS.indexOf(next.action)>=0;
-  return logsTabHTML({key:'deal:'+d.id,dealId:d.id,id:'sc-sample',logs:logs,opts:opts,submit:'scSubmitSampleLog',current:logs[0].status,
+  return logsTabHTML({key:'deal:'+d.id,dealId:d.id,id:'sc-sample',logs:logs,opts:opts,submit:'scSubmitSampleLog',current:all[0].status,
     sub:next?'Next action is pending with <b>'+esc(next.role)+'</b>.':'The transaction is closed. No further actions.',
     note:!opts.length&&poStep?poHandoffHTML(next,d.po.no):'',
     state:d.rejected?'rejected':d.stage==='closed'?'completed':next?'waiting':'',next:next,

@@ -492,8 +492,24 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-logs-note{margin-top:8px;font-size:12.5px;color:var(--gray)}
 .sc-addlog-btn{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
 .sc-addlog-btn svg{width:12px;height:12px}
-.sc-logadd{margin-bottom:16px}
-.sc-logadd-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px}
+/* the composer: the status bar and the form as one card - head (current ->
+   action, close), body (reason, remarks), foot (hint, Cancel, the action) */
+.sc-logadd{margin-bottom:16px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 4px 16px rgba(15,23,42,.06);overflow:hidden}
+.sc-logadd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--light);border-bottom:1px solid var(--border)}
+.sc-logadd-move{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;font-size:13px}
+.sc-logadd-from{color:var(--gray);font-weight:500}
+.sc-logadd-arrow{color:#9ca3af}
+.sc-logadd-to{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:7px;background:var(--navy);color:#fff;font-weight:600}
+.sc-logadd.is-back .sc-logadd-to{background:var(--st-wait-bg);color:var(--st-wait-fg);border:1px solid var(--st-wait-bd)}
+.sc-logadd-x{width:28px;height:28px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:7px;background:none;color:var(--gray);cursor:pointer}
+.sc-logadd-x:hover{background:#eef0f3;color:var(--navy)}
+.sc-logadd-body{padding:16px}
+.sc-logadd-body .ep-form-input{min-height:88px}
+.sc-logadd-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid #f0f2f5}
+.sc-logadd-hint{font-size:11.5px;color:#9ca3af}
+.sc-logadd-hint kbd{display:inline-block;padding:0 5px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;background:#fff;font:600 10px 'Inter',sans-serif;color:var(--gray)}
+.sc-logadd-btns{display:flex;gap:8px;margin-left:auto}
+.sc-btn-danger,.sc-btn-danger:hover{background:var(--st-bad-fg);border-color:var(--st-bad-fg);color:#fff}
 .sc-log-rem{white-space:normal!important;min-width:180px;max-width:320px;line-height:1.45}
 .sc-log-reason{display:block;margin-bottom:2px}
 .sc-logs .sc-rec-table td{vertical-align:top}
