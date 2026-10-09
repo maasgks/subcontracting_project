@@ -171,7 +171,7 @@ var state={
   edit:null,         // a tab being edited in place: {id, tab, vals, dirty}
   logAdd:null,       // the Logs tab's open composer: {key, action[, target]}
   /* Logs design - TEMPORARY toggle, see logsTabHTML */
-  logView:(function(){try{return localStorage.getItem('sc-logview')==='timeline'?'timeline':'table';}catch(e){return 'table';}})(),
+  logView:(function(){try{var v=localStorage.getItem('sc-logview');return v==='timeline'||v==='activity'?v:'table';}catch(e){return 'table';}})(),
   stageFilter:null,
   stageLabel:'',
 
@@ -2587,7 +2587,7 @@ function dealHandoff(){
        that action: Remarks (optional), Reason for a return, and a Submit
        named after the action. Ctrl+Enter in Remarks submits too. */
 function isFormStep(id,action){return FORM_ACTIONS.indexOf(action)>=0;}
-/* TWO LOGS DESIGNS, ONE SWITCH. "Table" is the listing with action buttons;
+/* THREE LOGS DESIGNS, ONE SWITCH (Table, Timeline, Activity). "Table" is the listing with action buttons;
    "Timeline" is the earlier design - log cards down the left, the Add Log
    form beside them. A tiny two-icon toggle at the top of the tab flips
    between them and the choice is remembered in this browser.
@@ -2595,11 +2595,13 @@ function isFormStep(id,action){return FORM_ACTIONS.indexOf(action)>=0;}
    other, and this toggle, then go. */
 var ICO_LIST='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
 var ICO_TIMELINE='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="5" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><line x1="5" y1="7" x2="5" y2="17"/><line x1="10" y1="5" x2="21" y2="5"/><line x1="10" y1="19" x2="21" y2="19"/></svg>';
+var ICO_ACTIVITY='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="12" y1="6" x2="21" y2="6"/><line x1="12" y1="18" x2="21" y2="18"/></svg>';
 function logViewToggle(){
   var v=state.logView;
   return '<div class="sc-logview" role="group" aria-label="Logs design">'
-    +'<button type="button" class="'+(v!=='timeline'?'is-on':'')+'" title="Table view" onclick="scLogView(\'table\')">'+ICO_LIST+'</button>'
+    +'<button type="button" class="'+(v!=='timeline'&&v!=='activity'?'is-on':'')+'" title="Table view" onclick="scLogView(\'table\')">'+ICO_LIST+'</button>'
     +'<button type="button" class="'+(v==='timeline'?'is-on':'')+'" title="Timeline view" onclick="scLogView(\'timeline\')">'+ICO_TIMELINE+'</button>'
+    +'<button type="button" class="'+(v==='activity'?'is-on':'')+'" title="Activity view" onclick="scLogView(\'activity\')">'+ICO_ACTIVITY+'</button>'
   +'</div>';
 }
 function scLogView(v){
@@ -2638,53 +2640,17 @@ function logStateCard(o){
 /* the last log entry with this status (logs arrive newest first) */
 function lastLogOf(logs,status){for(var i=0;i<logs.length;i++)if(logs[i].status===status)return logs[i];return null;}
 function logsTabHTML(o){
-  return '<div class="sc-logs-wrap">'+logViewToggle()+(state.logView==='timeline'?logsTimelineHTML(o):logsTableHTML(o))+'</div>';
+  return '<div class="sc-logs-wrap">'+logViewToggle()+(state.logView==='timeline'?logsTimelineHTML(o):state.logView==='activity'?logsActivityHTML(o):logsTableHTML(o))+'</div>';
 }
-/* ── Timeline design: cards on the left (newest first, blue for the latest,
-   green for the rest), Add Log form on the right ── */
-/* ── Timeline design: an ACTIVITY FEED. Each entry reads as a sentence - who
-   (and in which role) did what, to which document - with an icon for the
-   kind of step, the change it made, a link to that document, and the reason
-   / remarks quoted under it. Entries are grouped by day; the latest carries
-   "Now" and the step still to come sits above it. Portal is on the time's
-   tooltip. The Add Log form stays beside the feed. ── */
-var LOG_PHRASE={
-  'SCR Submitted':'submitted the SCR','SCR Approved':'approved the SCR','SCR Returned':'returned the SCR to the Planner',
-  'SCR Rejected':'rejected the SCR','SCR Updated':'updated the SCR details',
-  'PO Auto-Created':'created PO {po} in Draft','PO Generated':'generated PO {po}','PO Approved':'approved PO {po}',
-  'PO Returned':'returned PO {po} to the Buyer','PO Updated':'updated PO {po}','PO Closed':'closed PO {po}',
-  'Shipment Created':'created shipment {ship}','Shipment Updated':'updated shipment {ship}',
-  'Outbound Key Generated':'generated the Outbound Key','Transfer Order Generated':'generated the Transfer Order',
-  'Goods Release & Issue':'released the goods for issue','Shipment Returned':'returned the shipment',
-  'Delivery Note Generated':'generated Delivery Note {dn}','Delivery Note Approved':'approved Delivery Note {dn}',
-  'Delivery Note Returned':'returned Delivery Note {dn}','Delivery Note Updated':'updated Delivery Note {dn}',
-  'Challan Generated':'generated Challan {ch}','Challan Updated':'updated Challan {ch}',
-  'Gate Outward Confirmed':'confirmed gate outward - the material left the plant','Gate Outward Returned':'stopped the material at gate outward',
-  'Shipment Confirmed':'confirmed the shipment - the material is at the vendor',
-  'ASN Created':'raised an ASN','ASN QC Cleared':'cleared an ASN in QC','ASN Returned':'returned an ASN to the vendor','ASN Updated':'updated an ASN',
-  'Gate Inward Confirmed':'confirmed gate inward - the material is back at the plant',
-  'IMR Created':'raised an IMR','IMR Confirmed':'confirmed an IMR - the material is posted to stock','IMR Updated':'updated an IMR',
-  'Reconciliation Completed':'completed the reconciliation','Full Receipt Confirmed':'confirmed full receipt',
-  'Short Close':'short-closed the open quantity','Transaction Closed':'closed the transaction'
-};
-/* the field a step moves, as before -> after */
-var LOG_CHANGE={
-  'SCR Approved':['SCR Status','Sent for Approval','Approved'],'SCR Returned':['SCR Status','Sent for Approval','SCR Returned'],
-  'SCR Rejected':['SCR Status','Sent for Approval','Rejected'],
-  'PO Auto-Created':['PO Status','—','Draft'],'PO Generated':['PO Status','Draft','Created'],'PO Approved':['PO Status','Created','Approved'],
-  'Shipment Created':['Shipment Status','Not Started','Created'],'Goods Release & Issue':['Shipment Status','Created','Freezed Outbound Release'],
-  'Delivery Note Approved':['Delivery Note','Generated','Approved'],'Challan Generated':['Shipment Status','Freezed Outbound Release','Challan Generated'],
-  'Gate Outward Confirmed':['Challan','Generated','Gate Cleared'],'Shipment Confirmed':['Material Position','In Transit','At Vendor'],
-  'ASN QC Cleared':['ASN QC','Created','QC Cleared'],'Gate Inward Confirmed':['Gate Inward','Pending','Confirmed'],
-  'IMR Confirmed':['IMR','Created','Confirmed'],'Transaction Closed':['SCR · PO · Shipment','Open','Closed']
-};
+/* Shared by the Activity design: the kind of step a log entry is, its icon,
+   the day / time wording and the link to the document it touched. */
 var FEED_ICO={
   ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>',
   bad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
   add:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
-  sys:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  sys:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg>',
   next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>'
 };
 function feedKind(l){
@@ -2696,49 +2662,62 @@ function feedKind(l){
   if(/Submitted|Generated|Created|Auto-Created/.test(st))return 'add';
   return 'ok';
 }
-function feedSentence(l,x){
-  var st=l.status,ph=LOG_PHRASE[st];
-  if(!ph)ph=/^Moved back to /.test(st)?'moved the deal back to '+st.slice(14):'recorded '+st;
-  ph=esc(ph).replace('{po}','<b>'+esc(x.po||'')+'</b>').replace('{ship}','<b>'+esc(x.ship?x.ship.no:'')+'</b>')
-    .replace('{dn}','<b>'+esc(x.dn?x.dn.no:'')+'</b>').replace('{ch}','<b>'+esc(x.challan?x.challan.no:'')+'</b>');
-  return '<b>'+esc(l.by)+'</b>'+(l.role&&l.role!=='System'?' <span class="sc-feed-role">('+esc(l.role)+')</span>':'')+' '+ph;
+/* a day header reads Today / Yesterday when it can */
+function feedDay(date){
+  if(date===fmtDate(new Date()))return 'Today';
+  if(date===fmtDate(new Date(Date.now()-864e5)))return 'Yesterday';
+  return date;
 }
+function shortTime(t){return fmtTime(t).replace(/:\d\d (AM|PM)$/,' $1');}
+function feedOpen(o){return !!(o.next&&o.state!=='completed'&&o.state!=='rejected');}
+function feedLinkHTML(l,o){
+  var v=WF_VIEW[l.status];
+  return v?'<button type="button" class="sc-feed-link" onclick="scGoTab(\''+v[1]+'\',\''+(o.dealId||LIVE_ID)+'\')">'+esc(v[0])+' '+ICO_OUT+'</button>':'';
+}
+/* ── Timeline design: one CARD per log entry down the left, newest first - a
+   person marker on the rail, the status in colour (blue for the latest, green
+   for done, amber for a return, red for a rejection), then a details box
+   (Updated by · Date & time · Portal) and the reason / remarks in their own
+   boxes. The Add Log form sits beside it: current status, a Status select
+   with what this role can do, Remarks, Cancel / Submit. ── */
+var CARD_ICO={
+  user:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+};
 function logsTimelineHTML(o){
-  var logs=vendorView(o.logs),x=dealDocs(o.dealId||LIVE_ID);
-  var html='',day='';
-  /* the step still to come, above the latest */
-  if(o.next&&o.state!=='completed'&&o.state!=='rejected')
-    html+='<div class="sc-feed-next"><span class="sc-feed-ico is-next">'+FEED_ICO.next+'</span>'
-      +'<div>Next: <b>'+esc(o.next.action)+'</b> · pending with <b>'+esc(o.next.role)+'</b></div></div>';
-  logs.forEach(function(l,n){
-    if(l.date!==day){day=l.date;html+='<div class="sc-feed-day">'+esc(day)+'</div>';}
-    var k=feedKind(l),ch=LOG_CHANGE[l.status],v=WF_VIEW[l.status];
-    var link=v?'<button type="button" class="sc-feed-link" onclick="scGoTab(\''+v[1]+'\',\''+(o.dealId||LIVE_ID)+'\')">'+esc(v[0])+' '+ICO_OUT+'</button>':'';
-    html+='<div class="sc-feed-row is-'+k+(n===0?' is-now':'')+'">'
-      +'<span class="sc-feed-ico is-'+k+'">'+FEED_ICO[k]+'</span>'
-      +'<div class="sc-feed-body">'
-        +'<div class="sc-feed-top"><div class="sc-feed-text">'+feedSentence(l,x)+'</div>'
-          +'<div class="sc-feed-time" title="'+esc(l.date+' · '+fmtTime(l.time)+' · '+(l.portal||'Web')+' portal')+'">'
-            +esc(fmtTime(l.time).replace(/:\d\d (AM|PM)$/,' $1'))+(n===0?'<span class="sc-feed-now">Now</span>':'')+'</div></div>'
-        +(ch||link?'<div class="sc-feed-meta">'
-            +(ch?'<span class="sc-feed-change">'+esc(ch[0])+': <s>'+esc(ch[1])+'</s> → <b>'+esc(ch[2])+'</b></span>':'')
-            +link+'</div>':'')
-        +(l.reason?'<div class="sc-feed-quote is-reason"><span>Reason</span>'+esc(l.reason)+'</div>':'')
-        +(l.comment?'<div class="sc-feed-quote"><span>Remarks</span>'+esc(l.comment)+'</div>':'')
+  var logs=vendorView(o.logs);
+  var cards=logs.map(function(l,n){
+    var f=feedKind(l),k=f==='bad'?'bad':f==='back'?'wait':n===0?'info':'ok';
+    return '<div class="sc-lc-row is-'+k+'">'
+      +'<div class="sc-lc-rail"><span class="sc-lc-av">'+CARD_ICO.user+'</span></div>'
+      +'<div class="sc-lc-card">'
+        +'<div class="sc-lc-status"><span class="sc-lc-dot"></span>'+esc(l.status)+'</div>'
+        +'<div class="sc-lc-box">'
+          +'<div class="sc-lc-f"><div class="sc-lc-k">'+CARD_ICO.user+'Updated by</div>'
+            +'<div class="sc-lc-v">'+esc(l.by)+'</div>'+(l.role&&l.role!==l.by?'<div class="sc-lc-s">'+esc(l.role)+'</div>':'')+'</div>'
+          +'<div class="sc-lc-grid">'
+            +'<div class="sc-lc-f"><div class="sc-lc-k">'+CARD_ICO.cal+'Date &amp; time</div>'
+              +'<div class="sc-lc-v">'+esc(l.date)+'</div><div class="sc-lc-s">'+esc(fmtTime(l.time))+'</div></div>'
+            +'<div class="sc-lc-f"><div class="sc-lc-k">'+CARD_ICO.web+'Portal</div><div class="sc-lc-v">'+esc(l.portal||'Web')+'</div></div>'
+          +'</div>'
+        +'</div>'
+        +(l.reason?'<div class="sc-lc-note is-reason"><div class="sc-lc-k">Reason</div>'+esc(l.reason)+'</div>':'')
+        +(l.comment?'<div class="sc-lc-note"><div class="sc-lc-k">Remarks</div>'+esc(l.comment)+'</div>':'')
       +'</div></div>';
-  });
-  var timeline=logs.length?'<div class="sc-feed">'+html+'</div>':'<div class="lp-logs-empty">No activity logs yet.</div>';
+  }).join('');
+  var timeline=logs.length?'<div class="sc-lc">'+cards+'</div>':'<div class="lp-logs-empty">No activity logs yet.</div>';
   var ro=!o.opts.length,card=logStateCard(o);
   var form=card?'<div class="lp-logs-form sc-state-side">'+card+'</div>':'<div class="lp-logs-form">'
     +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(o.current)+'</div>'
     +'<p class="lp-logs-form-sub">'+o.sub+'</p>'
     +'<div class="lp-logs-form-label">Status <span class="lp-logs-form-req">*</span></div>'
-    +csField(o.id+'-status',o.opts,'','Select Status','scTimelinePicked')
+    +csField(o.id+'-status',o.opts,'','Select Status','scCardPicked')
     +reasonFieldHTML(o.id,'')
     +'<div class="lp-logs-form-label">Remarks</div>'
     +'<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="Enter remarks"'+(ro?' disabled':'')+'></textarea>'
     +'<div class="sc-logs-btns">'
-      +'<button class="btn-outline" onclick="scTimelineReset(\''+o.id+'\')"'+(ro?' disabled':'')+'>Cancel</button>'
+      +'<button class="btn-outline" onclick="scCardReset(\''+o.id+'\')"'+(ro?' disabled':'')+'>Cancel</button>'
       +'<button class="lp-logs-save-btn" onclick="'+(o.submit||'void 0')+'()"'+(ro?' disabled':'')+'>Submit</button>'
     +'</div>'
     +(o.note&&ro?'<p class="lp-logs-form-sub" style="margin:12px 0 0">'+o.note+'</p>':'')
@@ -2746,16 +2725,167 @@ function logsTimelineHTML(o){
   return '<div class="lp-logs-wrap">'+timeline+form+'</div>';
 }
 /* picking a status shows the reason a return needs; a step with its own form opens it */
-function scTimelinePicked(val,csid){
+function scCardPicked(val,csid){
   var fid=csid.replace(/-status$/,'');toggleReason(fid,val);
   var id=fid==='sc-sample'?state.dealSel:LIVE_ID;
   if(isFormStep(id,val))scLogQuick('',id,val);
 }
-function scTimelineReset(fid){
+function scCardReset(fid){
   var t=document.getElementById(fid+'-comment');if(t)t.value='';
   csValues[fid+'-status']='';toggleReason(fid,'');
   var tr=document.querySelector('[data-csid="'+fid+'-status"]');
   if(tr){tr.querySelector('.cs-value').textContent='Select Status';tr.classList.add('cs-placeholder');}
+  document.querySelectorAll('#csd-'+fid+'-status .cs-option').forEach(function(x){x.classList.remove('cs-selected');});
+}
+function remarksBoxHTML(o,ph){
+  return '<textarea class="lp-logs-form-textarea" id="'+o.id+'-comment" placeholder="'+(ph||'Add a note for the next person')+'"'
+    +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();scTimelineSubmit(\''+o.id+'\',\''+o.submit+'\')}"></textarea>';
+}
+function submitBtnHTML(o,sel,cls){
+  return '<button class="lp-logs-save-btn'+(cls?' '+cls:'')+(sel&&/^Reject/.test(sel)?' is-warn':'')+'" id="'+o.id+'-submit"'
+    +' onclick="scTimelineSubmit(\''+o.id+'\',\''+o.submit+'\')"'+(sel?'':' disabled')+'>'+esc(sel||'Submit')+'</button>';
+}
+/* the side panel: current status, the actions as tiles, reason, remarks, Submit */
+var KBD_HINT='<div class="sc-tl-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit</div>';
+function actionPanelHTML(o){
+  var ro=!o.opts.length,card=logStateCard(o);
+  if(card)return '<div class="lp-logs-form sc-state-side">'+card+'</div>';
+  /* one action on offer is picked already - unless it opens a form of its own */
+  var only=o.opts.length===1&&!isFormStep(o.dealId,o.opts[0])?o.opts[0]:'';
+  /* when every action opens its own form, the tile is the button - no remarks or Submit to dangle */
+  var allForms=!ro&&o.opts.every(function(a){return isFormStep(o.dealId,a);});
+  return '<div class="lp-logs-form sc-tl-form">'
+    +'<div class="sc-tl-eyebrow">Current status</div>'
+    +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(o.current)+'</div>'
+    +'<p class="lp-logs-form-sub">'+o.sub+'</p>'
+    +(ro?'':'<div class="lp-logs-form-label">Action <span class="lp-logs-form-req">*</span></div>'
+      +actionTilesHTML(o.id,o.dealId,o.opts,only))
+    +reasonFieldHTML(o.id,only)
+    +(allForms?'<div class="sc-tl-hint" style="margin-top:-4px">Opens a form - add your remarks there.</div>':'')
+    +(ro||allForms?'':'<div class="lp-logs-form-label">Remarks <span class="sc-tl-opt">optional</span></div>'+remarksBoxHTML(o)
+      +'<div class="sc-logs-btns"><button class="btn-outline" onclick="scTimelineReset(\''+o.id+'\')">Clear</button>'+submitBtnHTML(o,only)+'</div>'+KBD_HINT)
+    +(o.note&&ro?'<p class="lp-logs-form-sub" style="margin:12px 0 0">'+o.note+'</p>':'')
+    +'</div>';
+}
+
+/* The role's actions as tiles, not a dropdown: there are rarely more than
+   three, so all of them show at once. Forward steps first, then returns and
+   rejections in the warning tone; a step that opens its own form says so. */
+var TILE_ICO={
+  go:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  back:FEED_ICO.back,bad:FEED_ICO.bad
+};
+function actionTilesHTML(fid,dealId,opts,sel){
+  csValues[fid+'-status']=sel||'';
+  var ord=opts.slice().sort(function(a,b){return /^(Return|Reject)/.test(a)-/^(Return|Reject)/.test(b);});
+  return '<div class="sc-tiles" role="radiogroup" id="'+fid+'-tiles">'+ord.map(function(a){
+    var k=/^Reject/.test(a)?'bad':/^Return/.test(a)?'back':'go',form=isFormStep(dealId,a);
+    return '<button type="button" role="radio" aria-checked="'+(a===sel)+'" class="sc-tile is-'+k+(a===sel?' is-on':'')+'"'
+      +' data-action="'+esc(a)+'" onclick="scTilePick(this,\''+fid+'\',\''+esc(dealId)+'\')">'
+      +'<span class="sc-tile-ico">'+TILE_ICO[k]+'</span><span class="sc-tile-label">'+esc(a)+'</span>'
+      +(form?'<span class="sc-tile-form" title="Opens its own form">Form '+ICO_OUT+'</span>':'')
+      +'</button>';
+  }).join('')+'</div>';
+}
+function scTilePick(btn,fid,dealId){
+  var a=btn.getAttribute('data-action');
+  /* a step with its own form opens it straight away */
+  if(isFormStep(dealId,a)){scLogQuick('',dealId,a);return;}
+  btn.parentNode.querySelectorAll('.sc-tile').forEach(function(t){
+    var on=t===btn;t.classList.toggle('is-on',on);t.setAttribute('aria-checked',on);
+  });
+  csValues[fid+'-status']=a;toggleReason(fid,a);
+  scTimelineSync(fid);
+  var f=document.querySelector('#'+fid+'-reason-wrap .cs-trigger')||document.getElementById(fid+'-comment');
+  if(f&&f.offsetParent!==null)f.focus();
+}
+/* Submit is named after the chosen action, red for a rejection */
+function scTimelineSync(fid){
+  var a=csValue(fid+'-status'),b=document.getElementById(fid+'-submit');
+  /* the Activity panel's header follows the chosen action */
+  var mv=document.getElementById(fid+'-move');if(mv)mv.textContent=a||mv.getAttribute('data-def');
+  if(!b)return;
+  b.textContent=a||'Submit';b.disabled=!a;
+  b.classList.toggle('is-warn',/^Reject/.test(a));
+}
+function scTimelineSubmit(fid,submit){
+  if(!csValue(fid+'-status')){scToast('Choose an action first','error');return;}
+  if(typeof window[submit]==='function')window[submit]();
+}
+function scTimelineReset(fid){
+  var t=document.getElementById(fid+'-comment');if(t)t.value='';
+  csValues[fid+'-status']='';toggleReason(fid,'');
+  document.querySelectorAll('#'+fid+'-tiles .sc-tile').forEach(function(t){t.classList.remove('is-on');t.setAttribute('aria-checked','false');});
+  scTimelineSync(fid);
+}
+/* ── Activity design: a status header across the top (where the deal is, what
+   is next and with whom, and how far along the process it is), then the
+   history as people's entries - an avatar with a small badge for the kind of
+   step, name · role · time, the step as one soft badge with its document,
+   and the remarks in a bubble. The role's actions sit beside it as chips. ── */
+function initials(n){return String(n||'').split(/\s+/).filter(Boolean).map(function(w){return w.charAt(0);}).join('').slice(0,2).toUpperCase();}
+function logsActivityHTML(o){
+  var logs=vendorView(o.logs),id=o.dealId||LIVE_ID,n=WF_FLOW.length;
+  var at=o.state==='completed'?n-1:progressIndex(dealEventsOldestFirst(id)),step=Math.max(0,Math.min(n,at+1));
+  var tone=o.state==='rejected'?'bad':o.state==='completed'?'ok':'info';
+  var sub=feedOpen(o)?'Next: <b>'+esc(o.next.action)+'</b><span class="sc-ac-with">with '+esc(o.next.role)+'</span>'
+    :o.state==='rejected'?'This SCR was rejected. No further steps.':o.state==='completed'?'All steps are done.':o.sub;
+  var hero='<div class="sc-ac-hero is-'+tone+'">'
+    +'<span class="sc-ac-hero-ico">'+(tone==='bad'?ICO_REJECT:tone==='ok'?ICO_DONE:ICO_HOURGLASS)+'</span>'
+    +'<div class="sc-ac-hero-main"><div class="sc-ac-eyebrow">Current status</div>'
+      +'<div class="sc-ac-hero-title">'+esc(o.current)+'</div><div class="sc-ac-hero-sub">'+sub+'</div></div>'
+    +'<div class="sc-ac-prog" title="'+step+' of '+n+' steps in the sub-contracting process">'
+      +'<div class="sc-ac-prog-top"><span>Progress</span><b>Step '+step+' of '+n+'</b></div>'
+      +'<div class="sc-ac-bar"><i style="width:'+Math.round(step/n*100)+'%"></i></div></div>'
+  +'</div>';
+  var html='',day='';
+  /* the history stays quiet - grey avatars, the step as plain text, remarks
+     as plain text - so the eye goes to the panel where the log is changed.
+     Only a return or rejection keeps its colour, on the step's text. */
+  if(feedOpen(o))
+    html+='<div class="sc-ac-item is-next"><span class="sc-ac-av is-next">'+FEED_ICO.next+'</span><div class="sc-ac-main">'
+      +'<div class="sc-ac-head"><span>Waiting on <b>'+esc(o.next.role)+'</b></span></div>'
+      +'<div class="sc-ac-line"><span class="sc-ac-step">'+esc(o.next.action)+'</span></div></div></div>';
+  logs.forEach(function(l,i){
+    if(l.date!==day){day=l.date;html+='<div class="sc-ac-day"><span>'+esc(feedDay(day))+'</span></div>';}
+    var k=feedKind(l),sys=l.by==='System';
+    html+='<div class="sc-ac-item'+(i===0?' is-now':'')+'">'
+      +'<span class="sc-ac-av'+(sys?' is-sys':'')+'">'+(sys?FEED_ICO.sys:esc(initials(l.by)))+'</span>'
+      +'<div class="sc-ac-main">'
+        +'<div class="sc-ac-head"><b>'+esc(l.by)+'</b>'+(l.role&&!sys?'<span class="sc-ac-role">'+esc(l.role)+'</span>':'')
+          +'<span class="sc-ac-time" title="'+esc(l.date+' · '+fmtTime(l.time)+' · '+(l.portal||'Web')+' portal')+'">'+esc(shortTime(l.time))+'</span></div>'
+        +'<div class="sc-ac-line"><span class="sc-ac-step is-'+k+'">'+esc(l.status)+'</span>'+feedLinkHTML(l,o)+'</div>'
+        +(l.reason?'<div class="sc-ac-note is-reason">Reason: '+esc(l.reason)+'</div>':'')
+        +(l.comment?'<div class="sc-ac-note">'+esc(l.comment)+'</div>':'')
+      +'</div></div>';
+  });
+  var feed='<div class="sc-ac-feedwrap"><div class="sc-ac-title">Activity <span>'+logs.length+'</span></div>'
+    +(logs.length?'<div class="sc-ac-feed">'+html+'</div>':'<div class="lp-logs-empty">No activity logs yet.</div>')+'</div>';
+  return hero+'<div class="lp-logs-wrap sc-ac-wrap">'+feed+activityPanelHTML(o)+'</div>';
+}
+/* the role's side, where the log is changed - the one place in this design
+   that carries weight: a header naming the move (current status -> step), the
+   actions, reason, remarks and Submit. The status card when there is nothing to do. */
+function activityPanelHTML(o){
+  var card=logStateCard(o);
+  if(card)return '<div class="lp-logs-form sc-state-side">'+card+'</div>';
+  if(!o.opts.length)return '<div class="lp-logs-form sc-ac-form"><div class="sc-ac-form-head"><div class="sc-ac-form-title">Update log</div>'
+    +'<div class="sc-ac-move"><span>'+esc(o.current)+'</span></div></div><div class="sc-ac-form-body"><p class="lp-logs-form-sub">'+(o.note||'Nothing for you to do here yet.')+'</p></div></div>';
+  var only=o.opts.length===1&&!isFormStep(o.dealId,o.opts[0])?o.opts[0]:'';
+  var allForms=o.opts.every(function(a){return isFormStep(o.dealId,a);});
+  /* the panel says what the update does: from the current status to the step */
+  var to=o.opts.filter(function(a){return !/^(Return|Reject)/.test(a);})[0]||o.opts[0];
+  return '<div class="lp-logs-form sc-tl-form sc-ac-form">'
+    +'<div class="sc-ac-form-head"><div class="sc-ac-form-title">Update log</div>'
+      +'<div class="sc-ac-move"><span>'+esc(o.current)+'</span><i>→</i><b id="'+o.id+'-move" data-def="'+esc(only||to)+'">'+esc(only||to)+'</b></div></div>'
+    +'<div class="sc-ac-form-body">'
+    +'<div class="lp-logs-form-label">Action <span class="lp-logs-form-req">*</span></div>'
+    +actionTilesHTML(o.id,o.dealId,o.opts,only)
+    +reasonFieldHTML(o.id,only)
+    +(allForms?'<div class="sc-tl-hint" style="margin-top:-4px">Opens a form - add your remarks there.</div>'
+      :'<div class="lp-logs-form-label">Remarks <span class="sc-tl-opt">optional</span></div>'+remarksBoxHTML(o)
+      +'<div class="sc-logs-btns"><button class="btn-outline" onclick="scTimelineReset(\''+o.id+'\')">Clear</button>'+submitBtnHTML(o,only)+'</div>'+KBD_HINT)
+    +'</div></div>';
 }
 /* ── Table design ── */
 function logsTableHTML(o){
@@ -2789,14 +2919,13 @@ function logsTableHTML(o){
   }
   var sa=state.role==='Super Admin'&&o.key.indexOf('deal:')===0,mbTargets=sa?moveBackTargets(o.dealId):[];
   var lastIdx={};logs.forEach(function(l,i){lastIdx[l.status]=i;});
-  var table=logs.length?recTable(['S.No','Deal Status','Remarks','Created By','Create Time','Portal'].concat(sa?['Action']:[]),
+  var table=logs.length?recTable(['S.No','Deal Status','Remarks','Created By','Create Time'].concat(sa?['Action']:[]),
     logs.map(function(l,i){
       var rem=(l.reason?'<span class="sc-log-reason"><b>Reason:</b> '+esc(l.reason)+'</span>':'')+(l.comment?esc(l.comment):'');
       return '<tr><td>'+(i+1)+'</td><td><b>'+esc(l.status)+'</b></td>'
         +'<td class="sc-log-rem">'+(rem||'<span class="lp-dash">—</span>')+'</td>'
         +'<td>'+esc(l.by)+'<span class="sc-rec-sub">'+esc(l.role||'')+'</span></td>'
-        +'<td>'+esc(l.date)+'<span class="sc-rec-sub">'+esc(fmtTime(l.time))+'</span></td>'
-        +'<td>'+esc(l.portal||'Web')+'</td>'
+        +'<td>'+esc(l.date)+'<span class="sc-rec-sub">'+esc(shortTime(l.time))+(l.portal&&l.portal!=='Web'?' · '+esc(l.portal)+' portal':'')+'</span></td>'
         +(sa?'<td>'+(mbTargets.indexOf(l.status)>=0&&lastIdx[l.status]===i
             ?'<button class="sc-mb-btn" type="button" title="Move the deal back to this step" onclick="scMoveBackStart(\''+o.key+'\',\''+o.dealId+'\',\''+esc(l.status).replace(/'/g,"\\'")+'\')">'+ICO_UNDO+'<span>Move back</span></button>'
             :'')+'</td>':'')

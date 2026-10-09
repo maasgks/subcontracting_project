@@ -549,7 +549,10 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .lp-split-sb.sc-still{transition:none}
 .lp-split-sb.sc-still .lp-isb-body,.lp-split-sb.sc-still .lp-isb-tabbar{animation:none}
 @keyframes sc-swap-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.lp-isb-body.sc-swap>*{animation:sc-swap-in .18s ease-out both}
+/* fill BACKWARDS, not both (motion.css explains): a filling transform makes the
+   tab's content the containing block for its position:fixed dropdowns, so the
+   Logs Status select opened off-place and was clipped by the panel's scroller. */
+.lp-isb-body.sc-swap>*{animation:sc-swap-in .18s ease-out backwards}
 @media (prefers-reduced-motion:reduce){.lp-isb-body.sc-swap>*{animation:none}}
 /* REFERENCE DETAILS (SAP) - panel tables with a one-line caption under each
    head; the mapping groups header and line fields, arrows OpenDhi -> SAP, and
@@ -591,47 +594,126 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-po-link:hover{text-decoration-color:var(--navy)}
 .sc-po-link:hover svg{transform:translate(1px,-1px);color:var(--navy)}
 .sc-po-none{color:#9ca3af;font-weight:500}
-/* TIMELINE AS AN ACTIVITY FEED (logsTimelineHTML): day headers, one row per
-   step - a kind icon (approve / return / reject / create / edit / system), the
-   sentence, the time, the change it made and a link to the document, then the
-   reason / remarks quoted. The step still to come leads the feed. */
-.sc-feed{position:relative;padding-left:2px}
-.sc-feed-day{position:relative;margin:14px 0 8px 42px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
-.sc-feed-day:first-child{margin-top:0}
-.sc-feed-row{position:relative;display:flex;gap:12px;padding:0 0 14px}
-.sc-feed-row::before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:#eef0f3}
-.sc-feed-row:last-child::before{display:none}
-.sc-feed-ico{position:relative;z-index:1;width:30px;height:30px;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid}
-.sc-feed-ico svg{width:14px;height:14px}
-.sc-feed-ico.is-ok{background:var(--st-ok-bg);color:var(--st-ok-fg);border-color:var(--st-ok-bd)}
-.sc-feed-ico.is-add{background:var(--st-info-bg);color:var(--st-info-fg);border-color:var(--st-info-bd)}
-.sc-feed-ico.is-back{background:var(--st-wait-bg);color:var(--st-wait-fg);border-color:var(--st-wait-bd)}
-.sc-feed-ico.is-bad{background:var(--st-bad-bg);color:var(--st-bad-fg);border-color:var(--st-bad-bd)}
-.sc-feed-ico.is-edit,.sc-feed-ico.is-sys{background:var(--light);color:var(--gray);border-color:var(--border)}
-.sc-feed-ico.is-next{background:#fff;color:#94a3b8;border:1.5px dashed #cbd5e1}
-.sc-feed-body{flex:1;min-width:0;padding:6px 12px 10px;border-radius:10px;transition:background var(--t-fast,.15s) ease}
-.sc-feed-row:hover .sc-feed-body{background:#fafbfc}
-.sc-feed-row.is-now .sc-feed-body{background:#fff;border:1px solid var(--st-info-bd);box-shadow:0 1px 4px rgba(15,23,42,.05)}
-.sc-feed-row.is-sys .sc-feed-text{color:var(--gray)}
-.sc-feed-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.sc-feed-text{font-size:13px;line-height:1.5;color:var(--navy)}
-.sc-feed-text b{font-weight:600}
-.sc-feed-role{color:var(--gray);font-size:12px}
-.sc-feed-time{flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:11.5px;color:#9ca3af;white-space:nowrap;padding-top:2px;cursor:default}
-.sc-feed-now{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:99px;background:var(--st-info-bg);color:var(--st-info-fg);font-size:10.5px;font-weight:700}
-.sc-feed-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin-top:5px;font-size:12px;color:var(--gray)}
-.sc-feed-change s{color:#9ca3af}
-.sc-feed-change b{color:var(--navy);font-weight:600}
-.sc-feed-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;cursor:pointer;font:600 12px 'Inter',sans-serif;color:var(--navy);text-decoration:underline;text-decoration-color:#cbd5e1;text-underline-offset:3px}
-.sc-feed-link:hover{text-decoration-color:var(--navy)}
+/* the link from a log entry to the document it touched (Activity design) */
+.sc-feed-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;cursor:pointer;font:600 12px 'Inter',sans-serif;color:var(--navy)}
 .sc-feed-link svg{color:var(--gray)}
-.sc-feed-quote{margin-top:7px;padding:6px 10px;border-left:3px solid var(--border);background:#fafbfc;border-radius:0 8px 8px 0;font-size:12.5px;line-height:1.5;color:var(--navy)}
-.sc-feed-quote span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#9ca3af;margin-bottom:1px}
-.sc-feed-quote.is-reason{border-left-color:var(--st-wait-bd);background:var(--st-wait-bg);color:var(--st-wait-fg)}
-.sc-feed-quote.is-reason span{color:var(--st-wait-fg);opacity:.75}
-.sc-feed-next{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:0 0 14px;border-bottom:1px dashed #e5e7eb;font-size:12.5px;color:var(--gray)}
-.sc-feed-next b{color:var(--navy)}
+/* ACTION TILES (Activity design's Update log panel): the role's actions as
+   tiles, Submit named after the one chosen, red for a rejection. */
+.sc-tl-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px}
+.sc-tl-opt{font-weight:500;color:#9ca3af;margin-left:2px}
+.sc-tiles{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.sc-tile{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-control,8px);
+  background:#fff;cursor:pointer;font:500 13px 'Inter',sans-serif;color:var(--navy);text-align:left;
+  transition:border-color var(--t-fast,.15s) ease,background var(--t-fast,.15s) ease,box-shadow var(--t-fast,.15s) ease}
+.sc-tile:hover{border-color:#cbd5e1;background:#fafbfc}
+.sc-tile:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.18)}
+.sc-tile-ico{width:22px;height:22px;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--light);color:#94a3b8;border:1px solid var(--border);transition:inherit}
+.sc-tile-ico svg{width:12px;height:12px}
+.sc-tile-label{flex:1;min-width:0}
+.sc-tile-form{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--gray)}
+.sc-tile.is-go .sc-tile-ico{color:var(--st-ok-fg)}
+.sc-tile.is-back .sc-tile-ico{color:var(--st-wait-fg)}
+.sc-tile.is-bad .sc-tile-ico{color:var(--st-bad-fg)}
+.sc-tile.is-on{font-weight:600}
+.sc-tile.is-go.is-on{border-color:var(--st-ok-fg);background:var(--st-ok-bg)}
+.sc-tile.is-go.is-on .sc-tile-ico{background:var(--st-ok-fg);border-color:var(--st-ok-fg);color:#fff}
+.sc-tile.is-back.is-on{border-color:#f59e0b;background:var(--st-wait-bg)}
+.sc-tile.is-back.is-on .sc-tile-ico{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.sc-tile.is-bad.is-on{border-color:var(--st-bad-fg);background:var(--st-bad-bg)}
+.sc-tile.is-bad.is-on .sc-tile-ico{background:var(--st-bad-fg);border-color:var(--st-bad-fg);color:#fff}
+.lp-logs-save-btn.is-warn,.lp-logs-save-btn.is-warn:hover{background:var(--st-bad-fg);border-color:var(--st-bad-fg)}
+.sc-tl-hint{margin-top:10px;text-align:center;font-size:11px;color:#9ca3af}
+.sc-tl-hint kbd{display:inline-block;padding:0 5px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;background:#fff;font:600 10px 'Inter',sans-serif;color:var(--gray)}
 /* A field card's value area lays its children out in a row (leaves.css), so a
    value with a note under it ran together ("3 3 = subcontracting"). When a
    card carries a note, value and note stack. */
 .lp-sb-field-value:has(.sc-sub-line){flex-direction:column;align-items:flex-start}
+/* the Table design's status bar, like the Timeline panel, without the blue dot */
+.sc-logs-bar .lp-log-dot{display:none}
+/* ACTIVITY design (logsActivityHTML). The history is deliberately quiet -
+   grey avatars, the step as plain text, remarks as plain text - and the
+   panel where the log is changed carries the weight: a stronger card, a
+   header naming the move, and it stays in view while the history scrolls. */
+.sc-ac-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;margin-bottom:18px;border:1px solid var(--border);border-radius:12px;background:var(--light)}
+.sc-ac-hero-ico{width:38px;height:38px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--border);color:var(--gray)}
+.sc-ac-hero-ico svg{width:18px;height:18px}
+.sc-ac-hero.is-ok .sc-ac-hero-ico{color:var(--st-ok-fg)}
+.sc-ac-hero.is-bad .sc-ac-hero-ico{color:var(--st-bad-fg)}
+.sc-ac-hero-main{flex:1;min-width:180px}
+.sc-ac-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
+.sc-ac-hero-title{font-size:15px;font-weight:700;color:var(--navy);line-height:1.3;margin-top:1px}
+.sc-ac-hero-sub{margin-top:2px;font-size:12.5px;color:var(--gray)}
+.sc-ac-hero-sub b{color:var(--navy);font-weight:600}
+.sc-ac-with{margin-left:6px;color:var(--gray)}
+.sc-ac-prog{width:180px;flex-shrink:0}
+.sc-ac-prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:11.5px;color:#9ca3af}
+.sc-ac-prog-top b{font-size:12px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
+.sc-ac-bar{height:5px;border-radius:99px;background:#e5e7eb;overflow:hidden}
+.sc-ac-bar i{display:block;height:100%;border-radius:99px;background:#64748b}
+.sc-ac-title{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--gray)}
+.sc-ac-title span{font-size:12px;font-weight:500;color:#9ca3af}
+/* the history */
+.sc-ac-feed{position:relative}
+.sc-ac-feed::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;width:1px;background:#eceef2}
+.sc-ac-day{display:flex;align-items:center;gap:10px;margin:2px 0 12px 44px;font-size:11px;font-weight:600;color:#9ca3af}
+.sc-ac-day::after{content:"";flex:1;height:1px;background:#f1f3f6}
+.sc-ac-item{position:relative;display:flex;gap:12px;padding-bottom:18px}
+.sc-ac-av{position:relative;z-index:1;width:32px;height:32px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:#f1f3f6;border:2px solid #fff;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.2px}
+.sc-ac-av>svg{width:14px;height:14px;color:#94a3b8}
+.sc-ac-av.is-next{background:#fff;border:1.5px dashed #d1d5db}
+.sc-ac-main{flex:1;min-width:0;padding-top:1px}
+.sc-ac-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 8px;font-size:13px;color:var(--navy)}
+.sc-ac-head b{font-weight:600}
+.sc-ac-item.is-next .sc-ac-head{color:var(--gray)}
+.sc-ac-item.is-next .sc-ac-head b{color:var(--gray)}
+.sc-ac-role{font-size:12px;color:#9ca3af}
+.sc-ac-time{margin-left:auto;font-size:11.5px;color:#9ca3af;white-space:nowrap;cursor:default;font-variant-numeric:tabular-nums}
+.sc-ac-line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin-top:2px;font-size:12.5px}
+.sc-ac-step{font-weight:500;color:#475569}
+.sc-ac-item.is-next .sc-ac-step{color:#9ca3af}
+.sc-ac-step.is-back{color:var(--st-wait-fg)}
+.sc-ac-step.is-bad{color:var(--st-bad-fg)}
+.sc-ac-line .sc-feed-link{font-weight:500;color:#9ca3af;text-decoration:none}
+.sc-ac-line .sc-feed-link:hover{color:var(--navy);text-decoration:underline}
+.sc-ac-note{margin-top:4px;font-size:12.5px;line-height:1.55;color:#64748b}
+.sc-ac-note.is-reason{color:var(--st-wait-fg)}
+/* the panel where the log is changed */
+.sc-ac-form{padding:0;overflow:hidden;border:1px solid #d6dbe3;box-shadow:0 6px 20px rgba(15,23,42,.08)}
+.sc-ac-form-head{padding:14px 16px;background:var(--light);border-bottom:1px solid var(--border)}
+.sc-ac-form-title{font-size:14px;font-weight:700;color:var(--navy)}
+.sc-ac-move{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;font-size:12.5px;color:var(--gray)}
+.sc-ac-move span{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:#fff;border:1px solid var(--border)}
+.sc-ac-move i{font-style:normal;color:#9ca3af}
+.sc-ac-move b{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:var(--navy);color:#fff;font-weight:600}
+.sc-ac-form-body{padding:16px}
+@media (max-width:900px){.sc-ac-prog{width:100%}}
+/* TIMELINE design (logsTimelineHTML): a card per log entry. A person marker
+   on the rail and the status line take the entry's tone - blue latest, green
+   done, amber return, red rejection; the details sit in a grey box (Updated
+   by, then Date & time | Portal), and reason / remarks in boxes of their own. */
+.sc-lc{display:flex;flex-direction:column}
+.sc-lc-row{--tone:var(--st-ok-fg);--tone-bg:var(--st-ok-bg);--tone-bd:var(--st-ok-bd);display:flex;gap:12px}
+.sc-lc-row.is-info{--tone:var(--st-info-fg);--tone-bg:var(--st-info-bg);--tone-bd:var(--st-info-bd)}
+.sc-lc-row.is-wait{--tone:var(--st-wait-fg);--tone-bg:var(--st-wait-bg);--tone-bd:var(--st-wait-bd)}
+.sc-lc-row.is-bad{--tone:var(--st-bad-fg);--tone-bg:var(--st-bad-bg);--tone-bd:var(--st-bad-bd)}
+.sc-lc-rail{position:relative;flex-shrink:0;width:32px;display:flex;justify-content:center}
+.sc-lc-rail::after{content:"";position:absolute;top:34px;bottom:-2px;left:50%;width:2px;margin-left:-1px;background:#e5e7eb}
+.sc-lc-row:last-child .sc-lc-rail::after{display:none}
+.sc-lc-av{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--tone-bg);border:1.5px solid var(--tone);color:var(--tone)}
+.sc-lc-av svg{width:14px;height:14px}
+.sc-lc-card{flex:1;min-width:0;margin-bottom:12px;padding:12px;border:1px solid #eef0f3;border-radius:12px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.sc-lc-status{display:flex;align-items:center;gap:7px;margin:0 0 10px 2px;font-size:13.5px;font-weight:700;color:var(--tone)}
+.sc-lc-dot{width:7px;height:7px;border-radius:50%;background:var(--tone)}
+.sc-lc-box{padding:12px;border:1px solid #eef0f3;border-radius:10px;background:#f9fafb}
+.sc-lc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid #eceef2}
+.sc-lc-k{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
+.sc-lc-k svg{width:12px;height:12px}
+.sc-lc-v{font-size:13px;font-weight:600;color:var(--navy);overflow-wrap:anywhere}
+.sc-lc-s{margin-top:1px;font-size:12px;color:var(--gray)}
+.sc-lc-note{margin-top:8px;padding:10px 12px;border:1px solid #eef0f3;border-radius:10px;background:#fff;font-size:13px;line-height:1.5;color:var(--navy)}
+.sc-lc-note .sc-lc-k{margin-bottom:2px}
+.sc-lc-note.is-reason{background:var(--st-wait-bg);border-color:var(--st-wait-bd);color:var(--st-wait-fg)}
+.sc-lc-note.is-reason .sc-lc-k{color:var(--st-wait-fg);opacity:.8}
