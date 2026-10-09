@@ -196,12 +196,6 @@
 .ct-modal .sc-rec-table .cs-trigger{height:34px;padding:0 10px;font-size:12.5px;gap:8px}
 .ct-modal .sc-rec-table .cs-value{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* ── LOG FORM FOOTER ──────────────────────────────────────────────────────
-   Cancel and Submit side by side, equal width, as every ADT logs panel. */
-.sc-logs-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sc-logs-btns .btn-outline{height:40px;justify-content:center}
-.sc-logs-btns button:disabled{opacity:.5;cursor:not-allowed}
-
 /* ── ATTACHMENTS COUNT ────────────────────────────────────────────────────
    The file count reads as a chip above the table, as in ADT's panels. */
 .att-count{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;
@@ -483,12 +477,21 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
   font-size:10.5px;font-weight:600;background:var(--st-idle-bg);color:var(--st-idle-fg);vertical-align:middle}
 .sc-wf-chip.is-now{background:var(--st-info-bg);color:var(--st-info-fg)}
 .sc-wf-note{color:#94a3b8;font-style:italic}
-/* LOGS TAB (logsTabHTML): the current-status bar with Add Log, the in-tab
-   Add Log card (same card as editing), and the log as a listing. */
-.sc-logs-bar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 16px;margin-bottom:14px;
+/* LOGS TAB (logsTableHTML): the current-status bar, the composer card it turns
+   into while a step is logged, and the log as a listing. The bar is a label /
+   status / pending-with stack on the left, the actions centred against the
+   whole stack on the right. */
+.sc-logs-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;margin-bottom:14px;
   border:1px solid var(--border);border-radius:12px;background:var(--light)}
-.sc-logs-bar .lp-logs-form-header{margin-bottom:2px}
-.sc-logs-bar .lp-logs-form-sub{margin:0}
+.sc-logs-cur{min-width:0}
+.sc-logs-bar .lp-logs-form-header{margin:0 0 3px;font-size:15px;line-height:1.3}
+/* the label over the bar's status, so it reads as the record's current status */
+.sc-logs-eyebrow{margin-bottom:4px;line-height:1;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
+/* the same, on the waiting card: "Current status  Challan Generated" */
+.sc-state-cur{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;padding:4px 10px;border:1px solid var(--border);border-radius:99px;background:#fff;font-size:12px}
+.sc-state-cur span{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
+.sc-state-cur b{font-weight:600;color:var(--navy)}
+.sc-logs-bar .lp-logs-form-sub{margin:0;font-size:12px;line-height:1.4;color:var(--gray)}
 .sc-logs-note{margin-top:8px;font-size:12.5px;color:var(--gray)}
 .sc-addlog-btn{display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
 .sc-addlog-btn svg{width:12px;height:12px}
@@ -515,21 +518,10 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-logs .sc-rec-table td{vertical-align:top}
 /* Quick actions on the Logs bar: the role's steps as buttons (forward solid,
    returns outlined); the active one is marked while its composer is open. */
-.sc-quick-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;flex-shrink:0;max-width:60%}
-.sc-quick-btn.is-on{box-shadow:0 0 0 2px var(--st-info-bd)}
+.sc-quick-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0;max-width:60%}
+.sc-quick-actions .sc-quick-btn{height:34px;padding:0 16px}
 .sc-btn-warn{color:var(--st-bad-fg);border-color:var(--st-bad-bd)}
 .sc-btn-warn:hover{background:var(--st-bad-bg)}
-/* LOGS DESIGN TOGGLE - TEMPORARY. Two tiny icon buttons at the top right of
-   the Logs tab (Table / Timeline). Remove with the design not chosen. */
-.sc-logs-wrap{position:relative}
-.sc-logview{display:flex;justify-content:flex-end;gap:2px;margin:-6px 0 8px}
-.sc-logview button{width:24px;height:22px;padding:0;border:1px solid transparent;border-radius:5px;background:transparent;color:#94a3b8;
-  display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
-.sc-logview button:hover{color:var(--navy);background:var(--btn-ghost-bg,#f3f4f6)}
-.sc-logview button.is-on{color:var(--navy);background:#fff;border-color:var(--border)}
-/* the Reason field inside the Timeline design's side form */
-.lp-logs-form .sc-reason-field{margin-bottom:12px}
-.lp-logs-form .sc-reason-field .ep-form-label{font-size:12px}
 /* HISTORY TABLE - cells wrap so every column fits the panel, no sideways scroll. */
 .sc-hist .sc-rec-wrap{overflow-x:hidden}
 .sc-hist .sc-rec-table{table-layout:fixed}
@@ -556,9 +548,6 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-state .sc-empty-title{font-size:14px}
 .sc-state .sc-empty-sub b{color:var(--navy)}
 .sc-state-btn .btn-sm{margin-top:4px!important}
-/* in the Timeline design the card takes the side form's place */
-.lp-logs-form.sc-state-side{padding:0;border:0;box-shadow:none;background:none}
-.lp-logs-form.sc-state-side .sc-state{margin-bottom:0}
 /* SMOOTH TAB SWITCHING (refreshPanel). The panel no longer replays its
    slide-in when a tab changes or the page re-renders behind an open panel:
    .sc-still switches the entrance off; the new tab's content just fades in. */
@@ -610,126 +599,11 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-po-link:hover{text-decoration-color:var(--navy)}
 .sc-po-link:hover svg{transform:translate(1px,-1px);color:var(--navy)}
 .sc-po-none{color:#9ca3af;font-weight:500}
-/* the link from a log entry to the document it touched (Activity design) */
-.sc-feed-link{display:inline-flex;align-items:center;gap:3px;padding:0;border:0;background:none;cursor:pointer;font:600 12px 'Inter',sans-serif;color:var(--navy)}
-.sc-feed-link svg{color:var(--gray)}
-/* ACTION TILES (Activity design's Update log panel): the role's actions as
-   tiles, Submit named after the one chosen, red for a rejection. */
-.sc-tl-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af;margin-bottom:4px}
+/* the quiet "optional" beside a field label in the Logs composer */
 .sc-tl-opt{font-weight:500;color:#9ca3af;margin-left:2px}
-.sc-tiles{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.sc-tile{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-control,8px);
-  background:#fff;cursor:pointer;font:500 13px 'Inter',sans-serif;color:var(--navy);text-align:left;
-  transition:border-color var(--t-fast,.15s) ease,background var(--t-fast,.15s) ease,box-shadow var(--t-fast,.15s) ease}
-.sc-tile:hover{border-color:#cbd5e1;background:#fafbfc}
-.sc-tile:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.18)}
-.sc-tile-ico{width:22px;height:22px;flex-shrink:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-  background:var(--light);color:#94a3b8;border:1px solid var(--border);transition:inherit}
-.sc-tile-ico svg{width:12px;height:12px}
-.sc-tile-label{flex:1;min-width:0}
-.sc-tile-form{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--gray)}
-.sc-tile.is-go .sc-tile-ico{color:var(--st-ok-fg)}
-.sc-tile.is-back .sc-tile-ico{color:var(--st-wait-fg)}
-.sc-tile.is-bad .sc-tile-ico{color:var(--st-bad-fg)}
-.sc-tile.is-on{font-weight:600}
-.sc-tile.is-go.is-on{border-color:var(--st-ok-fg);background:var(--st-ok-bg)}
-.sc-tile.is-go.is-on .sc-tile-ico{background:var(--st-ok-fg);border-color:var(--st-ok-fg);color:#fff}
-.sc-tile.is-back.is-on{border-color:#f59e0b;background:var(--st-wait-bg)}
-.sc-tile.is-back.is-on .sc-tile-ico{background:#f59e0b;border-color:#f59e0b;color:#fff}
-.sc-tile.is-bad.is-on{border-color:var(--st-bad-fg);background:var(--st-bad-bg)}
-.sc-tile.is-bad.is-on .sc-tile-ico{background:var(--st-bad-fg);border-color:var(--st-bad-fg);color:#fff}
-.lp-logs-save-btn.is-warn,.lp-logs-save-btn.is-warn:hover{background:var(--st-bad-fg);border-color:var(--st-bad-fg)}
-.sc-tl-hint{margin-top:10px;text-align:center;font-size:11px;color:#9ca3af}
-.sc-tl-hint kbd{display:inline-block;padding:0 5px;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;background:#fff;font:600 10px 'Inter',sans-serif;color:var(--gray)}
 /* A field card's value area lays its children out in a row (leaves.css), so a
    value with a note under it ran together ("3 3 = subcontracting"). When a
    card carries a note, value and note stack. */
 .lp-sb-field-value:has(.sc-sub-line){flex-direction:column;align-items:flex-start}
-/* the Table design's status bar, like the Timeline panel, without the blue dot */
+/* the Table design's status bar carries no blue dot - the label above it names the status */
 .sc-logs-bar .lp-log-dot{display:none}
-/* ACTIVITY design (logsActivityHTML). The history is deliberately quiet -
-   grey avatars, the step as plain text, remarks as plain text - and the
-   panel where the log is changed carries the weight: a stronger card, a
-   header naming the move, and it stays in view while the history scrolls. */
-.sc-ac-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 16px;margin-bottom:18px;border:1px solid var(--border);border-radius:12px;background:var(--light)}
-.sc-ac-hero-ico{width:38px;height:38px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--border);color:var(--gray)}
-.sc-ac-hero-ico svg{width:18px;height:18px}
-.sc-ac-hero.is-ok .sc-ac-hero-ico{color:var(--st-ok-fg)}
-.sc-ac-hero.is-bad .sc-ac-hero-ico{color:var(--st-bad-fg)}
-.sc-ac-hero-main{flex:1;min-width:180px}
-.sc-ac-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
-.sc-ac-hero-title{font-size:15px;font-weight:700;color:var(--navy);line-height:1.3;margin-top:1px}
-.sc-ac-hero-sub{margin-top:2px;font-size:12.5px;color:var(--gray)}
-.sc-ac-hero-sub b{color:var(--navy);font-weight:600}
-.sc-ac-with{margin-left:6px;color:var(--gray)}
-.sc-ac-prog{width:180px;flex-shrink:0}
-.sc-ac-prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;font-size:11.5px;color:#9ca3af}
-.sc-ac-prog-top b{font-size:12px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
-.sc-ac-bar{height:5px;border-radius:99px;background:#e5e7eb;overflow:hidden}
-.sc-ac-bar i{display:block;height:100%;border-radius:99px;background:#64748b}
-.sc-ac-title{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--gray)}
-.sc-ac-title span{font-size:12px;font-weight:500;color:#9ca3af}
-/* the history */
-.sc-ac-feed{position:relative}
-.sc-ac-feed::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;width:1px;background:#eceef2}
-.sc-ac-day{display:flex;align-items:center;gap:10px;margin:2px 0 12px 44px;font-size:11px;font-weight:600;color:#9ca3af}
-.sc-ac-day::after{content:"";flex:1;height:1px;background:#f1f3f6}
-.sc-ac-item{position:relative;display:flex;gap:12px;padding-bottom:18px}
-.sc-ac-av{position:relative;z-index:1;width:32px;height:32px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:#f1f3f6;border:2px solid #fff;font-size:11px;font-weight:600;color:#64748b;letter-spacing:.2px}
-.sc-ac-av>svg{width:14px;height:14px;color:#94a3b8}
-.sc-ac-av.is-next{background:#fff;border:1.5px dashed #d1d5db}
-.sc-ac-main{flex:1;min-width:0;padding-top:1px}
-.sc-ac-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 8px;font-size:13px;color:var(--navy)}
-.sc-ac-head b{font-weight:600}
-.sc-ac-item.is-next .sc-ac-head{color:var(--gray)}
-.sc-ac-item.is-next .sc-ac-head b{color:var(--gray)}
-.sc-ac-role{font-size:12px;color:#9ca3af}
-.sc-ac-time{margin-left:auto;font-size:11.5px;color:#9ca3af;white-space:nowrap;cursor:default;font-variant-numeric:tabular-nums}
-.sc-ac-line{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin-top:2px;font-size:12.5px}
-.sc-ac-step{font-weight:500;color:#475569}
-.sc-ac-item.is-next .sc-ac-step{color:#9ca3af}
-.sc-ac-step.is-back{color:var(--st-wait-fg)}
-.sc-ac-step.is-bad{color:var(--st-bad-fg)}
-.sc-ac-line .sc-feed-link{font-weight:500;color:#9ca3af;text-decoration:none}
-.sc-ac-line .sc-feed-link:hover{color:var(--navy);text-decoration:underline}
-.sc-ac-note{margin-top:4px;font-size:12.5px;line-height:1.55;color:#64748b}
-.sc-ac-note.is-reason{color:var(--st-wait-fg)}
-/* the panel where the log is changed */
-.sc-ac-form{padding:0;overflow:hidden;border:1px solid #d6dbe3;box-shadow:0 6px 20px rgba(15,23,42,.08)}
-.sc-ac-form-head{padding:14px 16px;background:var(--light);border-bottom:1px solid var(--border)}
-.sc-ac-form-title{font-size:14px;font-weight:700;color:var(--navy)}
-.sc-ac-move{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;font-size:12.5px;color:var(--gray)}
-.sc-ac-move span{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:#fff;border:1px solid var(--border)}
-.sc-ac-move i{font-style:normal;color:#9ca3af}
-.sc-ac-move b{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:var(--navy);color:#fff;font-weight:600}
-.sc-ac-form-body{padding:16px}
-@media (max-width:900px){.sc-ac-prog{width:100%}}
-/* TIMELINE design (logsTimelineHTML): a card per log entry. A person marker
-   on the rail and the status line take the entry's tone - blue latest, green
-   done, amber return, red rejection; the details sit in a grey box (Updated
-   by, then Date & time | Portal), and reason / remarks in boxes of their own. */
-.sc-lc{display:flex;flex-direction:column}
-.sc-lc-row{--tone:var(--st-ok-fg);--tone-bg:var(--st-ok-bg);--tone-bd:var(--st-ok-bd);display:flex;gap:12px}
-.sc-lc-row.is-info{--tone:var(--st-info-fg);--tone-bg:var(--st-info-bg);--tone-bd:var(--st-info-bd)}
-.sc-lc-row.is-wait{--tone:var(--st-wait-fg);--tone-bg:var(--st-wait-bg);--tone-bd:var(--st-wait-bd)}
-.sc-lc-row.is-bad{--tone:var(--st-bad-fg);--tone-bg:var(--st-bad-bg);--tone-bd:var(--st-bad-bd)}
-.sc-lc-rail{position:relative;flex-shrink:0;width:32px;display:flex;justify-content:center}
-.sc-lc-rail::after{content:"";position:absolute;top:34px;bottom:-2px;left:50%;width:2px;margin-left:-1px;background:#e5e7eb}
-.sc-lc-row:last-child .sc-lc-rail::after{display:none}
-.sc-lc-av{position:relative;z-index:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:var(--tone-bg);border:1.5px solid var(--tone);color:var(--tone)}
-.sc-lc-av svg{width:14px;height:14px}
-.sc-lc-card{flex:1;min-width:0;margin-bottom:12px;padding:12px;border:1px solid #eef0f3;border-radius:12px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.04)}
-.sc-lc-status{display:flex;align-items:center;gap:7px;margin:0 0 10px 2px;font-size:13.5px;font-weight:700;color:var(--tone)}
-.sc-lc-dot{width:7px;height:7px;border-radius:50%;background:var(--tone)}
-.sc-lc-box{padding:12px;border:1px solid #eef0f3;border-radius:10px;background:#f9fafb}
-.sc-lc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid #eceef2}
-.sc-lc-k{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#9ca3af}
-.sc-lc-k svg{width:12px;height:12px}
-.sc-lc-v{font-size:13px;font-weight:600;color:var(--navy);overflow-wrap:anywhere}
-.sc-lc-s{margin-top:1px;font-size:12px;color:var(--gray)}
-.sc-lc-note{margin-top:8px;padding:10px 12px;border:1px solid #eef0f3;border-radius:10px;background:#fff;font-size:13px;line-height:1.5;color:var(--navy)}
-.sc-lc-note .sc-lc-k{margin-bottom:2px}
-.sc-lc-note.is-reason{background:var(--st-wait-bg);border-color:var(--st-wait-bd);color:var(--st-wait-fg)}
-.sc-lc-note.is-reason .sc-lc-k{color:var(--st-wait-fg);opacity:.8}
