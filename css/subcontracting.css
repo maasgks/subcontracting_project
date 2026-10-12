@@ -607,3 +607,19 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .lp-sb-field-value:has(.sc-sub-line){flex-direction:column;align-items:flex-start}
 /* the Table design's status bar carries no blue dot - the label above it names the status */
 .sc-logs-bar .lp-log-dot{display:none}
+/* EXPANDED PANEL (scExpandTab). The live detail panel lifted into a large
+   centred window over a dimmed page. Centred with inset + margin:auto, not a
+   transform: a transform would make the panel the containing block for the
+   position:fixed dropdowns inside it (the Logs reason select, custom selects). */
+.sc-expand-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:440;animation:sc-bd-in .18s ease-out}
+.lp-split-sb.open.sc-expanded{position:fixed;inset:0;margin:auto;width:min(1240px,94vw);height:min(880px,90vh);min-height:0;
+  z-index:450;border-radius:14px;box-shadow:0 24px 64px rgba(15,23,42,.28);transition:none}
+/* plays on Expand only (setExpanded), not on every re-render behind it */
+.lp-split-sb.sc-expanded.sc-expand-anim{animation:sc-expand-in .2s ease-out}
+@keyframes sc-bd-in{from{opacity:0}to{opacity:1}}
+@keyframes sc-expand-in{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+.sc-expanded .lp-isb-body{padding:22px 26px}
+/* tables get the room the wide view has */
+.sc-expanded .sc-rec-table th{padding:12px;white-space:normal;vertical-align:bottom}
+.sc-expanded .sc-rec-table td{padding:14px 12px;white-space:normal}
+.sc-expanded .sc-rec-table .lp-status-badge{white-space:nowrap}
