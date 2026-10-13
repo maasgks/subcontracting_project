@@ -623,3 +623,13 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-expanded .sc-rec-table th{padding:12px;white-space:normal;vertical-align:bottom}
 .sc-expanded .sc-rec-table td{padding:14px 12px;white-space:normal}
 .sc-expanded .sc-rec-table .lp-status-badge{white-space:nowrap}
+/* HELD COMPOSER (logsTableHTML) - a create step whose details are not saved
+   yet: a note with the way into the form, and the composer itself disabled. */
+.sc-logadd-need{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;
+  border:1px solid var(--st-info-bd);border-radius:10px;background:var(--st-info-bg)}
+.sc-logadd-need-text{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--navy);line-height:1.45}
+.sc-logadd-need-ico{width:28px;height:28px;flex-shrink:0;border-radius:8px;background:#fff;color:var(--st-info-fg);display:flex;align-items:center;justify-content:center}
+.sc-logadd-need-ico svg{width:15px;height:15px}
+.sc-logadd-need .btn-sm{flex-shrink:0}
+.sc-logadd.is-held textarea:disabled{background:#f8f9fb;color:#9ca3af;cursor:not-allowed}
+.sc-logadd.is-held .sc-logadd-foot button:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}

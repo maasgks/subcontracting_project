@@ -2734,7 +2734,12 @@ function logsTableHTML(o){
   if(adding){
     var back=/^(Return|Reject)/.test(adding);
     var mb=adding==='Move Back',go=mb?'scMoveBackSubmit(\''+o.id+'\')':'scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')';
-    head='<div class="sc-logadd'+(back||mb?' is-back':'')+'">'
+    /* DETAILS NEEDED FIRST. A create step whose details are not saved yet
+       shows the composer as it will be, held: a note saying what to complete,
+       a button into that tab's form, and the comment, Cancel and Submit
+       disabled. Once the details are saved the same card comes back live. */
+    var need=!mb&&isFormStep(o.dealId,adding),dis=need?' disabled':'';
+    head='<div class="sc-logadd'+(back||mb?' is-back':'')+(need?' is-held':'')+'">'
       +'<div class="sc-logadd-head"><div class="sc-logadd-move">'
         +'<span class="sc-logadd-from">'+esc(o.current)+'</span><span class="sc-logadd-arrow">→</span>'
         +'<span class="sc-logadd-to">'+(mb?'Move back to '+esc(la.target):esc(actLabel(adding)))+'</span></div>'
@@ -2742,15 +2747,19 @@ function logsTableHTML(o){
           +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
       +'<div class="sc-logadd-body">'
         +(mb?'<p class="sc-mb-note">The deal returns to the state right after <b>'+esc(la.target)+'</b>. Later steps stay in the log as history, and the next role picks up from there.</p>':'')
+        +(need?'<div class="sc-logadd-need"><div class="sc-logadd-need-text"><span class="sc-logadd-need-ico">'+ICO.info+'</span>'
+            +'Complete the '+esc(FORM_DOC[adding]||'required')+' details to proceed with the next step.</div>'
+            +'<button class="btn-primary btn-sm" type="button" onclick="scLogFill()">'+esc(FILL_LABEL[adding]||adding)+'</button></div>':'')
         +'<div class="policy-form-grid">'
-        +reasonFieldHTML(o.id,adding)
+        +(need?'':reasonFieldHTML(o.id,adding))
         +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Comment</label>'
-          +'<textarea class="ep-form-input" id="'+o.id+'-comment" placeholder="Add a note for the next person"'
+          +'<textarea class="ep-form-input" id="'+o.id+'-comment" placeholder="Add a note for the next person"'+dis
           +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();'+go+'}"></textarea></div>'
         +'</div></div>'
-      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit</span>'
-        +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()">Cancel</button>'
+      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint">'+(need?'':'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit')+'</span>'
+        +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()"'+dis+'>Cancel</button>'
         +(mb?'<button class="btn-outline sc-btn-warn" onclick="'+go+'">Move Back</button>'
+            :need?'<button class="btn-primary" disabled>Submit</button>'
             :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">'+esc(actLabel(adding))+'</button>')
       +'</div></div></div>';
   }
@@ -2773,13 +2782,8 @@ function logsTableHTML(o){
 }
 function scLogQuick(key,id,action){
   if(editBlocksLog())return;
-  if(isFormStep(id,action)){
-    state.logAdd=null;
-    scOpenActionModal(action,'',PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);
-    scToast('Fill in and save the details first','info','Then come back to Logs and log '+actLabel(action)+'.');
-    return;
-  }
-  state.logAdd={key:key,action:action};scRender();
+  /* a create step without saved details opens held (see logsTableHTML) */
+  state.logAdd={key:key,action:action,dealId:id};scRender();
   /* straight into the box: the reason when one is needed, else the comment */
   setTimeout(function(){
     var f=document.querySelector('.sc-logadd .sc-reason-field .cs-trigger')||document.querySelector('.sc-logadd textarea');
@@ -2792,6 +2796,16 @@ function scLogQuickSubmit(formId,submit){
   window[submit]();
 }
 function scLogCancel(){state.logAdd=null;scRender();}
+/* The held composer's way into the form. What each step asks to complete, and
+   what its button says. The open composer is kept, so after Save the Logs tab
+   shows it again - live this time - ready to log the step. */
+var FORM_DOC={'Create Shipment':'shipment','Create ASN':'ASN','Create IMR':'IMR','Generate PO':'PO'};
+var FILL_LABEL={'Generate PO':'Complete PO Details'};
+function scLogFill(){
+  var la=state.logAdd;if(!la||!la.dealId)return;
+  scOpenActionModal(la.action,'',PO_ACTIONS.indexOf(la.action)>=0?'order':'deal',la.dealId);
+  state.logAdd=la;
+}
 
 /* ══ MOVE BACK (Super Admin) ═══════════════════════════════════════════════
    Takes a deal back to the state right after an earlier step of WF_FLOW.
@@ -3409,16 +3423,20 @@ function scRowMenu(btn,id,scope){
   if(m.classList.contains('open')&&m.dataset.id===id){scCloseRowMenu();return;}
   scCloseAllDD();
   var list=rowActionsFor(),ok=rowAvailable(id);
-  if(scope!=='po'&&!dealLogsAllowed()){
-    /* no deal actions for this role: say where its step is taken instead */
-    var po=dealPONo(id);
-    list=[];
+  /* PO STEPS ARE NOT TAKEN FROM DEALS. Send for Approval, Approve PO and Return
+     PO belong to the Purchase Order, so the Deals menu leaves them out for
+     every role, Super Admin included. A role left with nothing here is told
+     so and pointed to the PO. */
+  var dealItems=list.filter(function(a){return PO_ACTIONS.indexOf(a)<0;});
+  if(scope!=='po'&&(!dealLogsAllowed()||!dealItems.length)){
+    var po=list.some(function(a){return PO_ACTIONS.indexOf(a)>=0;})?dealPONo(id):'';
     m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
       +'<div class="ct-act-item done">No actions in Deals</div>'
       +(po?'<div class="ct-act-item sc-act-avail" onclick="scRowOpenPO()">Open Purchase Order '+esc(po)+'</div>':'');
   }else m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
     +(list.length?list.map(function(a,i){
       if(scope==='po'&&PO_APPROVAL.indexOf(a)<0)return '';
+      if(scope!=='po'&&PO_ACTIONS.indexOf(a)>=0)return '';
       var on=ok.indexOf(a)>=0;
       return '<div class="ct-act-item'+(on?' sc-act-avail':' done')+'"'
         +(on?' onclick="scRowAction(\''+id+'\','+i+(scope?',\''+scope+'\'':'')+')"':' title="Not available at this stage"')+'>'
@@ -3450,7 +3468,7 @@ function scRowOpenPO(){var m=document.getElementById('sc-row-menu'),id=m&&m.data
 function scRowAction(id,i,scope){
   scCloseRowMenu();
   var action=rowActionsFor()[i];if(!action)return;
-  if(scope!=='po'&&!dealLogsAllowed())return;
+  if(scope!=='po'&&(!dealLogsAllowed()||PO_ACTIONS.indexOf(action)>=0))return;
   /* A step that creates something opens its own form, not just a status
      change: Create Shipment on any deal; every form step on the live deal. */
   if(editBlocksLog())return;
