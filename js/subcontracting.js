@@ -612,6 +612,10 @@ window.addEventListener('resize',function(){
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
   if(document.getElementById('sc-modal-root').innerHTML){scCloseModal();return;}
+  /* Esc closes an open select first */
+  var openSel=document.querySelectorAll('.cs-dropdown.cs-open');
+  if(openSel.length){openSel.forEach(function(d){d.classList.remove('cs-open');var t=d.previousElementSibling;if(t)t.classList.remove('cs-open');});return;}
+  if(state.logAdd&&!state.logAdd.saved){scLogCancel();return;}
   if(state.expanded){scCollapsePanel();return;}
   if(state.dealOpen){scCloseDeal();return;}
   if(state.orderOpen){scCloseOrder();return;}
@@ -2067,8 +2071,10 @@ function scSavePO(generate){
   PO_EDITS[no]=after;
   if(d)d.item.price=price;else state.poPrice=price;
   /* saved only - a Draft PO is sent for approval from its Logs tab */
+  state.edit=null;
+  if(scBackToLog('po:'+no,'Generate PO'))return;
   scToast('PO '+no+' details saved','success',poStatusOf(no)==='Draft'?'Go to the PO\'s Logs and Send for Approval.':'');
-  state.edit=null;scRender();
+  scRender();
 }
 /* Open a PO's Details tab - in edit mode when this role may edit it. */
 function scGoPODetails(no){
@@ -2205,8 +2211,34 @@ function scCreateFromTab(e){
     if(!(qi>0)||qi>a.avail){scToast('Receipt Qty cannot exceed the available ASN Qty','error');return;}
   }
   PREPARED[prepKey(id,action)]=Object.assign({},v);
-  state.edit=null;scRender();
+  state.edit=null;
+  if(scBackToUS(id,action))return;
+  if(scBackToLog('deal:'+id,action))return;
+  scRender();
   scToast(action.replace('Create ','')+' details saved','success','Go to Logs and log '+action+' to create it.');
+}
+/* SAVED FROM THE LOGS CARD: when the form was opened from a held Logs card,
+   Save goes straight back to that card on its Logs tab, which confirms the
+   save for 1.8 seconds and then lets the step be logged. */
+var scSavedTimer=null;
+function scBackToLog(key,action){
+  var la=state.logAdd;
+  if(!la||la.key!==key||la.action!==action)return false;
+  if(key.indexOf('po:')===0)state.orderTab='logs';else state.dealTab='logs';
+  la.saved=true;
+  scRender();
+  clearTimeout(scSavedTimer);
+  scSavedTimer=setTimeout(function(){
+    var el=document.querySelector('.sc-logadd-saved');
+    if(el)el.classList.add('is-leaving');
+    scSavedTimer=setTimeout(function(){scLogSaved(la);},260);
+  },1540);   // + .26s fade-out = 1.8s
+  return true;
+}
+function scLogSaved(la){
+  if(state.logAdd!==la)return;
+  delete la.saved;scRefreshPanel();
+  var f=document.querySelector('.sc-logadd textarea');if(f&&f.offsetParent!==null)f.focus();
 }
 /* The step logged from Logs: build the document from the saved details. */
 function runCreate(id,action,comment){
@@ -2251,7 +2283,7 @@ function scEditTab(id,tab){
 }
 function scEditInput(k,v){if(!state.edit)return;state.edit.vals[k]=v;state.edit.dirty=true;}
 function scEditPick(v,csid){scEditInput(csid.replace(/^ed-/,''),v);}
-function scCancelEdit(){state.edit=null;scRender();}
+function scCancelEdit(){state.edit=null;usFill=null;scRender();}
 /* leaving the deal (closing the panel, or opening another) drops the draft - after asking, when there is one */
 function editGuard(){
   if(!state.edit)return true;
@@ -2724,9 +2756,12 @@ function shortTime(t){return fmtTime(t).replace(/:\d\d (AM|PM)$/,' $1');}
 /* ── Table design ── */
 function logsTableHTML(o){
   var la=state.logAdd,adding=la&&la.key===o.key&&(o.opts.indexOf(la.action)>=0||la.action==='Move Back')?la.action:'';
+  /* the chosen action stays marked on the bar while its form is open below:
+     it turns solid and the others step back to outline */
   var btns=o.opts.map(function(a){
-    var back=/^(Return|Reject)/.test(a);
-    return '<button class="'+(back?'btn-outline':'btn-primary')+' btn-sm sc-quick-btn" type="button"'
+    var back=/^(Return|Reject)/.test(a),on=a===adding;
+    var cls=on?'btn-primary is-active':adding?'btn-outline':(back?'btn-outline':'btn-primary');
+    return '<button class="'+cls+' btn-sm sc-quick-btn" type="button" aria-pressed="'+on+'"'
       +' onclick="scLogQuick(\''+o.key+'\',\''+o.dealId+'\',\''+a.replace(/'/g,"\\'")+'\')">'+esc(actLabel(a))+'</button>';
   }).join('');
   var logs=vendorView(o.logs).slice().reverse();
@@ -2737,37 +2772,41 @@ function logsTableHTML(o){
       +'<p class="lp-logs-form-sub">'+o.sub+'</p>'+(o.note&&!o.opts.length?'<div class="sc-logs-note">'+o.note+'</div>':'')+'</div>'
     +(btns?'<div class="sc-quick-actions">'+btns+'</div>':'')
     +'</div>';
-  /* While an action is being logged the bar and the form become ONE card: the
-     top names the move (current status -> action) with a close button, so the
-     action's button appears once - on the card's footer - not on the bar too. */
+  /* THE ACTION PANEL. Picking an action keeps the status bar - that action
+     marked active - and opens its form right under it, in the same card:
+     the reason for a return, the comment, Cancel and the Submit. */
+  var form='',anim=false;
   if(adding){
-    var back=/^(Return|Reject)/.test(adding);
+    anim=!!la.anim;delete la.anim;
     var mb=adding==='Move Back',go=mb?'scMoveBackSubmit(\''+o.id+'\')':'scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')';
     /* DETAILS NEEDED FIRST. A create step whose details are not saved yet
-       shows the composer as it will be, held: a note saying what to complete,
-       a button into that tab's form, and the comment, Cancel and Submit
-       disabled. Once the details are saved the same card comes back live. */
-    var need=!mb&&isFormStep(o.dealId,adding),dis=need?' disabled':'';
-    head='<div class="sc-logadd'+(back||mb?' is-back':'')+(need?' is-held':'')+'">'
-      +'<div class="sc-logadd-head"><div class="sc-logadd-move">'
-        +'<span class="sc-logadd-from">'+esc(o.current)+'</span><span class="sc-logadd-arrow">→</span>'
-        +'<span class="sc-logadd-to">'+(mb?'Move back to '+esc(la.target):esc(actLabel(adding)))+'</span></div>'
-        +'<button type="button" class="sc-logadd-x" title="Cancel" aria-label="Cancel" onclick="scLogCancel()">'
-          +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+       shows the form held: "Click here to fill the details" into that tab's
+       form, and the comment, Cancel and Submit disabled. */
+    var need=!mb&&isFormStep(o.dealId,adding);
+    /* JUST SAVED. Back from the form, the card confirms the save for 1.8
+       seconds - a green check, "Details have been updated" - still held, then
+       turns live so the step can be logged (scLogSaved). */
+    var done=!mb&&!need&&!!la.saved,held=need||done,dis=held?' disabled':'';
+    form='<div class="sc-logadd'+(held?' is-held':'')+'">'
       +'<div class="sc-logadd-body">'
-        +(mb?'<p class="sc-mb-note">The deal returns to the state right after <b>'+esc(la.target)+'</b>. Later steps stay in the log as history, and the next role picks up from there.</p>':'')
+        +(mb?'<p class="sc-mb-note">Move back to <b>'+esc(la.target)+'</b>: the deal returns to the state right after it. Later steps stay in the log as history.</p>':'')
         +(need?'<button type="button" class="sc-logadd-need" title="Open the '+esc(FORM_DOC[adding]||'')+' form" onclick="scLogFill()">'
             +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to fill the details</span></button>':'')
+        +(done?'<div class="sc-logadd-saved" role="status">'
+            +'<svg class="sc-saved-check" viewBox="0 0 52 52" aria-hidden="true"><circle class="sc-saved-ring" cx="26" cy="26" r="23"/>'
+            +'<path class="sc-saved-tick" d="M15 27l7 7 15-16"/></svg>'
+            +'<span class="sc-logadd-saved-text">Details have been updated</span></div>':'')
         +'<div class="policy-form-grid">'
-        +(need?'':reasonFieldHTML(o.id,adding))
+        +(held?'':reasonFieldHTML(o.id,adding))
         +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Comment</label>'
           +'<textarea class="ep-form-input" id="'+o.id+'-comment" placeholder="Add a note for the next person"'+dis
           +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();'+go+'}"></textarea></div>'
         +'</div></div>'
-      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint">'+(need?'':'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit')+'</span>'
+      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint">'+(held?'':'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit')+'</span>'
         +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()"'+dis+'>Cancel</button>'
-        +(mb?'<button class="btn-outline sc-btn-warn" onclick="'+go+'">Move Back</button>'
+        +(mb?'<button class="btn-primary" onclick="'+go+'">Move Back</button>'
             :need?'<button class="btn-primary" disabled>Submit</button>'
+            :done?'<button class="btn-primary" disabled>'+esc(actLabel(adding))+'</button>'
             :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">'+esc(actLabel(adding))+'</button>')
       +'</div></div></div>';
   }
@@ -2785,13 +2824,21 @@ function logsTableHTML(o){
             :'')+'</td>':'')
         +'</tr>';
     }).join('')):'<div class="lp-logs-empty">No activity logs yet.</div>';
-  /* while a log is being added the form has the tab to itself - the list returns on Submit or Cancel */
-  return '<div class="sc-logs">'+head+(adding?'':table)+'</div>';
+  /* the bar and an open form are one panel; a status card stays on its own */
+  var top=adding
+    ?(card?card:'')+'<div class="sc-act-panel'+(anim?' is-opening':'')+'">'+(card?'':head)+form+'</div>'
+    :head;
+  var count=logs.length?'<span class="sc-act-count">'+logs.length+(logs.length===1?' entry':' entries')+'</span>':'';
+  return '<div class="sc-logs">'+top
+    +'<div class="sc-act-log">'+secHead('Activity Log',count)+table+'</div></div>';
 }
 function scLogQuick(key,id,action){
   if(editBlocksLog())return;
+  /* the active action again closes its form */
+  var la=state.logAdd;
+  if(la&&la.key===key&&la.action===action){scLogCancel();return;}
   /* a create step without saved details opens held (see logsTableHTML) */
-  state.logAdd={key:key,action:action,dealId:id};scRefreshPanel();
+  state.logAdd={key:key,action:action,dealId:id,anim:true};scRefreshPanel();
   /* straight into the box: the reason when one is needed, else the comment */
   setTimeout(function(){
     var f=document.querySelector('.sc-logadd .sc-reason-field .cs-trigger')||document.querySelector('.sc-logadd textarea');
@@ -2817,6 +2864,7 @@ function scRefreshPanel(){
 var FORM_DOC={'Create Shipment':'shipment','Create ASN':'ASN','Create IMR':'IMR','Generate PO':'PO'};
 function scLogFill(){
   var la=state.logAdd;if(!la||!la.dealId)return;
+  usFill=null;
   scOpenActionModal(la.action,'',PO_ACTIONS.indexOf(la.action)>=0?'order':'deal',la.dealId);
   state.logAdd=la;
 }
@@ -2834,7 +2882,7 @@ function flowIndex(st){for(var i=0;i<WF_FLOW.length;i++)if(WF_FLOW[i][0]===st)re
 /* how far along the deal is now: the latest flow step since any move back */
 function progressIndex(events){
   var start=0,last=-1;
-  for(var i=events.length-1;i>=0;i--)if(/^Moved back to /.test(events[i].status)){start=i;last=flowIndex(events[i].status.slice(14));break;}
+  for(var i=events.length-1;i>=0;i--){var mv=/^Moved (back )?to (.+)$/.exec(events[i].status);if(mv){start=i;last=flowIndex(mv[2]);break;}}
   for(var j=start;j<events.length;j++){var k=flowIndex(events[j].status);if(k>last)last=k;}
   return last;
 }
@@ -2852,7 +2900,7 @@ function moveBackTargets(id){
 }
 function scMoveBackStart(key,id,target){
   if(state.role!=='Super Admin')return;
-  state.logAdd={key:key,action:'Move Back',target:target,dealId:id};scRefreshPanel();
+  state.logAdd={key:key,action:'Move Back',target:target,dealId:id,anim:true};scRefreshPanel();
 }
 function scMoveBackSubmit(formId){
   var la=state.logAdd;if(!la||la.action!=='Move Back')return;
@@ -2863,7 +2911,10 @@ function scMoveBackSubmit(formId){
   state.logAdd=null;scRender();
   scToast(la.dealId+' moved back to '+la.target,'info');
 }
-function moveDealBack(id,target,comment){
+function moveDealBack(id,target,comment){moveDealTo(id,target,comment,'Moved back to ');}
+/* Rebuild a deal as it stood right after step `target` of WF_FLOW - back
+   (Move Back) or forward (Super Admin's Go to Step) - and log the move. */
+function moveDealTo(id,target,comment,verb){
   var k=flowIndex(target);
   if(id===LIVE_ID){
     /* rebuild the live deal's state as it stood right after step k */
@@ -2877,8 +2928,14 @@ function moveDealBack(id,target,comment){
     S.deliveryNote=k>=6?'approved':k>=5?'generated':'none';
     S.challan=k>=8?'gate_cleared':k>=7?'generated':'none';
     S.gateOut=k>=8;S.shipmentConfirmed=k>=9;
-    S.asns=[];S.imrs=[];S.reconciled=S.shortClosed=S.fullReceipt=S.closed=false;
-    addDealLog('Moved back to '+target,comment);
+    if(k>=1&&!S.poCreated)S.poCreated=stamp().date;if(k>=3&&!S.poApproved)S.poApproved=stamp().date;
+    /* past Shipment Confirmed: one ASN for the full quantity, then its IMR */
+    var q=EXPECTED_QTY;
+    S.asns=k>=10?[{no:'ASN-001',qty:q,qc:k>=11?'QC Cleared':'Created',gateIn:k>=12}]:[];
+    S.imrs=k>=13?[{no:'IMR-001',asnNo:'ASN-001',qty:q,status:k>=14?'Confirmed':'Created'}]:[];
+    S.reconciled=k>=15;S.fullReceipt=k>=16;S.shortClosed=false;S.closed=k>=17;
+    if(S.closed){S.scr='closed';S.po='closed';S.shipment='closed';S.challan='closed';}
+    addDealLog(verb+target,comment);
     return;
   }
   var d=sampleDeal(id);if(!d)return;
@@ -2899,7 +2956,7 @@ function moveDealBack(id,target,comment){
   else if(d.po)d.po.status=d.stage==='closed'?'Closed':'Approved';
   if(d.stage==='outbound'||d.stage==='asn'||d.stage==='imr'||d.stage==='closure')d.sub=ST[1];
   if(k<10){d.asns=0;d.imrs=0;d.received=0;}
-  else{d.asns=asnN;d.imrs=k>=12?imrN:0;d.received=k>=13?d.item.qty:0;}
+  else{d.asns=Math.max(asnN,1);d.imrs=k>=12?Math.max(imrN,1):0;d.received=k>=13?d.item.qty:0;}
   /* a later step's recorded author no longer applies to its regenerated entry */
   Object.keys(d.notes||{}).forEach(function(st){if(flowIndex(st)>k)delete d.notes[st];});
   /* what the move undoes stays in the log as history */
@@ -2912,7 +2969,7 @@ function moveDealBack(id,target,comment){
     d.extra.push(Object.assign({},l,{seq:l.seq||0}));
   });
   var t=stamp();
-  d.extra.push({status:'Moved back to '+target,role:state.role,by:who(),comment:comment,reason:curReason,
+  d.extra.push({status:verb+target,role:state.role,by:who(),comment:comment,reason:curReason,
     date:t.date,time:t.time,portal:'Web',seq:++scSeq});
 }
 function dealLogsHTML(){
@@ -3451,10 +3508,14 @@ function scRowMenu(btn,id,scope){
     +(list.length?list.map(function(a,i){
       if(scope==='po'&&PO_APPROVAL.indexOf(a)<0)return '';
       if(scope!=='po'&&PO_ACTIONS.indexOf(a)>=0)return '';
-      var on=ok.indexOf(a)>=0;
+      var on=ok.indexOf(a)>=0||(scope!=='po'&&canJump(id,a));
+      /* for the Super Admin, the step the deal stands at is marked, not greyed */
+      var here=!on&&scope!=='po'&&state.role==='Super Admin'&&jumpTarget(a)
+        &&flowIndex(jumpTarget(a))===progressIndex(dealEventsOldestFirst(id));
       return '<div class="ct-act-item'+(on?' sc-act-avail':' done')+'"'
-        +(on?' onclick="scRowAction(\''+id+'\','+i+(scope?',\''+scope+'\'':'')+')"':' title="Not available at this stage"')+'>'
-        +esc(actLabel(a))+'</div>';
+        +(on?' onclick="scRowAction(\''+id+'\','+i+(scope?',\''+scope+'\'':'')+')"'
+            :' title="'+(here?'The deal is at this step now':'Not available at this stage')+'"')+'>'
+        +esc(actLabel(a))+(here?'<span class="sc-act-cur">Current</span>':'')+'</div>';
     }).join(''):'<div class="ct-act-item done">No actions for this role</div>');
   m.dataset.id=id;m.classList.add('open');
   /* As wide as its longest item, so the space after the text matches the
@@ -3483,15 +3544,54 @@ function scRowAction(id,i,scope){
   scCloseRowMenu();
   var action=rowActionsFor()[i];if(!action)return;
   if(scope!=='po'&&(!dealLogsAllowed()||PO_ACTIONS.indexOf(action)>=0))return;
+  if(scope!=='po'&&rowAvailable(id).indexOf(action)<0&&canJump(id,action)){scOpenJump(id,action);return;}
   /* A step that creates something opens its own form, not just a status
      change: Create Shipment on any deal; every form step on the live deal. */
   if(editBlocksLog())return;
-  if(isFormStep(id,action)){
-    scOpenActionModal(action,'',PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);
-    scToast('Fill in and save the details first','info','Then log '+actLabel(action)+' from Logs.');
-    return;
-  }
+  /* a create step without saved details opens the popup held (scOpenUS) */
   scOpenUS(id,action,'');
+}
+/* GO TO STEP (Super Admin). In the Deals dropdown every step of the flow is
+   live for the Super Admin. The step the deal is ready for runs as usual;
+   any other moves the deal straight to the state right after that step -
+   forward, or back - with a reason, logged as "Moved to <step>" / "Moved back
+   to <step>". Nothing is erased: History records each field that changes and
+   Workflow plans the remaining steps from there. Returns and rejections are
+   not steps to go to, so they stay live only when the deal is ready for them. */
+function jumpTarget(action){var st=ACTION_RESULT[action];return st&&flowIndex(st)>=0?st:'';}
+function canJump(id,action){
+  if(state.role!=='Super Admin'||!jumpTarget(action))return false;
+  return flowIndex(jumpTarget(action))!==progressIndex(dealEventsOldestFirst(id));
+}
+function scOpenJump(id,action){
+  var r=dealRows().filter(function(x){return x.id===id;})[0];if(!r)return;
+  var target=jumpTarget(action),back=flowIndex(target)<progressIndex(dealEventsOldestFirst(id));
+  usRow={id:id,jump:target};
+  var body='<div class="sc-us-flow">'+badge(rampTone(r.cur),r.cur)
+      +'<span class="sc-us-arrow">'+ICO_ARROW+'</span>'+badge(rampTone(target),target)+'</div>'
+    +'<div class="info-box tip" style="margin:0"><span class="ib-icon">'+ICO.info+'</span><div>'
+      +(back?'The deal moves <b>back</b> to the state right after <b>'+esc(target)+'</b>. Later steps stay in the log as history.'
+            :'The deal moves <b>forward</b> to the state right after <b>'+esc(target)+'</b>. The steps in between are skipped.')
+      +' The next role picks up from there.</div></div>'
+    +reasonFieldHTML('sc-jump','Go to Step')
+    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-jump-comment" placeholder="Why is this deal moving?"></textarea>',false,true);
+  var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
+    +'<div class="ct-modal-btns">'
+      +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+      +'<button class="btn-primary" onclick="scJumpSubmit()">Go to Step</button>'
+    +'</div>';
+  document.getElementById('sc-modal-root').innerHTML=
+    modalShell('Go to Step',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot);
+}
+function scJumpSubmit(){
+  if(!usRow||!usRow.jump||state.role!=='Super Admin')return;
+  var id=usRow.id,target=usRow.jump;
+  var reason=readReason('sc-jump'),comment=((document.getElementById('sc-jump-comment')||{}).value||'').trim();
+  if(reasonMissing('Go to Step',reason))return;
+  var back=flowIndex(target)<progressIndex(dealEventsOldestFirst(id));
+  withReason(reason,function(){moveDealTo(id,target,comment,back?'Moved back to ':'Moved to ');});
+  scCloseModal();scRender();
+  scToast(id+(back?' moved back to ':' moved to ')+target,'info');
 }
 function usReviewHTML(id,action){
   var rv=reviewOf(id,action);if(!rv)return '';
@@ -3509,26 +3609,67 @@ function scUSReview(){
   usRow.back=true;
   scOpenView(rv.type,rv.index,usRow.id);
 }
-function scOpenUS(id,action,comment){
+/* UPDATE STATUS, HELD AND JUST SAVED - the same two states as the Logs card.
+   A create step whose details are not saved yet opens held: "Click here to
+   fill the details" (into the tab's form) and the comment, Cancel and Submit
+   disabled. Saving that form brings the popup back with the green check for
+   1.8 seconds ("Details have been updated"), then live. */
+function scOpenUS(id,action,comment,mode){
   var r=dealRows().filter(function(x){return x.id===id;})[0];if(!r)return;
-  usRow={id:id};
+  var need=isFormStep(id,action),done=!need&&mode==='saved',held=need||done,dis=held?' disabled':'';
+  usRow={id:id,action:action,need:need,saved:done};
   var res=ACTION_RESULT[action]||action;
   var body='<div class="sc-us-flow">'+badge(rampTone(r.cur),r.cur)
       +'<span class="sc-us-arrow">'+ICO_ARROW+'</span><span id="sc-us-next">'+badge(rampTone(res),res)+'</span></div>'
-    +'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>'
+    +(need?'<button type="button" class="sc-logadd-need" title="Open the '+esc(FORM_DOC[action]||'')+' form" onclick="scUSFill()">'
+        +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to fill the details</span></button>'
+      :done?'<div class="sc-logadd-saved" role="status">'
+        +'<svg class="sc-saved-check" viewBox="0 0 52 52" aria-hidden="true"><circle class="sc-saved-ring" cx="26" cy="26" r="23"/>'
+        +'<path class="sc-saved-tick" d="M15 27l7 7 15-16"/></svg>'
+        +'<span class="sc-logadd-saved-text">Details have been updated</span></div>'
+      :'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>')
     +field('Status',csField('sc-us-status',rowAvailable(id),action,'Select Status','scUSPicked'),true,true)
-    +reasonFieldHTML('sc-us',action)
-    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving?">'+esc(comment||'')+'</textarea>',false,true);
+    +(held?'':reasonFieldHTML('sc-us',action))
+    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving?"'+dis+'>'+esc(comment||'')+'</textarea>',false,true);
   var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
     +'<div class="ct-modal-btns">'
-      +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
-      +'<button class="btn-primary" onclick="scUSSubmit()">Submit</button>'
+      +'<button class="btn-outline" onclick="scCloseModal()"'+dis+'>Cancel</button>'
+      +'<button class="btn-primary" onclick="scUSSubmit()"'+dis+'>Submit</button>'
     +'</div>';
   document.getElementById('sc-modal-root').innerHTML=
-    modalShell('Update Status',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot);
-  var c=document.getElementById('sc-us-comment');if(c)c.focus();
+    modalShell('Update Status',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot,false,held?'sc-us-held':'');
+  var c=document.getElementById('sc-us-comment');if(c&&!held)c.focus();
+}
+/* "Click here to fill the details": the popup closes, the tab's form opens,
+   and its Save brings the popup back (scBackToUS). */
+var usFill=null,scUSTimer=null;
+function scUSFill(){
+  if(!usRow)return;
+  var u={id:usRow.id,action:csValue('sc-us-status')||usRow.action};
+  scCloseModal();
+  state.logAdd=null;usFill=u;
+  scOpenActionModal(u.action,'',PO_ACTIONS.indexOf(u.action)>=0?'order':'deal',u.id);
+}
+function scBackToUS(id,action){
+  var u=usFill;if(!u||u.id!==id||u.action!==action)return false;
+  usFill=null;
+  scRender();
+  scOpenUS(id,action,'','saved');
+  clearTimeout(scUSTimer);
+  scUSTimer=setTimeout(function(){
+    var el=document.querySelector('#sc-modal-root .sc-logadd-saved');if(!el)return;
+    el.classList.add('is-leaving');
+    scUSTimer=setTimeout(function(){
+      if(!document.querySelector('#sc-modal-root .sc-logadd-saved')||!usRow||usRow.id!==id)return;
+      scOpenUS(id,action,'');
+    },260);
+  },1540);   // + .26s fade-out = 1.8s
+  return true;
 }
 function scUSPicked(val){
+  if(usRow&&(isFormStep(usRow.id,val)!==usRow.need||usRow.saved)){
+    scOpenUS(usRow.id,val,(document.getElementById('sc-us-comment')||{value:''}).value);return;
+  }
   var res=ACTION_RESULT[val]||val,el=document.getElementById('sc-us-next');
   if(el)el.innerHTML=badge(rampTone(res),res);
   var rv=document.getElementById('sc-us-review');
@@ -3865,7 +4006,7 @@ var ICO_EDIT='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke
    ask for a mandatory Reason field of their own - the comment stays optional.
    The reason travels on the log entry (logEntry reads curReason, set for the
    length of the one action) and shows as its own line in Logs and Workflow. */
-var RETURN_ACTIONS=['Return SCR','Return PO','Return Shipment','Return Delivery Note','Return Gate Outward','Move Back','Short Close'];
+var RETURN_ACTIONS=['Return SCR','Return PO','Return Shipment','Return Delivery Note','Return Gate Outward','Move Back','Short Close','Go to Step'];
 var curReason='';
 function needsReason(action){return RETURN_ACTIONS.indexOf(action)>=0;}
 function reasonMissing(action,reason){
@@ -3881,6 +4022,7 @@ var RETURN_REASONS={
   'Return Delivery Note':['Quantities do not match Transfer Order','Wrong consignee details','Missing transport details'],
   'Return Gate Outward':['Vehicle details mismatch','Challan copy missing','Material count mismatch at gate'],
   'Move Back':['Entered in error','Wrong document generated','Details need correction','Requested by the user'],
+  'Go to Step':['Steps completed outside the system','Data correction','Entered in error','Requested by the user'],
   'Short Close':['Vendor cannot supply the balance','Requirement cancelled','Quality issues with the balance']
 };
 /* The reason given: the picked one, or what was typed under Other. */

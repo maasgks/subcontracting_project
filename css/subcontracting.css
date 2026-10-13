@@ -634,3 +634,46 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-logadd-need-link{font-size:13px;font-weight:600;color:var(--st-info-fg);text-decoration:underline;text-underline-offset:3px}
 .sc-logadd.is-held textarea:disabled{background:#f8f9fb;color:#9ca3af;cursor:not-allowed}
 .sc-logadd.is-held .sc-logadd-foot button:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+/* JUST SAVED (scBackToLog) - the held card's three-second confirmation: the
+   box eases in, the ring draws, the tick draws after it, the box eases out. */
+.sc-logadd-saved{display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:12px 14px;border:1px solid #bbf7d0;border-radius:10px;
+  background:#f0fdf4;animation:sc-saved-in .32s cubic-bezier(.2,.8,.2,1) backwards}
+.sc-logadd-saved.is-leaving{animation:sc-saved-out .26s ease-in forwards}
+.sc-logadd-saved-text{font-size:13px;font-weight:600;color:#15803d}
+.sc-saved-check{width:30px;height:30px;flex-shrink:0;animation:sc-saved-pop .4s cubic-bezier(.2,1.4,.4,1) .55s backwards}
+.sc-saved-ring{fill:#dcfce7;stroke:#16a34a;stroke-width:3;stroke-dasharray:145;stroke-dashoffset:145;animation:sc-saved-draw .55s ease-out .1s forwards}
+.sc-saved-tick{fill:none;stroke:#16a34a;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:36;stroke-dashoffset:36;
+  animation:sc-saved-draw .32s ease-out .55s forwards}
+@keyframes sc-saved-in{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes sc-saved-out{to{opacity:0;transform:translateY(-4px) scale(.98)}}
+@keyframes sc-saved-draw{to{stroke-dashoffset:0}}
+@keyframes sc-saved-pop{from{transform:scale(.85)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .sc-logadd-saved,.sc-logadd-saved.is-leaving,.sc-saved-check{animation:none}
+  .sc-saved-ring,.sc-saved-tick{animation:none;stroke-dashoffset:0}
+}
+/* ACTIVE LOG ACTION - the bar's chosen step while its form is open below:
+   solid, a soft ring, and a small caret pointing down at the form. */
+.sc-quick-actions .sc-quick-btn{position:relative}
+.sc-quick-actions .sc-quick-btn.is-active{box-shadow:0 0 0 3px rgba(15,23,42,.14)}
+.sc-quick-actions .sc-quick-btn.is-active::after{content:'';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--btn-ink,#1a1a1a);pointer-events:none}
+/* UPDATE STATUS, HELD (scOpenUS) - the Logs card's held and just-saved
+   states, in the popup. */
+.sc-us-body .sc-logadd-need,.sc-us-body .sc-logadd-saved{margin:0}
+.sc-us-held textarea:disabled{background:#f8f9fb;color:#9ca3af;cursor:not-allowed}
+.sc-us-held .ct-modal-btns button:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+/* GO TO STEP - the Super Admin's dropdown marks the step the deal is at */
+.ct-act-item .sc-act-cur{display:inline-flex;align-items:center;height:18px;margin-left:8px;padding:0 7px;border-radius:99px;
+  background:var(--st-info-bg);color:var(--st-info-fg);font-size:10.5px;font-weight:600;vertical-align:middle}
+/* ACTION PANEL (logsTableHTML) - the status bar and the open form in one
+   card: the bar on top, the form under a divider. */
+.sc-act-panel{margin-bottom:20px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 4px 16px rgba(15,23,42,.06)}
+.sc-act-panel>.sc-logs-bar{margin:0;border:0;border-bottom:1px solid var(--border);border-radius:12px 12px 0 0}
+.sc-act-panel>.sc-logadd{margin:0;border:0;border-radius:0 0 12px 12px;box-shadow:none;overflow:visible}
+.sc-act-panel>.sc-logadd:first-child{border-radius:12px}
+.sc-act-panel .sc-logadd-foot{border-radius:0 0 12px 12px}
+.sc-act-panel.is-opening>.sc-logadd{animation:sc-form-open .2s ease-out backwards}
+@keyframes sc-form-open{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.sc-act-count{font-size:11.5px;font-weight:500;color:#9ca3af}
+@media (prefers-reduced-motion:reduce){.sc-act-panel.is-opening>.sc-logadd{animation:none}}
