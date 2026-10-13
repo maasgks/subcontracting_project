@@ -251,22 +251,6 @@
   color:var(--gray);border-bottom:1px solid #f1f5f9}
 .ct-act-item.sc-act-avail{font-weight:600}
 
-/* UPDATE STATUS popup: from -> to, then the status and the comment. */
-.sc-us-body{padding:14px 0 18px;display:flex;flex-direction:column;gap:16px}
-.sc-us-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.sc-us-arrow{display:inline-flex;color:#94a3b8}
-.sc-us-comment{min-height:96px;width:100%}
-.sc-us-log{border:none;background:none;padding:0;font:600 13px 'Inter',sans-serif;color:var(--navy);cursor:pointer}
-.sc-us-log:hover{text-decoration:underline}
-/* REVIEW BEFORE YOU CONFIRM. Update Status names the document the step acts
-   on and opens it; log cards carry the same View for what they produced or
-   confirmed. */
-.sc-us-review{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;
-  border:1px solid var(--st-info-bd);background:var(--st-info-bg);border-radius:10px}
-.sc-us-review-t{font-size:12.5px;font-weight:700;color:var(--navy)}
-.sc-us-review-s{font-size:12px;color:var(--gray);margin-top:2px}
-.sc-us-review .btn-sm{flex-shrink:0;background:#fff}
-#sc-us-review:empty{display:none}
 /* CREATE PO on every Orders row (createPOBtn). Solid black wherever it can
    be used; greyed out (flat grey fill, grey text) where the PO is already
    generated or the role cannot generate it. Same height as the row's other
@@ -658,11 +642,6 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .sc-quick-actions .sc-quick-btn.is-active{box-shadow:0 0 0 3px rgba(15,23,42,.14)}
 .sc-quick-actions .sc-quick-btn.is-active::after{content:'';position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
   border:5px solid transparent;border-top-color:var(--btn-ink,#1a1a1a);pointer-events:none}
-/* UPDATE STATUS, HELD (scOpenUS) - the Logs card's held and just-saved
-   states, in the popup. */
-.sc-us-body .sc-logadd-need,.sc-us-body .sc-logadd-saved{margin:0}
-.sc-us-held textarea:disabled{background:#f8f9fb;color:#9ca3af;cursor:not-allowed}
-.sc-us-held .ct-modal-btns button:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
 /* GO TO STEP - the Super Admin's dropdown marks the step the deal is at */
 .ct-act-item .sc-act-cur{display:inline-flex;align-items:center;height:18px;margin-left:8px;padding:0 7px;border-radius:99px;
   background:var(--st-info-bg);color:var(--st-info-fg);font-size:10.5px;font-weight:600;vertical-align:middle}
@@ -677,3 +656,30 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 @keyframes sc-form-open{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .sc-act-count{font-size:11.5px;font-weight:500;color:#9ca3af}
 @media (prefers-reduced-motion:reduce){.sc-act-panel.is-opening>.sc-logadd{animation:none}}
+/* EXPANDED HEADER (expHeadHTML) - the record first, the tabs below it. The
+   window's Collapse and Close live here, so the tab bar's Close and the tab
+   header's Collapse stand down while expanded. */
+.sc-exp-head{display:none}
+.sc-expanded .sc-exp-head{display:flex;align-items:center;gap:14px;flex-shrink:0;padding:16px 20px;border-bottom:1px solid var(--border);
+  background:#fff;border-radius:14px 14px 0 0}
+.sc-exp-ico{width:42px;height:42px;flex-shrink:0;border-radius:10px;background:var(--light);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--gray)}
+.sc-exp-ico svg{width:20px;height:20px}
+.sc-exp-text{flex:1;min-width:0}
+.sc-exp-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:17px;font-weight:700;color:var(--navy);line-height:1.3}
+.sc-exp-meta{margin-top:4px;font-size:12.5px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-exp-meta .hd-sb-dot{margin:0 7px;color:#cbd5e1}
+.sc-exp-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sc-exp-btn{width:30px;height:30px;border:0;border-radius:7px;background:transparent;color:var(--gray);padding:0;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.sc-exp-btn:hover{background:var(--btn-ghost-bg,#f3f4f6);color:var(--navy)}
+.sc-expanded .sc-exp-actions .lp-isb-close{width:30px;height:30px}
+.sc-expanded .lp-isb-tabbar .lp-isb-right{display:none}
+.sc-expanded .sc-hero-expand{display:none}
+/* the tab's way back to an unfinished log (logReturnHTML) */
+.sc-log-return{margin:0 0 18px}
+/* DEALS LISTING - the SCR title column keeps to one line; the full title is
+   in its tooltip. */
+.lp-table .sc-c-title,.lp-table .sc-c-vendor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important}
+.lp-table .sc-c-title{max-width:190px}
+.lp-table .sc-c-vendor{max-width:210px}

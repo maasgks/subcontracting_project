@@ -248,7 +248,7 @@ var SAMPLE_DEALS=[
    vendor:{code:'21044',name:'Gujarat Galva Coatings LLP',city:'Ankleshwar',addr:'GIDC Estate, Ankleshwar, Gujarat 393002'},
    item:{name:'Galvanised I-Beam ISMB 300',type:'Finished Product',qty:120,uom:'Each',price:95,hsn:'7308',due:'25 Oct 2026'},
    issues:[['SKU_52133_3814 — ISMB 300 Beam 6 m','Zone D','7216']],
-   stage:'po',po:{no:'37756',status:'Approved'},created:'24 Sep 2026',asns:0,imrs:0,received:0},
+   stage:'po',po:{no:'37754',status:'Approved'},created:'24 Sep 2026',asns:0,imrs:0,received:0},
   {id:'SCR-2026-50119',title:'CNC turning of pump impeller shafts',base:'Production Order',baseRef:'PO-100041 — Impeller Shaft',
    process:'Job Work',workType:'Job',planner:'Rahul Verma',buyer:'Madan Mohan',
    vendor:{code:'21005',name:'Sri Venkateswara Aerospace Pvt.ltd',city:'Hyderabad',addr:'Hyderabad, Telangana 500084'},
@@ -1123,8 +1123,10 @@ function dealsPageHTML(){
     return '<tr class="lp-row'+selected+'" data-id="'+r.id+'" style="cursor:pointer" onclick="scOpenDeal(\''+r.id+'\')">'
       +'<td>'+(offset+n+1)+'</td>'
       +'<td><div class="lp-c-main">'+esc(r.id)+'</div><div class="lp-c-sub">'+esc(r.base)+'</div></td>'
-      +'<td><div class="lp-c-plain">'+esc(r.vendor)+'</div><div class="lp-c-sub">'+esc(r.vendorSub)+'</div></td>'
-      +'<td><div class="lp-c-plain">'+esc(r.pending)+'</div></td>'
+      /* the SCR title, with who has the deal under it */
+      +'<td><div class="lp-c-plain sc-c-title" title="'+esc(r.title)+'">'+esc(r.title)+'</div>'
+        +'<div class="lp-c-sub">'+(r.pending&&r.pending!=='—'?'Pending with '+esc(r.pending):'No action pending')+'</div></td>'
+      +'<td><div class="lp-c-plain sc-c-vendor" title="'+esc(r.vendor)+'">'+esc(r.vendor)+'</div><div class="lp-c-sub">'+esc(r.vendorSub)+'</div></td>'
       +'<td>'+badge(scrToneOf(r.scr),r.scr)+'</td>'
       +'<td>'+badge(shipToneOf(r.ship),r.ship)+'</td>'
       +'<td><div class="ct-action-wrap">'
@@ -1163,7 +1165,7 @@ function dealsPageHTML(){
       +'<div class="lp-split-main">'
         +'<div class="lp-table-card" style="border:none;border-radius:0;box-shadow:none">'
           +'<table class="lp-table"><thead><tr>'
-          +'<th>S.No</th><th>Deal ID</th><th>Vendor</th><th>Pending With</th>'
+          +'<th>S.No</th><th>Deal ID</th><th>SCR Title</th><th>Vendor</th>'
           +'<th>SCR Status</th><th>Shipment Status</th><th>Action</th>'
           +'</tr></thead><tbody>'+rows+'</tbody></table>'
           +paginationHTML(all.length,state.dealPage,'deals','scDealPage')
@@ -1266,7 +1268,7 @@ function createPOState(r){
 /* THE PO APPROVER'S DROPDOWN on an Orders row: the same dark status button
    and menu as the Deals listing, offering Approve PO and Return PO. Only on a
    PO that is waiting for approval; the menu and Update Status are the shared
-   ones (scRowMenu / scOpenUS), keyed by the PO's SCR. */
+   ones (scRowMenu / the PO's Logs), keyed by the PO's SCR. */
 var PO_APPROVAL=['Approve PO','Return PO'];
 function poApproveBtn(r){
   /* PO Approver and Super Admin: on a PO waiting for approval only. The menu
@@ -1344,6 +1346,8 @@ function refreshPanel(id,html,isTabSwitch){
     if(newTabs[i].classList.contains('active'))active=oldTabs[i];
   }
   oldBody.innerHTML=newBody.innerHTML;
+  var oldHead=el.querySelector('.sc-exp-head'),newHead=tmp.querySelector('.sc-exp-head');
+  if(oldHead&&newHead)oldHead.innerHTML=newHead.innerHTML;
   if(isTabSwitch&&changed){
     oldBody.scrollTop=0;
     oldBody.classList.remove('sc-swap');void oldBody.offsetWidth;oldBody.classList.add('sc-swap');
@@ -1471,7 +1475,7 @@ function dealPanelHTML(){
   else body=attachmentsHTML(LIVE_ID);
   body=withTools(LIVE_ID,state.dealTab,body);
 
-  return bar+'<div class="lp-isb-body">'+body+'</div>';
+  return expHeadHTML()+bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 
 /* ══ DOCUMENT TABS ═════════════════════════════════════════════════════════
@@ -1976,16 +1980,14 @@ function heroFor(id,tab,editing){
   }
   /* the status lives in the fields below, so the card does not repeat it */
   o.badge='';o.editing=!!editing;
-  if(editing&&state.edit&&state.edit.create)o.pill='Creating';
   /* the step that creates this tab's document, for the role that takes it */
   var mk={shipment:'Create Shipment',asn:'Create ASN',imr:'Create IMR'}[tab];
   if(mk&&!editing&&canCreate(id,mk)){
-    var saved=isPrepared(id,mk);
-    /* once saved, reopening the details is an edit: ADT's standard Edit button */
-    if(saved){
-      o.edit="scGoCreate('"+id+"','"+mk+"')";
-      o.meta=['Details saved','Log '+mk+' from the Logs tab to create it'];
-    }else{o.create="scGoCreate('"+id+"','"+mk+"')";o.createLabel=mk;}
+    /* filling in the step's details is an edit: ADT's standard Edit button
+       (a create button only where Edit already belongs to an existing record) */
+    if(!o.edit)o.edit="scGoCreate('"+id+"','"+mk+"')";
+    else{o.create="scGoCreate('"+id+"','"+mk+"')";o.createLabel=mk;}
+    if(isPrepared(id,mk))o.meta=['Details saved','Log '+mk+' from the Logs tab to create it'];
   }
   return heroCard(o);
 }
@@ -1993,7 +1995,8 @@ function heroFor(id,tab,editing){
 function withTools(id,tab,body){
   if(DETAIL_TABS.indexOf(tab)<0||body.indexOf('class="sc-empty"')>=0)return body;
   if(isEditing(id,tab))return heroFor(id,tab,true)+editFormHTML(id,tab);
-  return heroFor(id,tab)+body;
+  var mk={shipment:'Create Shipment',asn:'Create ASN',imr:'Create IMR'}[tab];
+  return heroFor(id,tab)+(mk?logReturnHTML('deal:'+id,mk):'')+body;
 }
 /* The PO panel Details: the same card, Expand only - a PO changes through its own steps. */
 function poTools(no,body){
@@ -2001,7 +2004,7 @@ function poTools(no,body){
   var editing=isEditing('po:'+no,'details');
   return heroCard({icon:ICO.cart,name:'PO '+no,meta:[r.scrId,r.vendor],editing:editing,
     edit:canEditPO(no)?"scEditPO('"+no+"')":'',
-    expand:"scExpandTab('sc-order-isb','PO Details · "+no+"')"})+(editing?poEditFormHTML(no):body);
+    expand:"scExpandTab('sc-order-isb','PO Details · "+no+"')"})+(editing?poEditFormHTML(no):logReturnHTML('po:'+no,'Generate PO')+body);
 }
 
 /* ══ PO DETAILS, EDITED IN PLACE ═══════════════════════════════════════════
@@ -2091,6 +2094,29 @@ function scGoPODetails(no){
    control keep working, and switching tabs happens inside the expanded view.
    Collapse (the same icon, Esc or a click outside) puts
    it back at the side. Closing the panel or leaving the page collapses it. */
+/* THE EXPANDED HEADER. In the expanded window the record leads: its ID and
+   current status, a line of what it is (title, vendor, who has it), and the
+   window's Collapse and Close - then the tabs below. Drawn with every panel
+   and shown only while expanded (CSS), so it is always current. */
+function expHeadHTML(){
+  var ico,name,badgeH,meta;
+  if(state.page==='orders'){
+    var o=orderRows().filter(function(x){return x.no===state.orderSel;})[0];if(!o)return '';
+    ico=ICO.cart;name='PO '+o.no;badgeH=badge(poToneOf(o.status),o.status);meta=[o.scrId,o.title,o.vendor];
+  }else{
+    var r=dealRows().filter(function(x){return x.id===state.dealSel;})[0];if(!r)return '';
+    ico=ICO.doc;name=r.id;badgeH=badge(rampTone(r.cur),r.cur);
+    meta=[r.title,r.vendor,r.pending&&r.pending!=='—'?'Pending with '+r.pending:''];
+  }
+  var closer=state.page==='orders'?'scCloseOrder':'scCloseDeal';
+  return '<div class="sc-exp-head"><div class="sc-exp-ico">'+ico+'</div>'
+    +'<div class="sc-exp-text"><div class="sc-exp-title"><span>'+esc(name)+'</span>'+badgeH+'</div>'
+      +'<div class="sc-exp-meta">'+meta.filter(Boolean).map(esc).join('<span class="hd-sb-dot">•</span>')+'</div></div>'
+    +'<div class="sc-exp-actions">'
+      +'<button class="sc-exp-btn" type="button" title="Collapse" aria-label="Collapse" onclick="scCollapsePanel()">'+ICO_COLLAPSE+'</button>'
+      +'<button class="lp-isb-close" type="button" title="Close" aria-label="Close" onclick="'+closer+'()">'+ICO.close+'</button>'
+    +'</div></div>';
+}
 function scExpandTab(){setExpanded(true);}
 function scCollapsePanel(){setExpanded(false);}
 function setExpanded(on){
@@ -2212,19 +2238,35 @@ function scCreateFromTab(e){
   }
   PREPARED[prepKey(id,action)]=Object.assign({},v);
   state.edit=null;
-  if(scBackToUS(id,action))return;
   if(scBackToLog('deal:'+id,action))return;
   scRender();
   scToast(action.replace('Create ','')+' details saved','success','Go to Logs and log '+action+' to create it.');
 }
-/* SAVED FROM THE LOGS CARD: when the form was opened from a held Logs card,
-   Save goes straight back to that card on its Logs tab, which confirms the
-   save for 1.8 seconds and then lets the step be logged. */
+/* SAVED IN THE MIDDLE OF A LOG. When the form was opened from a held Logs
+   card ("Click here to fill the details"), Save keeps the user on the tab and
+   the tab then offers "Click here to complete the log" (logReturnHTML). That
+   link goes back to the card, which confirms the save for 1.8 seconds and
+   then lets the step be logged. A save from the tab's own Edit, outside that
+   flow, shows no link. */
 var scSavedTimer=null;
 function scBackToLog(key,action){
   var la=state.logAdd;
-  if(!la||la.key!==key||la.action!==action)return false;
-  if(key.indexOf('po:')===0)state.orderTab='logs';else state.dealTab='logs';
+  if(!la||la.key!==key||la.action!==action||!la.fromFill)return false;
+  la.ready=true;
+  scRender();
+  scToast('Details saved','success','Complete the log when you are ready.');
+  return true;
+}
+function logReturnHTML(key,action){
+  var la=state.logAdd;
+  if(!la||la.key!==key||la.action!==action||!la.ready)return '';
+  return '<button type="button" class="sc-logadd-need sc-log-return" onclick="scLogComplete()">'
+    +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to complete the log</span></button>';
+}
+function scLogComplete(){
+  var la=state.logAdd;if(!la||!la.ready)return;
+  delete la.ready;delete la.fromFill;
+  if(la.key.indexOf('po:')===0)state.orderTab='logs';else state.dealTab='logs';
   la.saved=true;
   scRender();
   clearTimeout(scSavedTimer);
@@ -2233,7 +2275,6 @@ function scBackToLog(key,action){
     if(el)el.classList.add('is-leaving');
     scSavedTimer=setTimeout(function(){scLogSaved(la);},260);
   },1540);   // + .26s fade-out = 1.8s
-  return true;
 }
 function scLogSaved(la){
   if(state.logAdd!==la)return;
@@ -2283,7 +2324,7 @@ function scEditTab(id,tab){
 }
 function scEditInput(k,v){if(!state.edit)return;state.edit.vals[k]=v;state.edit.dirty=true;}
 function scEditPick(v,csid){scEditInput(csid.replace(/^ed-/,''),v);}
-function scCancelEdit(){state.edit=null;usFill=null;scRender();}
+function scCancelEdit(){state.edit=null;scRender();}
 /* leaving the deal (closing the panel, or opening another) drops the draft - after asking, when there is one */
 function editGuard(){
   if(!state.edit)return true;
@@ -2338,7 +2379,7 @@ function editFormHTML(id,tab){
   }).join('');
   if(e.create)return '<div class="sc-edit-card"><div class="policy-form-grid">'+cells+'</div>'
     +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scCancelEdit()">Cancel</button>'
-    +'<button class="btn-primary" onclick="scSaveEdit(false)">Save Details</button></div></div>';
+    +'<button class="btn-primary" onclick="scSaveEdit(false)">Save Changes</button></div></div>';
   var returned=tab==='details'&&(id===LIVE_ID?state.scr==='returned':!!(sampleDeal(id)||{}).returned);
   return (returned?returnNoteHTML(id,true):'')
     +'<div class="sc-edit-card"><div class="policy-form-grid">'+cells+'</div>'
@@ -2700,15 +2741,21 @@ function editBlocksLog(){
   return true;
 }
 /* open the composer for a step on the Logs tab that records it */
-function scStartLog(id,action){
+function scStartLog(id,action,extra){
   if(editBlocksLog())return;
+  var key;
   if(PO_ACTIONS.indexOf(action)>=0){
     var no=poNoOf(id);if(!no)return;
-    scGoTab('po',id);state.orderTab='logs';state.logAdd={key:'po:'+no,action:action};
+    scGoTab('po',id);state.orderTab='logs';key='po:'+no;
   }else{
-    scGoTab('details',id);state.dealTab='logs';state.logAdd={key:'deal:'+id,action:action};
+    scGoTab('details',id);state.dealTab='logs';key='deal:'+id;
   }
+  state.logAdd=Object.assign({key:key,action:action,dealId:id,anim:true},extra||{});
   scRender();
+  setTimeout(function(){
+    var f=document.querySelector('.sc-logadd .sc-reason-field .cs-trigger')||document.querySelector('.sc-logadd textarea:not([disabled])');
+    if(f&&f.offsetParent!==null)f.focus();
+  },0);
 }
 /* a sample deal's step - a create step builds its document from what was saved */
 function sampleAct(d,action,comment){
@@ -2755,7 +2802,7 @@ function logsTabHTML(o){
 function shortTime(t){return fmtTime(t).replace(/:\d\d (AM|PM)$/,' $1');}
 /* ── Table design ── */
 function logsTableHTML(o){
-  var la=state.logAdd,adding=la&&la.key===o.key&&(o.opts.indexOf(la.action)>=0||la.action==='Move Back')?la.action:'';
+  var la=state.logAdd,adding=la&&la.key===o.key&&(o.opts.indexOf(la.action)>=0||la.action==='Move Back'||la.action==='Go to Step')?la.action:'';
   /* the chosen action stays marked on the bar while its form is open below:
      it turns solid and the others step back to outline */
   var btns=o.opts.map(function(a){
@@ -2778,7 +2825,9 @@ function logsTableHTML(o){
   var form='',anim=false;
   if(adding){
     anim=!!la.anim;delete la.anim;
-    var mb=adding==='Move Back',go=mb?'scMoveBackSubmit(\''+o.id+'\')':'scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')';
+    var jump=adding==='Go to Step',mb=adding==='Move Back'||jump;
+    var go=jump?'scJumpSubmit(\''+o.id+'\')':mb?'scMoveBackSubmit(\''+o.id+'\')':'scLogQuickSubmit(\''+o.id+'\',\''+o.submit+'\')';
+    var fwd=jump&&flowIndex(la.target)>progressIndex(dealEventsOldestFirst(o.dealId));
     /* DETAILS NEEDED FIRST. A create step whose details are not saved yet
        shows the form held: "Click here to fill the details" into that tab's
        form, and the comment, Cancel and Submit disabled. */
@@ -2789,7 +2838,8 @@ function logsTableHTML(o){
     var done=!mb&&!need&&!!la.saved,held=need||done,dis=held?' disabled':'';
     form='<div class="sc-logadd'+(held?' is-held':'')+'">'
       +'<div class="sc-logadd-body">'
-        +(mb?'<p class="sc-mb-note">Move back to <b>'+esc(la.target)+'</b>: the deal returns to the state right after it. Later steps stay in the log as history.</p>':'')
+        +(fwd?'<p class="sc-mb-note">Go to <b>'+esc(la.target)+'</b>: the deal moves forward to the state right after it. The steps in between are skipped.</p>'
+          :mb?'<p class="sc-mb-note">'+(jump?'Go to':'Move back to')+' <b>'+esc(la.target)+'</b>: the deal returns to the state right after it. Later steps stay in the log as history.</p>':'')
         +(need?'<button type="button" class="sc-logadd-need" title="Open the '+esc(FORM_DOC[adding]||'')+' form" onclick="scLogFill()">'
             +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to fill the details</span></button>':'')
         +(done?'<div class="sc-logadd-saved" role="status">'
@@ -2804,7 +2854,7 @@ function logsTableHTML(o){
         +'</div></div>'
       +'<div class="sc-logadd-foot"><span class="sc-logadd-hint">'+(held?'':'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit')+'</span>'
         +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()"'+dis+'>Cancel</button>'
-        +(mb?'<button class="btn-primary" onclick="'+go+'">Move Back</button>'
+        +(mb?'<button class="btn-primary" onclick="'+go+'">'+(jump?'Go to Step':'Move Back')+'</button>'
             :need?'<button class="btn-primary" disabled>Submit</button>'
             :done?'<button class="btn-primary" disabled>'+esc(actLabel(adding))+'</button>'
             :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">'+esc(actLabel(adding))+'</button>')
@@ -2864,7 +2914,7 @@ function scRefreshPanel(){
 var FORM_DOC={'Create Shipment':'shipment','Create ASN':'ASN','Create IMR':'IMR','Generate PO':'PO'};
 function scLogFill(){
   var la=state.logAdd;if(!la||!la.dealId)return;
-  usFill=null;
+  la.fromFill=true;
   scOpenActionModal(la.action,'',PO_ACTIONS.indexOf(la.action)>=0?'order':'deal',la.dealId);
   state.logAdd=la;
 }
@@ -3095,7 +3145,7 @@ function orderPanelHTML(){
   else if(state.orderTab==='history')body=historyHTML(LIVE_ID,true);
   else body=orderLogsHTML();
   if(state.orderTab==='details'&&state.po!=='none')body=poTools(LIVE_PO,body);
-  return bar+'<div class="lp-isb-body">'+body+'</div>';
+  return expHeadHTML()+bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 function orderDetailsHTML(){
   if(state.po==='none'){
@@ -3198,7 +3248,7 @@ function samplePanelHTML(d){
   else if(DOC_TABS[t])body=DOC_TABS[t](dealDocs(d.id));
   else body=attachmentsHTML(d.id);
   body=withTools(d.id,t,body);
-  return bar+'<div class="lp-isb-body">'+body+'</div>';
+  return expHeadHTML()+bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 function sampleDetailsHTML(d){
   var g=function(cards){return '<div class="lp-sb-detail-grid" style="margin-bottom:20px">'+cards+'</div>';};
@@ -3354,7 +3404,7 @@ function sampleOrderPanelHTML(d){
       doneSub:'Nothing further is pending on this Purchase Order.'});
   }
   if(state.orderTab==='details')body=poTools(d.po.no,body);
-  return bar+'<div class="lp-isb-body">'+body+'</div>';
+  return expHeadHTML()+bar+'<div class="lp-isb-body">'+body+'</div>';
 }
 
 /* ══ LOG WRITERS ══════════════════════════════════════════════════════════  */
@@ -3532,7 +3582,6 @@ document.addEventListener('scroll',function(e){
 window.addEventListener('resize',scCloseRowMenu);
 document.addEventListener('keydown',function(e){if(e.key==='Escape')scCloseRowMenu();});
 
-var usRow=null;
 /* the PO a deal has, if any */
 function dealPONo(id){
   if(id===LIVE_ID)return state.po!=='none'?LIVE_PO:'';
@@ -3544,12 +3593,12 @@ function scRowAction(id,i,scope){
   scCloseRowMenu();
   var action=rowActionsFor()[i];if(!action)return;
   if(scope!=='po'&&(!dealLogsAllowed()||PO_ACTIONS.indexOf(action)>=0))return;
-  if(scope!=='po'&&rowAvailable(id).indexOf(action)<0&&canJump(id,action)){scOpenJump(id,action);return;}
-  /* A step that creates something opens its own form, not just a status
-     change: Create Shipment on any deal; every form step on the live deal. */
-  if(editBlocksLog())return;
-  /* a create step without saved details opens the popup held (scOpenUS) */
-  scOpenUS(id,action,'');
+  /* THE DROPDOWN OPENS THE STEP IN LOGS - no popup. The record's Logs tab
+     opens (the PO's, for a PO step) with the chosen step's form already open,
+     exactly as if it had been picked there - held for a create step whose
+     details are not saved yet. A Super Admin's jump opens there too. */
+  if(scope!=='po'&&rowAvailable(id).indexOf(action)<0&&canJump(id,action)){scStartLog(id,'Go to Step',{target:jumpTarget(action)});return;}
+  scStartLog(id,action);
 }
 /* GO TO STEP (Super Admin). In the Deals dropdown every step of the flow is
    live for the Super Admin. The step the deal is ready for runs as usual;
@@ -3563,145 +3612,15 @@ function canJump(id,action){
   if(state.role!=='Super Admin'||!jumpTarget(action))return false;
   return flowIndex(jumpTarget(action))!==progressIndex(dealEventsOldestFirst(id));
 }
-function scOpenJump(id,action){
-  var r=dealRows().filter(function(x){return x.id===id;})[0];if(!r)return;
-  var target=jumpTarget(action),back=flowIndex(target)<progressIndex(dealEventsOldestFirst(id));
-  usRow={id:id,jump:target};
-  var body='<div class="sc-us-flow">'+badge(rampTone(r.cur),r.cur)
-      +'<span class="sc-us-arrow">'+ICO_ARROW+'</span>'+badge(rampTone(target),target)+'</div>'
-    +'<div class="info-box tip" style="margin:0"><span class="ib-icon">'+ICO.info+'</span><div>'
-      +(back?'The deal moves <b>back</b> to the state right after <b>'+esc(target)+'</b>. Later steps stay in the log as history.'
-            :'The deal moves <b>forward</b> to the state right after <b>'+esc(target)+'</b>. The steps in between are skipped.')
-      +' The next role picks up from there.</div></div>'
-    +reasonFieldHTML('sc-jump','Go to Step')
-    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-jump-comment" placeholder="Why is this deal moving?"></textarea>',false,true);
-  var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
-    +'<div class="ct-modal-btns">'
-      +'<button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
-      +'<button class="btn-primary" onclick="scJumpSubmit()">Go to Step</button>'
-    +'</div>';
-  document.getElementById('sc-modal-root').innerHTML=
-    modalShell('Go to Step',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot);
-}
-function scJumpSubmit(){
-  if(!usRow||!usRow.jump||state.role!=='Super Admin')return;
-  var id=usRow.id,target=usRow.jump;
-  var reason=readReason('sc-jump'),comment=((document.getElementById('sc-jump-comment')||{}).value||'').trim();
+function scJumpSubmit(formId){
+  var la=state.logAdd;if(!la||la.action!=='Go to Step'||state.role!=='Super Admin')return;
+  var reason=readReason(formId),comment=((document.getElementById(formId+'-comment')||{}).value||'').trim();
   if(reasonMissing('Go to Step',reason))return;
-  var back=flowIndex(target)<progressIndex(dealEventsOldestFirst(id));
-  withReason(reason,function(){moveDealTo(id,target,comment,back?'Moved back to ':'Moved to ');});
-  scCloseModal();scRender();
-  scToast(id+(back?' moved back to ':' moved to ')+target,'info');
+  var back=flowIndex(la.target)<progressIndex(dealEventsOldestFirst(la.dealId));
+  withReason(reason,function(){moveDealTo(la.dealId,la.target,comment,back?'Moved back to ':'Moved to ');});
+  state.logAdd=null;scRender();
+  scToast(la.dealId+(back?' moved back to ':' moved to ')+la.target,'info');
 }
-function usReviewHTML(id,action){
-  var rv=reviewOf(id,action);if(!rv)return '';
-  return '<div class="sc-us-review"><div><div class="sc-us-review-t">Review before you confirm</div>'
-    +'<div class="sc-us-review-s">Open the '+esc(rv.label.replace(/^View /,''))+' this step acts on.</div></div>'
-    +'<button class="btn-outline btn-sm" type="button" onclick="scUSReview()">'+ICO.eye+' '+esc(rv.label)+'</button></div>';
-}
-/* The viewer shares the modal root, so the form is put away and brought back
-   with its status and comment when the viewer closes (scCloseModal). */
-function scUSReview(){
-  if(!usRow)return;
-  usRow.action=csValue('sc-us-status');
-  usRow.comment=(document.getElementById('sc-us-comment')||{value:''}).value;
-  var rv=reviewOf(usRow.id,usRow.action);if(!rv)return;
-  usRow.back=true;
-  scOpenView(rv.type,rv.index,usRow.id);
-}
-/* UPDATE STATUS, HELD AND JUST SAVED - the same two states as the Logs card.
-   A create step whose details are not saved yet opens held: "Click here to
-   fill the details" (into the tab's form) and the comment, Cancel and Submit
-   disabled. Saving that form brings the popup back with the green check for
-   1.8 seconds ("Details have been updated"), then live. */
-function scOpenUS(id,action,comment,mode){
-  var r=dealRows().filter(function(x){return x.id===id;})[0];if(!r)return;
-  var need=isFormStep(id,action),done=!need&&mode==='saved',held=need||done,dis=held?' disabled':'';
-  usRow={id:id,action:action,need:need,saved:done};
-  var res=ACTION_RESULT[action]||action;
-  var body='<div class="sc-us-flow">'+badge(rampTone(r.cur),r.cur)
-      +'<span class="sc-us-arrow">'+ICO_ARROW+'</span><span id="sc-us-next">'+badge(rampTone(res),res)+'</span></div>'
-    +(need?'<button type="button" class="sc-logadd-need" title="Open the '+esc(FORM_DOC[action]||'')+' form" onclick="scUSFill()">'
-        +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to fill the details</span></button>'
-      :done?'<div class="sc-logadd-saved" role="status">'
-        +'<svg class="sc-saved-check" viewBox="0 0 52 52" aria-hidden="true"><circle class="sc-saved-ring" cx="26" cy="26" r="23"/>'
-        +'<path class="sc-saved-tick" d="M15 27l7 7 15-16"/></svg>'
-        +'<span class="sc-logadd-saved-text">Details have been updated</span></div>'
-      :'<div id="sc-us-review">'+usReviewHTML(id,action)+'</div>')
-    +field('Status',csField('sc-us-status',rowAvailable(id),action,'Select Status','scUSPicked'),true,true)
-    +(held?'':reasonFieldHTML('sc-us',action))
-    +field('Comment','<textarea class="lp-logs-form-textarea sc-us-comment" id="sc-us-comment" placeholder="Why is this deal moving?"'+dis+'>'+esc(comment||'')+'</textarea>',false,true);
-  var foot='<button class="sc-us-log" type="button" onclick="scUSViewLog()">View full log</button>'
-    +'<div class="ct-modal-btns">'
-      +'<button class="btn-outline" onclick="scCloseModal()"'+dis+'>Cancel</button>'
-      +'<button class="btn-primary" onclick="scUSSubmit()"'+dis+'>Submit</button>'
-    +'</div>';
-  document.getElementById('sc-modal-root').innerHTML=
-    modalShell('Update Status',r.id+' · '+r.vendor+' · '+r.process,'<div class="sc-us-body">'+body+'</div>',foot,false,held?'sc-us-held':'');
-  var c=document.getElementById('sc-us-comment');if(c&&!held)c.focus();
-}
-/* "Click here to fill the details": the popup closes, the tab's form opens,
-   and its Save brings the popup back (scBackToUS). */
-var usFill=null,scUSTimer=null;
-function scUSFill(){
-  if(!usRow)return;
-  var u={id:usRow.id,action:csValue('sc-us-status')||usRow.action};
-  scCloseModal();
-  state.logAdd=null;usFill=u;
-  scOpenActionModal(u.action,'',PO_ACTIONS.indexOf(u.action)>=0?'order':'deal',u.id);
-}
-function scBackToUS(id,action){
-  var u=usFill;if(!u||u.id!==id||u.action!==action)return false;
-  usFill=null;
-  scRender();
-  scOpenUS(id,action,'','saved');
-  clearTimeout(scUSTimer);
-  scUSTimer=setTimeout(function(){
-    var el=document.querySelector('#sc-modal-root .sc-logadd-saved');if(!el)return;
-    el.classList.add('is-leaving');
-    scUSTimer=setTimeout(function(){
-      if(!document.querySelector('#sc-modal-root .sc-logadd-saved')||!usRow||usRow.id!==id)return;
-      scOpenUS(id,action,'');
-    },260);
-  },1540);   // + .26s fade-out = 1.8s
-  return true;
-}
-function scUSPicked(val){
-  if(usRow&&(isFormStep(usRow.id,val)!==usRow.need||usRow.saved)){
-    scOpenUS(usRow.id,val,(document.getElementById('sc-us-comment')||{value:''}).value);return;
-  }
-  var res=ACTION_RESULT[val]||val,el=document.getElementById('sc-us-next');
-  if(el)el.innerHTML=badge(rampTone(res),res);
-  var rv=document.getElementById('sc-us-review');
-  if(rv&&usRow)rv.innerHTML=usReviewHTML(usRow.id,val);
-  toggleReason('sc-us',val);
-}
-function scUSViewLog(){
-  var id=usRow&&usRow.id,act=csValue('sc-us-status');scCloseModal();if(!id)return;
-  if(PO_ACTIONS.indexOf(act)>=0||!dealLogsAllowed()){scGoTab('po',id);scOrderTab('logs');return;}
-  if(!(state.dealOpen&&state.dealSel===id))scOpenDeal(id);
-  scDealTab('logs');
-}
-function scUSSubmit(){
-  var id=usRow&&usRow.id;if(!id)return;
-  var action=csValue('sc-us-status');
-  var comment=(document.getElementById('sc-us-comment')||{value:''}).value.trim();
-  if(!action){scToast('Select a status first','error');return;}
-  var reason=readReason('sc-us');
-  if(reasonMissing(action,reason))return;
-  if(isFormStep(id,action)){
-    scCloseModal();scOpenActionModal(action,comment,PO_ACTIONS.indexOf(action)>=0?'order':'deal',id);return;
-  }
-  withReason(reason,function(){
-    if(id===LIVE_ID){
-      if(PO_ACTIONS.indexOf(action)>=0)executePOAction(action,comment);
-      else executeDealAction(action,comment);
-    }else sampleAct(sampleDeal(id),action,comment);
-  });
-  scCloseModal();
-  scRender();
-}
-
 /* A sample deal moves one stage per action; its log entries are generated
    from the stage, with the step just taken signed by who took it. */
 var SAMPLE_STEP={
@@ -3779,7 +3698,6 @@ function scCloseModal(){
   if(modalStack.length){root.innerHTML=modalStack.pop();return;}
   root.innerHTML='';
   pendingAction=null;
-  if(usRow&&usRow.back){usRow.back=false;scOpenUS(usRow.id,usRow.action,usRow.comment);}
 }
 function section(title,inner){
   return '<div class="policy-form-section" style="padding:20px 0;border-bottom:1px solid #f1f3f5">'
