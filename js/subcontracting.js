@@ -112,10 +112,10 @@ var ROW_ACTIONS={
   'Finance / F&A / IDT':['Generate Challan','Complete Reconciliation','Confirm Full Receipt','Close Transaction'],
   'Security User':['Confirm Gate Outward','Return Gate Outward','Confirm Gate Inward'],
   'Vendor User':['Create ASN'],
-  'QC User':['Clear ASN'],
+  'QC User':['Clear ASN','Return ASN'],
   'Super Admin':['Approve SCR','Return SCR','Reject SCR','Submit SCR','Generate PO','Approve PO','Return PO',
     'Create Shipment','Goods Release & Issue','Return Shipment','Approve Delivery Note','Return Delivery Note',
-    'Generate Challan','Confirm Gate Outward','Return Gate Outward','Confirm Shipment','Create ASN','Clear ASN',
+    'Generate Challan','Confirm Gate Outward','Return Gate Outward','Confirm Shipment','Create ASN','Clear ASN','Return ASN',
     'Confirm Gate Inward','Create IMR','Confirm IMR','Complete Reconciliation','Confirm Full Receipt','Close Transaction']
 };
 /* The log status each action writes - the "to" pill in Update Status. */
@@ -330,6 +330,85 @@ var SAMPLE_PEOPLE={
   'Security User':'Ramesh Yadav','Vendor User':'Vendor Portal User','QC User':'Harish Kulkarni'
 };
 function samplePending(d){var n=sampleNextOf(d);return n?n.role:'—';}
+/* RECEIPTS ON A SAMPLE. From the ASN stage a sample keeps its ASNs and IMRs
+   as records (d.rx), like the live deal: each ASN goes through QC, gate and
+   IMR on its own, several can be open at once, and Create ASN stays on offer
+   while quantity is open. The entries generated up to that point are kept in
+   the log; every later step is logged as it is taken. The sample's stage is
+   re-read from the records after each step (rxSync), so the listing, Pending
+   With and Workflow follow. */
+var RX_STATUSES=['ASN Created','ASN QC Cleared','Gate Inward Confirmed','IMR Created','IMR Confirmed','ASN Returned'];
+var RX_OWNER={'Create ASN':'Vendor User','Clear ASN':'QC User','Return ASN':'QC User','Confirm Gate Inward':'Security User',
+  'Create IMR':'Stores User','Confirm IMR':'Stores User'};
+function rxPhase(d){return d.stage==='asn'||d.stage==='imr';}
+function ensureRx(d){
+  if(d.rx||!rxPhase(d))return d.rx||null;
+  var x=dealDocs(d.id),keyOf=function(l){return l.status+'|'+l.date+'|'+l.time;};
+  d.extra=d.extra||[];
+  var have={};d.extra.forEach(function(l){have[keyOf(l)]=1;});
+  sampleMilestones(d).forEach(function(l){
+    if(RX_STATUSES.indexOf(l.status)>=0&&!have[keyOf(l)])d.extra.push(Object.assign({},l,{seq:l.seq||0,rxFrozen:true}));
+  });
+  var nos=x.asns.map(function(a){return a.no;});
+  d.rx={asns:x.asns.map(function(a){return {qty:+a.qty||0,qc:a.qc,gateIn:!!a.gateIn};}),
+        imrs:x.imrs.map(function(m){return {asn:Math.max(0,nos.indexOf(m.asnNo)),qty:+m.qty||0,status:m.status};})};
+  /* a sample waiting on the vendor for another ASN has quantity left to advise */
+  if(d.stage==='asn'&&d.sub==='vendor'&&d.rx.asns.length&&rxOpen(d)===0){
+    var per=Math.max(1,Math.floor(d.item.qty/(d.rx.asns.length+1)));
+    d.rx.asns.forEach(function(a){a.qty=per;});
+  }
+  return d.rx;
+}
+function rxOpen(d){return Math.max(0,d.item.qty-d.rx.asns.reduce(function(t,a){return t+(a.qc==='Returned'?0:a.qty);},0));}
+function rxAvail(d,i){
+  var a=d.rx.asns[i];if(!a)return 0;
+  return Math.max(0,a.qty-d.rx.imrs.filter(function(m){return m.asn===i;}).reduce(function(t,m){return t+m.qty;},0));
+}
+/* what the records are ready for now, whoever takes it */
+function rxActions(d){
+  var r=d.rx,acts=[];
+  if(rxOpen(d)>0)acts.push('Create ASN');
+  if(r.asns.some(function(a){return a.qc==='Created';}))acts.push('Clear ASN','Return ASN');
+  if(r.asns.some(function(a){return a.qc==='QC Cleared'&&!a.gateIn;}))acts.push('Confirm Gate Inward');
+  if(r.asns.some(function(a,i){return a.qc==='QC Cleared'&&a.gateIn&&rxAvail(d,i)>0;}))acts.push('Create IMR');
+  if(r.imrs.some(function(m){return m.status==='Created';}))acts.push('Confirm IMR');
+  return acts;
+}
+function rxSync(d){
+  var r=d.rx;
+  d.asns=r.asns.length;d.imrs=r.imrs.length;
+  d.received=r.imrs.filter(function(m){return m.status==='Confirmed';}).reduce(function(t,m){return t+m.qty;},0);
+  var at=function(stage,sub){d.stage=stage;d.sub=sub;};
+  /* the same order as the live deal's Pending With: the vendor while quantity is open */
+  if(rxOpen(d)>0)at('asn','vendor');
+  else if(r.asns.some(function(a){return a.qc==='Created';}))at('asn','qc');
+  else if(r.asns.some(function(a){return a.qc==='QC Cleared'&&!a.gateIn;}))at('asn','gatein');
+  else if(r.imrs.some(function(m){return m.status==='Created';}))at('imr','confirm');
+  else if(r.asns.some(function(a,i){return a.qc==='QC Cleared'&&a.gateIn&&rxAvail(d,i)>0;}))at('imr','create');
+  else at('reconciliation','');
+}
+function rxLog(d,status,comment){
+  var t=stamp();d.extra=d.extra||[];
+  d.extra.push({status:status,role:state.role,by:who(),comment:comment,reason:curReason,date:t.date,time:t.time,portal:'Web',seq:++scSeq});
+}
+function rxTarget(d,kind,ready){
+  var list=kind==='asn'?d.rx.asns:d.rx.imrs,m=/^(asn|imr):(\d+)$/.exec(curTarget||'');
+  if(m&&m[1]===kind&&list[+m[2]]&&ready(list[+m[2]]))return +m[2];
+  return list.findIndex(ready);
+}
+function rxNo(d,kind,i){return (kind==='asn'?'ASN-':'IMR-')+d.id.slice(-5)+'-'+(i+1);}
+function rxAct(d,action,comment){
+  var r=d.rx,c=comment?comment+' — ':'',i;
+  if(action==='Clear ASN'){i=rxTarget(d,'asn',function(a){return a.qc==='Created';});if(i<0)return;
+    r.asns[i].qc='QC Cleared';rxLog(d,'ASN QC Cleared',c+rxNo(d,'asn',i));scToast(rxNo(d,'asn',i)+' cleared by QC');}
+  else if(action==='Return ASN'){i=rxTarget(d,'asn',function(a){return a.qc==='Created';});if(i<0)return;
+    r.asns[i].qc='Returned';rxLog(d,'ASN Returned',c+rxNo(d,'asn',i));scToast(rxNo(d,'asn',i)+' returned to vendor','info');}
+  else if(action==='Confirm Gate Inward'){i=rxTarget(d,'asn',function(a){return a.qc==='QC Cleared'&&!a.gateIn;});if(i<0)return;
+    r.asns[i].gateIn=true;rxLog(d,'Gate Inward Confirmed',c+rxNo(d,'asn',i));scToast('Gate inward confirmed for '+rxNo(d,'asn',i));}
+  else if(action==='Confirm IMR'){i=rxTarget(d,'imr',function(m){return m.status==='Created';});if(i<0)return;
+    r.imrs[i].status='Confirmed';rxLog(d,'IMR Confirmed',c+rxNo(d,'imr',i));scToast(rxNo(d,'imr',i)+' confirmed');}
+  rxSync(d);
+}
 function sampleDeal(id){return SAMPLE_DEALS.filter(function(d){return d.id===id;})[0];}
 function stageReached(d,key){return STAGE_ORDER.indexOf(d.stage)>=STAGE_ORDER.indexOf(key);}
 function stagePassed(d,key){return STAGE_ORDER.indexOf(d.stage)>STAGE_ORDER.indexOf(key);}
@@ -416,14 +495,14 @@ function sampleMilestonesBase(d){
   add('Gate Outward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'Vehicle cleared at the main gate.');
   if(ob<4)return m;
   add('Shipment Confirmed','Planner',d.planner,'Material Position updated to At Vendor.');
-  for(var a=1;a<=d.asns;a++){
+  for(var a=1;!d.rx&&a<=d.asns;a++){
     add('ASN Created','Vendor User',SAMPLE_PEOPLE['Vendor User'],'ASN '+a+' raised by the vendor.');
     var asnDone=d.stage!=='asn'||a<d.asns||d.sub==='vendor';
     if(asnDone||d.sub==='gatein')add('ASN QC Cleared','QC User',SAMPLE_PEOPLE['QC User'],'ASN '+a+' passed inspection.');
     if(asnDone)add('Gate Inward Confirmed','Security User',SAMPLE_PEOPLE['Security User'],'ASN '+a+' received at the gate.');
   }
   if(!stagePassed(d,'asn'))return m;
-  for(var i=1;i<=d.imrs;i++){
+  for(var i=1;!d.rx&&i<=d.imrs;i++){
     add('IMR Created','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' raised against a gate-cleared ASN.');
     if(d.stage!=='imr'||i<d.imrs||d.sub==='create')add('IMR Confirmed','Stores User',SAMPLE_PEOPLE['Stores User'],'IMR '+i+' posted to stock.');
   }
@@ -626,7 +705,7 @@ function stageAccess(role,stage){
   if(role==='Super Admin')return true;
   return (STAGE_ACCESS[role]||[]).indexOf(stage)>=0;
 }
-function cumulativeAdvised(){return state.asns.reduce(function(t,a){return t+a.qty;},0);}
+function cumulativeAdvised(){return state.asns.reduce(function(t,a){return t+(a.qc==='Returned'?0:a.qty);},0);}
 function openASNQty(){return Math.max(0,EXPECTED_QTY-cumulativeAdvised());}
 function receivedForASN(i){
   var asn=state.asns[i];if(!asn)return 0;
@@ -1518,13 +1597,17 @@ function dealDocsBase(id){
       imrs:state.imrs.map(function(m){return {no:m.no,asnNo:m.asnNo,qty:m.qty,status:m.status};})};
   }
   var d=sampleDeal(id),n=id.slice(-5),it=d.item,asns=[],imrs=[],k;
+  if(d.rx){
+    asns=d.rx.asns.map(function(a,i){return {no:'ASN-'+n+'-'+(i+1),qty:a.qty,qc:a.qc,gateIn:a.gateIn};});
+    imrs=d.rx.imrs.map(function(m,i){return {no:'IMR-'+n+'-'+(i+1),asnNo:'ASN-'+n+'-'+(m.asn+1),qty:m.qty,status:m.status};});
+  }
   var obStep=d.stage==='outbound'?['dn','challan','gate','confirm'].indexOf(d.sub||'dn'):(stagePassed(d,'outbound')?4:-1);
-  for(k=1;k<=d.asns;k++){
+  for(k=1;!d.rx&&k<=d.asns;k++){
     var last=d.stage==='asn'&&k===d.asns;
     asns.push({no:'ASN-'+n+'-'+k,qty:Math.ceil(it.qty/Math.max(1,d.asns)),
       qc:!last||d.sub==='gatein'||d.sub==='vendor'?'QC Cleared':'Created',gateIn:!last||d.sub==='vendor'});
   }
-  for(k=1;k<=d.imrs;k++){
+  for(k=1;!d.rx&&k<=d.imrs;k++){
     var open=d.stage==='imr'&&k===d.imrs&&d.sub!=='create';
     imrs.push({no:'IMR-'+n+'-'+k,asnNo:'ASN-'+n+'-'+Math.min(k,Math.max(1,d.asns)),
       qty:Math.ceil(it.qty/Math.max(1,d.imrs)),status:open?'Created':'Confirmed'});
@@ -2167,8 +2250,10 @@ function editStartVals(id,tab){
    fill; the button that saves is named after the step and runs it. */
 function scGoCreate(id,action){
   var tab=CREATE_TAB[action];if(!tab)return;
+  /* the start values read the Logs step first - an IMR opened from an ASN's card starts on that ASN */
+  var vals=createStartVals(id,action);
   state.page='deals';state.orderOpen=false;state.dealOpen=true;state.dealSel=id;state.dealTab=tab;state.logAdd=null;
-  state.edit={id:id,tab:tab,vals:createStartVals(id,action),dirty:false,create:action};
+  state.edit={id:id,tab:tab,vals:vals,dirty:false,create:action};
   scRender();
 }
 function canCreate(id,action){return rowAvailable(id).indexOf(action)>=0;}
@@ -2179,17 +2264,23 @@ function createStartVals(id,action){
     Object.keys(SHIP_DEFAULTS).forEach(function(k){v[k]=SHIP_DEFAULTS[k];});
     v.ret=isoOf(SHIP_DEFAULTS.ret);v.lrDate=isoOf(SHIP_DEFAULTS.lrDate);
   }else if(action==='Create ASN'){
-    var open=live?openASNQty():d.item.qty;
+    var open=live?openASNQty():(ensureRx(d)?rxOpen(d):d.item.qty);
     v={qty:String(live?Math.min(6,open):open),inv:'INV-'+(8891+x.asns.length),date:isoOf(stamp().date),vehicle:SHIP_DEFAULTS.vehicle};
   }else if(action==='Create IMR'){
-    var el=imrEligible(id);
-    v={asn:el.length?el[0].no:'',qty:el.length?String(el[0].avail):'',date:isoOf(stamp().date)};
+    var el=imrEligible(id),la=state.logAdd,m=la&&la.action==='Create IMR'&&/^asn:(\d+)$/.exec(la.target||'');
+    var sdr=id===LIVE_ID?null:sampleDeal(id);
+    var pref=!m?'':id===LIVE_ID?(state.asns[+m[1]]?state.asns[+m[1]].no:''):(sdr&&sdr.rx?rxNo(sdr,'asn',+m[1]):'');
+    var pick=el.filter(function(z){return z.no===pref;})[0]||el[0];
+    v={asn:pick?pick.no:'',qty:pick?String(pick.avail):'',date:isoOf(stamp().date)};
   }
   return v;
 }
 /* ASNs an IMR can be raised against, with what is still available on each */
 function imrEligible(id){
   if(id===LIVE_ID)return eligibleASNs().map(function(a){return {no:a.no,avail:availableForIMR(a.index),index:a.index};});
+  var sd=sampleDeal(id);
+  if(sd&&ensureRx(sd))return sd.rx.asns.map(function(a,i){return {no:rxNo(sd,'asn',i),avail:rxAvail(sd,i),index:i,ok:a.qc==='QC Cleared'&&a.gateIn};})
+    .filter(function(a){return a.ok&&a.avail>0;});
   var x=dealDocs(id);var last=x.asns[x.asns.length-1];
   return last?[{no:last.no,avail:last.qty,index:x.asns.length-1}]:[];
 }
@@ -2229,7 +2320,8 @@ function scCreateFromTab(e){
     if(!v.dna||!v.ret){scToast('Delivery Note Approver and Expected Return are required','error');return;}
   }else if(action==='Create ASN'){
     var q=parseInt(v.qty,10);
-    if(live&&(!(q>0)||q>openASNQty())){scToast('Advised Qty cannot exceed the Open ASN Qty','error');return;}
+    var sdq=live?null:sampleDeal(id),openQ=live?openASNQty():(sdq&&ensureRx(sdq)?rxOpen(sdq):Infinity);
+    if(q>openQ){scToast('Advised Qty cannot exceed the Open ASN Qty','error');return;}
     if(!(q>0)){scToast('Enter the Advised Qty','error');return;}
   }else if(action==='Create IMR'){
     var el=imrEligible(id),a=el.filter(function(z){return z.no===v.asn;})[0],qi=parseInt(v.qty,10);
@@ -2245,7 +2337,7 @@ function scCreateFromTab(e){
 /* SAVED IN THE MIDDLE OF A LOG. When the form was opened from a held Logs
    card ("Click here to fill the details"), Save keeps the user on the tab and
    the tab then offers "Click here to complete the log" (logReturnHTML). That
-   link goes back to the card, which confirms the save for 1.8 seconds and
+   link goes back to the card, which confirms the save for 1.2 seconds and
    then lets the step be logged. A save from the tab's own Edit, outside that
    flow, shows no link. */
 var scSavedTimer=null;
@@ -2274,7 +2366,7 @@ function scLogComplete(){
     var el=document.querySelector('.sc-logadd-saved');
     if(el)el.classList.add('is-leaving');
     scSavedTimer=setTimeout(function(){scLogSaved(la);},260);
-  },1540);   // + .26s fade-out = 1.8s
+  },940);   // + .26s fade-out = 1.2s
 }
 function scLogSaved(la){
   if(state.logAdd!==la)return;
@@ -2299,7 +2391,12 @@ function runCreate(id,action,comment){
     }else advanceSample(d,'Create Shipment',comment||'Shipment created.');
   }else if(action==='Create ASN'){
     var q=parseInt(v.qty,10);
-    if(live){
+    if(!live&&ensureRx(d)){
+      d.rx.asns.push({qty:q,qc:'Created',gateIn:false});
+      var an=rxNo(d,'asn',d.rx.asns.length-1);
+      rxLog(d,'ASN Created',an+' — Advised Qty '+q+note);rxSync(d);
+      scToast(an+' created','success','Advised Qty '+q+'. Pending QC clearance.');
+    }else if(live){
       var no='ASN-'+String(state.asns.length+1).padStart(3,'0');
       state.asns.push({no:no,qty:q,qc:'Created',gateIn:false});
       addDealLog('ASN Created',no+' — Advised Qty '+q+note);
@@ -2307,7 +2404,13 @@ function runCreate(id,action,comment){
     }else{advanceSample(d,'Create ASN','Advised Qty '+q+note);ed.asnQty[d.asns-1]=q;}
   }else if(action==='Create IMR'){
     var qi=parseInt(v.qty,10);
-    if(live){
+    if(!live&&ensureRx(d)){
+      var ai=Math.max(0,+String(v.asn).split('-').pop()-1);
+      d.rx.imrs.push({asn:ai,qty:qi,status:'Created'});
+      var inn=rxNo(d,'imr',d.rx.imrs.length-1);
+      rxLog(d,'IMR Created',inn+' against '+v.asn+' — Qty '+qi+note);rxSync(d);
+      scToast(inn+' created','success','Receipt Qty '+qi+' against '+v.asn+'.');
+    }else if(live){
       var imrNo='IMR-'+String(state.imrs.length+1).padStart(3,'0');
       state.imrs.push({no:imrNo,asnNo:v.asn,qty:qi,status:'Created'});
       addDealLog('IMR Created',imrNo+' against '+v.asn+' — Qty '+qi+note);
@@ -2760,6 +2863,7 @@ function scStartLog(id,action,extra){
 /* a sample deal's step - a create step builds its document from what was saved */
 function sampleAct(d,action,comment){
   if(CREATE_TAB[action]){runCreate(d.id,action,comment);return;}
+  if(d.rx&&RX_OWNER[action]){rxAct(d,action,comment);return;}
   advanceSample(d,action,comment);
 }
 /* LOGS STATUS CARDS - the panel's empty-state pattern (.sc-empty: icon box,
@@ -2805,18 +2909,23 @@ function logsTableHTML(o){
   var la=state.logAdd,adding=la&&la.key===o.key&&(o.opts.indexOf(la.action)>=0||la.action==='Move Back'||la.action==='Go to Step')?la.action:'';
   /* the chosen action stays marked on the bar while its form is open below:
      it turns solid and the others step back to outline */
-  var btns=o.opts.map(function(a){
+  var rc=o.receipts?o.receipts():null;
+  var barOpts=rc?o.opts.filter(function(a){return ASN_ACTS.indexOf(a)<0;}):o.opts;
+  var btns=barOpts.map(function(a){
     var back=/^(Return|Reject)/.test(a),on=a===adding;
     var cls=on?'btn-primary is-active':adding?'btn-outline':(back?'btn-outline':'btn-primary');
     return '<button class="'+cls+' btn-sm sc-quick-btn" type="button" aria-pressed="'+on+'"'
       +' onclick="scLogQuick(\''+o.key+'\',\''+o.dealId+'\',\''+a.replace(/'/g,"\\'")+'\')">'+esc(actLabel(a))+'</button>';
   }).join('');
   var logs=vendorView(o.logs).slice().reverse();
-  var card=logStateCard(o);
+  /* beside the ASN cards a waiting step reads as the compact bar - who has it, and the switch - not the large card */
+  var compactWait=!!(rc&&o.state==='waiting'&&!o.opts.length);
+  var card=compactWait?'':logStateCard(o);
+  if(compactWait&&state.role!=='Super Admin'&&o.nextBtn)btns='<span class="sc-logs-switch">'+o.nextBtn+'</span>';
   var head=card||'<div class="sc-logs-bar"><div class="sc-logs-cur">'
       +'<div class="sc-logs-eyebrow">Current status</div>'
       +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(o.current)+'</div>'
-      +'<p class="lp-logs-form-sub">'+o.sub+'</p>'+(o.note&&!o.opts.length?'<div class="sc-logs-note">'+o.note+'</div>':'')+'</div>'
+      +'<p class="lp-logs-form-sub sc-logs-who">'+ICO.user+'<span>'+o.sub+'</span></p>'+(o.note&&!o.opts.length?'<div class="sc-logs-note">'+o.note+'</div>':'')+'</div>'
     +(btns?'<div class="sc-quick-actions">'+btns+'</div>':'')
     +'</div>';
   /* THE ACTION PANEL. Picking an action keeps the status bar - that action
@@ -2832,7 +2941,7 @@ function logsTableHTML(o){
        shows the form held: "Click here to fill the details" into that tab's
        form, and the comment, Cancel and Submit disabled. */
     var need=!mb&&isFormStep(o.dealId,adding);
-    /* JUST SAVED. Back from the form, the card confirms the save for 1.8
+    /* JUST SAVED. Back from the form, the card confirms the save for 1.2
        seconds - a green check, "Details have been updated" - still held, then
        turns live so the step can be logged (scLogSaved). */
     var done=!mb&&!need&&!!la.saved,held=need||done,dis=held?' disabled':'';
@@ -2854,10 +2963,9 @@ function logsTableHTML(o){
         +'</div></div>'
       +'<div class="sc-logadd-foot"><span class="sc-logadd-hint">'+(held?'':'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit')+'</span>'
         +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scLogCancel()"'+dis+'>Cancel</button>'
-        +(mb?'<button class="btn-primary" onclick="'+go+'">'+(jump?'Go to Step':'Move Back')+'</button>'
-            :need?'<button class="btn-primary" disabled>Submit</button>'
-            :done?'<button class="btn-primary" disabled>'+esc(actLabel(adding))+'</button>'
-            :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">'+esc(actLabel(adding))+'</button>')
+        /* the step is already named on its active button; the form just submits */
+        +(held?'<button class="btn-primary" disabled>Submit</button>'
+            :'<button class="'+(/^Reject/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="'+go+'">Submit</button>')
       +'</div></div></div>';
   }
   var sa=state.role==='Super Admin'&&o.key.indexOf('deal:')===0,mbTargets=sa?moveBackTargets(o.dealId):[];
@@ -2875,30 +2983,150 @@ function logsTableHTML(o){
         +'</tr>';
     }).join('')):'<div class="lp-logs-empty">No activity logs yet.</div>';
   /* the bar and an open form are one panel; a status card stays on its own */
-  var top=adding
+  /* an ASN / IMR step opens its form on that record's card instead */
+  var inCard=!!(rc&&adding&&ASN_ACTS.indexOf(adding)>=0);
+  /* during the ASN / IMR stage the ASN cards are the status - the bar stands down,
+     unless it carries a deal-level step of its own or that step's form is open */
+  var noBar=!!(rc&&rc.phase&&!barOpts.length&&!(adding&&!inCard));
+  var top=adding&&!inCard
     ?(card?card:'')+'<div class="sc-act-panel'+(anim?' is-opening':'')+'">'+(card?'':head)+form+'</div>'
-    :head;
+    :noBar?'':head;
+  top+=rc?receiptsHTML(o,rc,inCard?form:'',inCard?la:null,anim):'';
   var count=logs.length?'<span class="sc-act-count">'+logs.length+(logs.length===1?' entry':' entries')+'</span>':'';
   return '<div class="sc-logs">'+top
     +'<div class="sc-act-log">'+secHead('Activity Log',count)+table+'</div></div>';
 }
-function scLogQuick(key,id,action){
+function scLogQuick(key,id,action,target){
   if(editBlocksLog())return;
   /* the active action again closes its form */
   var la=state.logAdd;
-  if(la&&la.key===key&&la.action===action){scLogCancel();return;}
+  if(la&&la.key===key&&la.action===action&&(la.target||'')===(target||'')){scLogCancel();return;}
   /* a create step without saved details opens held (see logsTableHTML) */
-  state.logAdd={key:key,action:action,dealId:id,anim:true};scRefreshPanel();
+  state.logAdd={key:key,action:action,dealId:id,anim:true,target:target||''};scRefreshPanel();
   /* straight into the box: the reason when one is needed, else the comment */
   setTimeout(function(){
     var f=document.querySelector('.sc-logadd .sc-reason-field .cs-trigger')||document.querySelector('.sc-logadd textarea');
     if(f&&f.offsetParent!==null)f.focus();
   },0);
 }
+/* ══ ASNs & RECEIPTS ═══════════════════════════════════════════════════════
+   From Shipment Confirmed to closure a deal can carry several ASNs, each with
+   its own QC, gate inward and IMRs. The Logs tab gives every ASN its own card
+   - its number, advised quantity, QC and gate status, its IMRs - with only
+   the steps that ASN is ready for, for this role (Clear / Return ASN, Confirm
+   Gate Inward, Create IMR, Confirm IMR). The step's form opens on that card.
+   A "Create ASN" card follows while quantity is still open. Deal-level steps
+   - Complete Reconciliation, Short Close, Confirm Full Receipt, Close
+   Transaction - stay single buttons on the status bar. */
+var ASN_ACTS=['Create ASN','Clear ASN','Return ASN','Confirm Gate Inward','Create IMR','Confirm IMR'];
+function liveReceipts(){
+  /* from Shipment Confirmed until the receipt is settled (full receipt, short close, closure) */
+  if(!state.shipmentConfirmed||state.fullReceipt||state.shortClosed||state.closed)return null;
+  var ok=validDealActions(),has=function(a){return ok.indexOf(a)>=0;};
+  var items=state.asns.map(function(a,i){
+    var acts=[];
+    if(a.qc==='Created'){if(has('Clear ASN'))acts.push('Clear ASN');if(has('Return ASN'))acts.push('Return ASN');}
+    if(a.qc==='QC Cleared'&&!a.gateIn&&has('Confirm Gate Inward'))acts.push('Confirm Gate Inward');
+    if(a.qc==='QC Cleared'&&a.gateIn&&availableForIMR(i)>0&&has('Create IMR'))acts.push('Create IMR');
+    var imrs=[];
+    state.imrs.forEach(function(m,k){
+      if(m.asnNo!==a.no)return;
+      imrs.push({key:'imr:'+k,no:m.no,qty:m.qty,status:m.status,acts:m.status==='Created'&&has('Confirm IMR')?['Confirm IMR']:[]});
+    });
+    return {key:'asn:'+i,no:a.no,qty:a.qty,qc:a.qc,gateIn:a.gateIn,acts:acts,imrs:imrs};
+  });
+  /* receipt work still open on an ASN or IMR - while it is, the cards stand in for the status bar */
+  var busy=state.asns.some(function(a){return a.qc==='Created'||(a.qc==='QC Cleared'&&!a.gateIn);})
+    ||state.imrs.some(function(m){return m.status==='Created';})||eligibleASNs().length>0;
+  return {items:items,phase:busy,add:has('Create ASN'),more:openASNQty()>0&&!state.reconciled&&!state.shortClosed&&!state.closed,open:openASNQty(),uom:dealDocs(LIVE_ID).uom,
+    advised:cumulativeAdvised(),expected:EXPECTED_QTY,received:confirmedReceived()};
+}
+/* a sample moves one step at a time, so its step sits on its latest record */
+function sampleReceipts(d){
+  if(!stagePassed(d,'outbound')||d.stage==='closed'||(d.stage==='closure'&&d.sub==='close'))return null;
+  if(ensureRx(d)||d.rx){
+    var ok=rowAvailable(d.id),can=function(a){return ok.indexOf(a)>=0;},r=d.rx,uom=d.item.uom;
+    var items=r.asns.map(function(a,i){
+      var acts=[];
+      if(a.qc==='Created'){if(can('Clear ASN'))acts.push('Clear ASN');if(can('Return ASN'))acts.push('Return ASN');}
+      if(a.qc==='QC Cleared'&&!a.gateIn&&can('Confirm Gate Inward'))acts.push('Confirm Gate Inward');
+      if(a.qc==='QC Cleared'&&a.gateIn&&rxAvail(d,i)>0&&can('Create IMR'))acts.push('Create IMR');
+      var imrs=[];
+      r.imrs.forEach(function(m,k){if(m.asn!==i)return;
+        imrs.push({key:'imr:'+k,no:rxNo(d,'imr',k),qty:m.qty,status:m.status,acts:m.status==='Created'&&can('Confirm IMR')?['Confirm IMR']:[]});});
+      return {key:'asn:'+i,no:rxNo(d,'asn',i),qty:a.qty,qc:a.qc,gateIn:a.gateIn,acts:acts,imrs:imrs};
+    });
+    var open=rxOpen(d);
+    var busy=r.asns.some(function(a,i){return a.qc==='Created'||(a.qc==='QC Cleared'&&(!a.gateIn||rxAvail(d,i)>0));})
+      ||r.imrs.some(function(m){return m.status==='Created';});
+    return {items:items,phase:busy,add:can('Create ASN'),more:open>0&&rxPhase(d),open:open,uom:uom,advised:d.item.qty-open,expected:d.item.qty,received:d.received||0};
+  }
+  var x=dealDocs(d.id),ok=rowAvailable(d.id),has=function(a){return ok.indexOf(a)>=0;};
+  var items=x.asns.map(function(a,i){
+    return {key:'asn:'+i,no:a.no,qty:a.qty,qc:a.qc,gateIn:a.gateIn,acts:[],
+      imrs:x.imrs.map(function(m,k){return {key:'imr:'+k,no:m.no,asnNo:m.asnNo,qty:m.qty,status:m.status,acts:[]};})
+        .filter(function(m){return m.asnNo===a.no;})};
+  });
+  var last=function(f){for(var i=items.length-1;i>=0;i--)if(f(items[i]))return items[i];return null;};
+  var t=last(function(a){return a.qc==='Created';});
+  if(t){if(has('Clear ASN'))t.acts.push('Clear ASN');if(has('Return ASN'))t.acts.push('Return ASN');}
+  t=last(function(a){return a.qc==='QC Cleared'&&!a.gateIn;});if(t&&has('Confirm Gate Inward'))t.acts.push('Confirm Gate Inward');
+  t=last(function(){return true;});if(t&&has('Create IMR'))t.acts.push('Create IMR');
+  if(has('Confirm IMR'))items.forEach(function(a){a.imrs.forEach(function(m){if(m.status==='Created')m.acts.push('Confirm IMR');});});
+  var advised=x.asns.reduce(function(s,a){return s+(+a.qty||0);},0);
+  var received=x.imrs.filter(function(m){return m.status==='Confirmed';}).reduce(function(s,m){return s+(+m.qty||0);},0);
+  return {items:items,add:has('Create ASN'),open:Math.max(0,d.item.qty-advised),uom:x.uom,
+    advised:Math.min(advised,d.item.qty),expected:d.item.qty,received:Math.min(received,d.item.qty)};
+}
+function receiptsHTML(o,rc,form,la,anim){
+  /* which record the open form belongs to: the one it was opened on, else
+     the first that offers the step (a step started from the listing) */
+  var at='';
+  if(la){
+    var all=[];rc.items.forEach(function(a){all.push(a);a.imrs.forEach(function(m){all.push(m);});});
+    var hit=all.filter(function(r){return r.key===la.target&&r.acts.indexOf(la.action)>=0;})[0]
+      ||all.filter(function(r){return r.acts.indexOf(la.action)>=0;})[0];
+    at=la.action==='Create ASN'?'new':hit?hit.key:'';
+  }
+  var btn=function(a,target){
+    var on=la&&la.action===a&&at===target,back=/^Return/.test(a);
+    return '<button class="'+(on?'btn-primary is-active':back||la?'btn-outline':'btn-primary')+' btn-sm sc-quick-btn" type="button"'
+      +' onclick="scLogQuick(\''+o.key+'\',\''+o.dealId+'\',\''+a+'\',\''+target+'\')">'+esc(a)+'</button>';
+  };
+  var formHere=function(key){return form&&at===key?'<div class="sc-asn-form'+(anim?' is-opening':'')+'">'+form+'</div>':'';};
+  var qcBadge=function(q){return badge(q==='QC Cleared'?'approved':q==='Returned'?'unapproved':'pending',q==='Created'?'QC Pending':q);};
+  var cards=rc.items.map(function(a){
+    var imrs=a.imrs.map(function(m){
+      return '<div class="sc-asn-imr"><span class="sc-asn-imr-no">'+esc(m.no)+'</span>'
+        +'<span class="sc-asn-meta">Receipt '+esc(m.qty)+' '+esc(rc.uom)+'</span>'
+        +badge(m.status==='Confirmed'?'approved':'created',m.status)
+        +(m.acts.length?'<span class="sc-asn-acts">'+m.acts.map(function(x){return btn(x,m.key);}).join('')+'</span>':'')
+        +'</div>'+formHere(m.key);
+    }).join('');
+    return '<div class="sc-asn-card'+(at===a.key||a.imrs.some(function(m){return m.key===at;})?' is-active':'')+(a.qc==='Returned'?' is-returned':'')+'">'
+      +'<div class="sc-asn-head"><div class="sc-asn-id"><span class="sc-asn-no">'+esc(a.no)+'</span>'
+        +'<span class="sc-asn-meta">Advised '+esc(a.qty)+' '+esc(rc.uom)+'</span></div>'
+        +'<div class="sc-asn-chips">'+qcBadge(a.qc)
+          +(a.qc==='QC Cleared'?badge(a.gateIn?'approved':'pending',a.gateIn?'Gate Inward Done':'Gate Inward Pending'):'')+'</div>'
+        +(a.acts.length?'<div class="sc-asn-acts">'+a.acts.map(function(x){return btn(x,a.key);}).join('')+'</div>':'')+'</div>'
+      +formHere(a.key)
+      +(imrs?'<div class="sc-asn-imrs">'+imrs+'</div>':'')
+    +'</div>';
+  }).join('');
+  /* while quantity is open every role sees the next ASN is due; only the vendor (or Super Admin) raises it */
+  var add=rc.add||rc.more?'<div class="sc-asn-card sc-asn-new'+(at==='new'?' is-active':'')+'">'
+      +'<div class="sc-asn-head"><div class="sc-asn-id"><span class="sc-asn-no">New ASN</span>'
+        +'<span class="sc-asn-meta">Open quantity '+esc(rc.open)+' '+esc(rc.uom)+'</span></div>'
+        +'<div class="sc-asn-acts">'+(rc.add?btn('Create ASN','new'):'<span class="sc-asn-hint">The vendor raises the next ASN</span>')+'</div></div>'+formHere('new')+'</div>':'';
+  var sum='<span class="sc-act-count">Advised '+rc.advised+' / '+rc.expected+' · Received '+rc.received+' · Open '+rc.open+' '+esc(rc.uom)+'</span>';
+  return '<div class="sc-asn-sec">'+secHead('ASNs & Receipts',sum)
+    +(cards||add?cards+add:'<div class="lp-logs-empty">No ASN raised yet.</div>')+'</div>';
+}
 function scLogQuickSubmit(formId,submit){
   if(!state.logAdd)return;
   csValues[formId+'-status']=state.logAdd.action;
-  window[submit]();
+  curTarget=state.logAdd.target||null;
+  try{window[submit]();}finally{curTarget=null;}
 }
 function scLogCancel(){state.logAdd=null;scRefreshPanel();}
 /* Opening or closing the Logs card changes nothing but the panel, so only
@@ -2989,6 +3217,7 @@ function moveDealTo(id,target,comment,verb){
     return;
   }
   var d=sampleDeal(id);if(!d)return;
+  if(d.rx){delete d.rx;d.extra=(d.extra||[]).filter(function(l){return !l.rxFrozen;});}
   var before=sampleMilestones(d),i=SAMPLE_DEALS.indexOf(d);
   /* the sample's stage model, as it stood right after step k */
   var ST=[
@@ -3024,9 +3253,9 @@ function moveDealTo(id,target,comment,verb){
 }
 function dealLogsHTML(){
   var opts=validDealActions(),last=state.dealLogs[0],who=pendingWith(),next=liveNext();
-  return logsTabHTML({key:'deal:'+LIVE_ID,dealId:LIVE_ID,id:'sc-deal',logs:state.dealLogs,opts:opts,submit:'scSubmitDealLog',
+  return logsTabHTML({key:'deal:'+LIVE_ID,dealId:LIVE_ID,id:'sc-deal',logs:state.dealLogs,opts:opts,submit:'scSubmitDealLog',receipts:liveReceipts,
     current:last?last.status:scrLabel(),
-    sub:who&&who!=='—'?'Next action is pending with <b>'+esc(who)+'</b>.':'No further actions on this deal.',
+    sub:who&&who!=='—'?'Pending with <b>'+esc(who)+'</b>':'No further actions on this deal',
     note:opts.length?'':dealHandoff(),
     state:state.closed?'completed':next?'waiting':'',next:next,endLog:lastLogOf(state.dealLogs,'Transaction Closed'),
     nextBtn:next?(/ PO$/.test(next.action)?openPOBtn(LIVE_PO):handoffBtn(roleKey(next.role))):''});
@@ -3207,7 +3436,7 @@ function orderLogsHTML(){
   var next=state.po==='draft'?{action:'Generate PO',role:'Buyer'}:state.po==='created'?{action:'Approve PO',role:'PO Approver'}:null;
   var done=state.po==='approved'||state.po==='closed';
   return logsTabHTML({key:'po:'+LIVE_PO,dealId:LIVE_ID,id:'sc-po',logs:state.poLogs,opts:opts,submit:'scSubmitOrderLog',
-    current:'PO '+poLabel(),sub:'Actions on this Purchase Order.',note:opts.length?'':orderHandoff(),
+    current:'PO '+poLabel(),sub:next?'Pending with <b>'+esc(next.role)+'</b>':'No further actions on this Purchase Order',note:opts.length?'':orderHandoff(),
     state:done?'completed':next?'waiting':'',next:next,nextBtn:next?handoffBtn(next.role):'',
     endLog:lastLogOf(state.poLogs,'PO Approved'),doneTitle:'PO '+poLabel(),doneVerb:'Approved',
     doneSub:'Nothing further is pending on this Purchase Order.'});
@@ -3323,7 +3552,8 @@ function sampleLogsHTML(d){
   var opts=rowAvailable(d.id);
   var poStep=next&&d.po&&PO_ACTIONS.indexOf(next.action)>=0;
   return logsTabHTML({key:'deal:'+d.id,dealId:d.id,id:'sc-sample',logs:logs,opts:opts,submit:'scSubmitSampleLog',current:all[0].status,
-    sub:next?'Next action is pending with <b>'+esc(next.role)+'</b>.':'The transaction is closed. No further actions.',
+    receipts:function(){return sampleReceipts(d);},
+    sub:next?'Pending with <b>'+esc(next.role)+'</b>':'The transaction is closed',
     note:!opts.length&&poStep?poHandoffHTML(next,d.po.no):'',
     state:d.rejected?'rejected':d.stage==='closed'?'completed':next?'waiting':'',next:next,
     endLog:d.rejected?lastLogOf(logs,'SCR Rejected'):lastLogOf(logs,'Transaction Closed'),
@@ -3398,7 +3628,7 @@ function sampleOrderPanelHTML(d){
        step, Super Admin on any - so the PO's own Logs can move it on */
     var popts=rowAvailable(d.id).filter(function(a){return PO_ACTIONS.indexOf(a)>=0;});
     body=logsTabHTML({key:'po:'+d.po.no,dealId:d.id,id:'sc-sample-po',logs:plogs,opts:popts,submit:'scSubmitSamplePOLog',
-      current:'PO '+d.po.status,sub:pnext?'Next action is pending with <b>'+esc(pnext.role)+'</b>.':'Purchase Order '+esc(d.po.no)+'.',
+      current:'PO '+d.po.status,sub:pnext?'Pending with <b>'+esc(pnext.role)+'</b>':'No further actions on this Purchase Order',
       state:pnext?'waiting':'completed',next:pnext,nextBtn:pnext?handoffBtn(pnext.role):'',
       endLog:lastLogOf(plogs,'PO Approved'),doneTitle:'PO '+d.po.status,doneVerb:'Approved',
       doneSub:'Nothing further is pending on this Purchase Order.'});
@@ -3434,6 +3664,14 @@ function addDealLog(status,comment){state.dealLogs.unshift(logEntry(status,comme
 function addPOLog(status,comment){state.poLogs.unshift(logEntry(status,comment));}
 
 /* ══ ACTIONS WITHOUT A FORM ═══════════════════════════════════════════════  */
+/* The ASN or IMR a step was taken on ('asn:2', 'imr:0'), set for the length
+   of one submit; without one, the first record that is ready. */
+var curTarget=null;
+function targetIndex(kind,ready){
+  var list=kind==='asn'?state.asns:state.imrs,m=/^(asn|imr):(\d+)$/.exec(curTarget||'');
+  if(m&&m[1]===kind&&list[+m[2]]&&ready(list[+m[2]]))return +m[2];
+  return list.findIndex(ready);
+}
 function executeDealAction(action,comment){
   if(CREATE_TAB[action]){runCreate(LIVE_ID,action,comment);return;}
   if(action==='Submit SCR'){
@@ -3477,19 +3715,19 @@ function executeDealAction(action,comment){
     scToast('Shipment confirmed','success','Material Position is now At Vendor.');
   }
   else if(action==='Clear ASN'){
-    var i=state.asns.findIndex(function(a){return a.qc==='Created';});
+    var i=targetIndex('asn',function(a){return a.qc==='Created';});
     if(i>=0){state.asns[i].qc='QC Cleared';addDealLog('ASN QC Cleared',comment+' — '+state.asns[i].no);scToast(state.asns[i].no+' cleared by QC');}
   }
   else if(action==='Return ASN'){
-    var j=state.asns.findIndex(function(a){return a.qc==='Created';});
-    if(j>=0){addDealLog('ASN Returned',comment+' — '+state.asns[j].no);scToast(state.asns[j].no+' returned to vendor','info');}
+    var j=targetIndex('asn',function(a){return a.qc==='Created';});
+    if(j>=0){state.asns[j].qc='Returned';addDealLog('ASN Returned',comment+' — '+state.asns[j].no);scToast(state.asns[j].no+' returned to vendor','info');}
   }
   else if(action==='Confirm Gate Inward'){
-    var k=state.asns.findIndex(function(a){return a.qc==='QC Cleared'&&!a.gateIn;});
+    var k=targetIndex('asn',function(a){return a.qc==='QC Cleared'&&!a.gateIn;});
     if(k>=0){state.asns[k].gateIn=true;addDealLog('Gate Inward Confirmed',comment+' — '+state.asns[k].no);scToast('Gate inward confirmed for '+state.asns[k].no);}
   }
   else if(action==='Confirm IMR'){
-    var m=state.imrs.findIndex(function(x){return x.status==='Created';});
+    var m=targetIndex('imr',function(x){return x.status==='Created';});
     if(m>=0){state.imrs[m].status='Confirmed';addDealLog('IMR Confirmed',comment+' — '+state.imrs[m].no);scToast(state.imrs[m].no+' confirmed');}
   }
   else if(action==='Short Close'){
@@ -3524,6 +3762,11 @@ function rowAvailable(id){
     return list.filter(function(a){return ok.indexOf(a)>=0;});
   }
   var d=sampleDeal(id),n=d&&sampleNextOf(d);
+  /* receipts: whatever the records are ready for, for the role that owns it */
+  if(d&&rxPhase(d)&&ensureRx(d)){
+    var ra=rxActions(d).filter(function(a){return state.role==='Super Admin'||RX_OWNER[a]===state.role;});
+    return list.filter(function(a){return ra.indexOf(a)>=0;});
+  }
   if(!n||!(SAMPLE_STEP[n.action]||n.action==='Submit SCR'))return [];
   if(state.role!=='Super Admin'&&roleKey(n.role)!==state.role)return [];
   var here=[n.action].concat(SAMPLE_ALT[n.action]||[]);
@@ -3648,7 +3891,7 @@ var scSeq=0;   // orders entries recorded within the same second
 var SAMPLE_ALT={
   'Approve SCR':['Return SCR','Reject SCR'],'Approve PO':['Return PO'],
   'Goods Release & Issue':['Return Shipment'],'Approve Delivery Note':['Return Delivery Note'],
-  'Confirm Gate Outward':['Return Gate Outward']
+  'Confirm Gate Outward':['Return Gate Outward'],'Clear ASN':['Return ASN']
 };
 function advanceSample(d,action,comment){
   if(!d)return;
@@ -3924,7 +4167,7 @@ var ICO_EDIT='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke
    ask for a mandatory Reason field of their own - the comment stays optional.
    The reason travels on the log entry (logEntry reads curReason, set for the
    length of the one action) and shows as its own line in Logs and Workflow. */
-var RETURN_ACTIONS=['Return SCR','Return PO','Return Shipment','Return Delivery Note','Return Gate Outward','Move Back','Short Close','Go to Step'];
+var RETURN_ACTIONS=['Return SCR','Return PO','Return Shipment','Return Delivery Note','Return Gate Outward','Return ASN','Move Back','Short Close','Go to Step'];
 var curReason='';
 function needsReason(action){return RETURN_ACTIONS.indexOf(action)>=0;}
 function reasonMissing(action,reason){
@@ -3939,6 +4182,7 @@ var RETURN_REASONS={
   'Return Shipment':['Material not available in stock','Wrong issue material','Packaging not as specified','Quantity mismatch'],
   'Return Delivery Note':['Quantities do not match Transfer Order','Wrong consignee details','Missing transport details'],
   'Return Gate Outward':['Vehicle details mismatch','Challan copy missing','Material count mismatch at gate'],
+  'Return ASN':['Quantity mismatch','Damaged material','Quality not as specified','Wrong documents'],
   'Move Back':['Entered in error','Wrong document generated','Details need correction','Requested by the user'],
   'Go to Step':['Steps completed outside the system','Data correction','Entered in error','Requested by the user'],
   'Short Close':['Vendor cannot supply the balance','Requirement cancelled','Quality issues with the balance']

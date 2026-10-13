@@ -683,3 +683,40 @@ body:has(#sc-modal-root .ct-modal-overlay) .page-content{overflow:hidden}
 .lp-table .sc-c-title,.lp-table .sc-c-vendor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important}
 .lp-table .sc-c-title{max-width:190px}
 .lp-table .sc-c-vendor{max-width:210px}
+/* ASNs & RECEIPTS (receiptsHTML) - one card per ASN on the Logs tab: number,
+   advised quantity, QC / gate status and its steps on the head row; its IMRs
+   as rows beneath; a step's form opens inside the card. A dashed card offers
+   the next ASN while quantity is open. */
+.sc-asn-sec{margin-bottom:20px}
+.sc-asn-card{margin-bottom:10px;border:1px solid var(--border);border-radius:12px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.sc-asn-card.is-active{border-color:#cbd5e1;box-shadow:0 4px 16px rgba(15,23,42,.06)}
+.sc-asn-card.is-returned{background:#fafbfc}
+.sc-asn-card.is-returned .sc-asn-no{color:var(--gray);text-decoration:line-through}
+.sc-asn-new{border-style:dashed;background:#fafbfc}
+.sc-asn-new.is-active{border-style:solid;background:#fff}
+.sc-asn-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 14px}
+.sc-asn-id{display:flex;flex-direction:column;gap:2px;min-width:140px}
+.sc-asn-no{font-size:13.5px;font-weight:700;color:var(--navy)}
+.sc-asn-meta{font-size:12px;color:var(--gray)}
+.sc-asn-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1}
+.sc-asn-acts{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.sc-asn-acts .sc-quick-btn{height:32px;padding:0 14px}
+.sc-asn-imrs{border-top:1px solid #f1f3f5;padding:4px 14px 6px 28px}
+.sc-asn-imr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed #eef0f3}
+.sc-asn-imr:last-child{border-bottom:0}
+.sc-asn-imr-no{font-size:12.5px;font-weight:600;color:var(--navy);min-width:110px}
+/* the form inside a card: the composer, flat */
+.sc-asn-form{border-top:1px solid var(--border)}
+.sc-asn-form>.sc-logadd{margin:0;border:0;border-radius:0 0 12px 12px;box-shadow:none}
+.sc-asn-imrs .sc-asn-form{margin:0 -14px 0 -28px}
+.sc-asn-form.is-opening>.sc-logadd{animation:sc-form-open .2s ease-out backwards}
+@media (prefers-reduced-motion:reduce){.sc-asn-form.is-opening>.sc-logadd{animation:none}}
+.sc-asn-hint{font-size:12px;color:var(--gray);font-style:italic}
+/* STATUS BAR, tidied: label, status, and one short "Pending with" line. */
+.sc-logs-bar{min-height:76px;padding:14px 18px}
+.sc-logs-bar .sc-logs-eyebrow{margin-bottom:5px}
+.sc-logs-bar .lp-logs-form-header{margin:0 0 4px}
+.sc-logs-who{display:flex;align-items:center;gap:6px}
+.sc-logs-who svg{width:13px;height:13px;flex-shrink:0;color:#9ca3af}
+.sc-logs-who b{color:var(--navy);font-weight:600}
+.sc-logs-switch .btn-sm{margin-top:0!important}
