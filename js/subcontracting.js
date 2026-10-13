@@ -940,9 +940,18 @@ function scRender(){
 /* Status changes are recorded before anything is drawn, so a History tab that
    is open shows the step that was just taken. */
 var scRenderView=scRender;
+/* A REPAINT IS NOT A PAGE LOAD. Logging a step, saving, switching role - the
+   page is redrawn to keep counts and statuses honest, but it is the same page,
+   so ADT's .m-quiet (motion.css) holds back the entrance animations that would
+   make it read as a reload. It is cleared only when the page itself changes,
+   before the new page is written - clearing it later would start them then. */
+var scLastPage=null;
 scRender=function(){
   if(state.edit&&!(state.edit.create?canCreate(state.edit.id,state.edit.create)
       :state.edit.id.indexOf('po:')===0?canEditPO(state.edit.id.slice(3)):canEditTab(state.edit.id,state.edit.tab)))state.edit=null;
+  var root=document.getElementById('adt-content');
+  if(root)root.classList.toggle('m-quiet',scLastPage===state.page);
+  scLastPage=state.page;
   trackHistory();scRenderView();
   if(!(state.page==='deals'&&state.dealOpen)&&!(state.page==='orders'&&state.orderOpen))state.expanded=false;
   applyExpanded();
@@ -2747,9 +2756,8 @@ function logsTableHTML(o){
           +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
       +'<div class="sc-logadd-body">'
         +(mb?'<p class="sc-mb-note">The deal returns to the state right after <b>'+esc(la.target)+'</b>. Later steps stay in the log as history, and the next role picks up from there.</p>':'')
-        +(need?'<div class="sc-logadd-need"><div class="sc-logadd-need-text"><span class="sc-logadd-need-ico">'+ICO.info+'</span>'
-            +'Complete the '+esc(FORM_DOC[adding]||'required')+' details to proceed with the next step.</div>'
-            +'<button class="btn-primary btn-sm" type="button" onclick="scLogFill()">'+esc(FILL_LABEL[adding]||adding)+'</button></div>':'')
+        +(need?'<button type="button" class="sc-logadd-need" title="Open the '+esc(FORM_DOC[adding]||'')+' form" onclick="scLogFill()">'
+            +'<span class="sc-logadd-need-ico">'+ICO.info+'</span><span class="sc-logadd-need-link">Click here to fill the details</span></button>':'')
         +'<div class="policy-form-grid">'
         +(need?'':reasonFieldHTML(o.id,adding))
         +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Comment</label>'
@@ -2783,7 +2791,7 @@ function logsTableHTML(o){
 function scLogQuick(key,id,action){
   if(editBlocksLog())return;
   /* a create step without saved details opens held (see logsTableHTML) */
-  state.logAdd={key:key,action:action,dealId:id};scRender();
+  state.logAdd={key:key,action:action,dealId:id};scRefreshPanel();
   /* straight into the box: the reason when one is needed, else the comment */
   setTimeout(function(){
     var f=document.querySelector('.sc-logadd .sc-reason-field .cs-trigger')||document.querySelector('.sc-logadd textarea');
@@ -2795,12 +2803,18 @@ function scLogQuickSubmit(formId,submit){
   csValues[formId+'-status']=state.logAdd.action;
   window[submit]();
 }
-function scLogCancel(){state.logAdd=null;scRender();}
-/* The held composer's way into the form. What each step asks to complete, and
-   what its button says. The open composer is kept, so after Save the Logs tab
-   shows it again - live this time - ready to log the step. */
+function scLogCancel(){state.logAdd=null;scRefreshPanel();}
+/* Opening or closing the Logs card changes nothing but the panel, so only
+   the panel's content is redrawn - the listing and the tab bar stay put. */
+function scRefreshPanel(){
+  if(state.page==='deals'&&state.dealOpen&&document.getElementById('sc-deal-isb'))refreshPanel('sc-deal-isb',dealPanelHTML());
+  else if(state.page==='orders'&&state.orderOpen&&document.getElementById('sc-order-isb'))refreshPanel('sc-order-isb',orderPanelHTML());
+  else scRender();
+}
+/* The held composer's way into the form: its "Click here to fill the details"
+   line opens the step's tab. The open composer is kept, so after Save the Logs
+   tab shows it again - live this time - ready to log the step. */
 var FORM_DOC={'Create Shipment':'shipment','Create ASN':'ASN','Create IMR':'IMR','Generate PO':'PO'};
-var FILL_LABEL={'Generate PO':'Complete PO Details'};
 function scLogFill(){
   var la=state.logAdd;if(!la||!la.dealId)return;
   scOpenActionModal(la.action,'',PO_ACTIONS.indexOf(la.action)>=0?'order':'deal',la.dealId);
@@ -2838,7 +2852,7 @@ function moveBackTargets(id){
 }
 function scMoveBackStart(key,id,target){
   if(state.role!=='Super Admin')return;
-  state.logAdd={key:key,action:'Move Back',target:target,dealId:id};scRender();
+  state.logAdd={key:key,action:'Move Back',target:target,dealId:id};scRefreshPanel();
 }
 function scMoveBackSubmit(formId){
   var la=state.logAdd;if(!la||la.action!=='Move Back')return;
