@@ -1083,7 +1083,7 @@ function scGo(page){
     (g.children||[]).forEach(function(c){if(c.group&&c.children.some(function(x){return x.id===page;}))openSubs[c.group]=true;});}});
   /* the listing panel's own state; Deals and Purchase Orders keep their behaviour */
   var glWasOpen=!!state.glOpen;
-  state.dealOpen=false;state.orderOpen=false;state.glOpen=null;state.glLogAdd=null;state.glEdit=null;
+  state.dealOpen=false;state.orderOpen=false;state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;
   if(glWasOpen&&state.expanded){state.expanded=false;applyExpanded();}
   /* Arriving from the rail is a fresh arrival at the page. Carrying a stage
      filter over from a dashboard card would leave the listing quietly scoped
@@ -1191,7 +1191,7 @@ function scRender(){
   buildRail();
   var el=document.getElementById('adt-content');
   el.innerHTML=state.page==='deals'?dealsPageHTML():state.page==='orders'?ordersPageHTML():state.page==='scr-form'?scrFormPageHTML()
-    :state.page==='teams'?teamsPageHTML():state.page==='templates'?templatesPageHTML():state.page==='billing'?billingPageHTML():state.page==='bulkupload'?bulkUploadHTML():state.page==='addnotice'?addNoticeHTML():state.page==='profile'?profileHTML():GL[state.page]?glPageHTML(state.page):dashboardHTML();
+    :state.page==='billing'?billingPageHTML():state.page==='bulkupload'?bulkUploadHTML():state.page==='addnotice'?addNoticeHTML():state.page==='profile'?profileHTML():GL[state.page]?glPageHTML(state.page):dashboardHTML();
   /* A panel that was already open stays open through a re-render — with the
      class applied in the same frame, so it does not replay the slide-in every
      time a log is saved. Opening it from a row click is the other path, and
@@ -5240,7 +5240,7 @@ function scSaveTemplate(){
   /* order each module's actions the way the module lists them */
   var perms={};tplModules(vertical).forEach(function(m){var a=d.perms[m[0]];if(a&&a.length)perms[m[0]]=m[2].filter(function(x){return a.indexOf(x)>=0;});});
   if(d.id){var t=tplById(d.id);t.role=role;t.vertical=vertical;t.perms=perms;scCloseModal();scRender();scToast(role+' template updated','success');return;}
-  TEMPLATES.push({id:TEMPLATES.reduce(function(m,x){return Math.max(m,x.id);},0)+1,role:role,vertical:vertical,perms:perms});
+  var nid=TEMPLATES.reduce(function(m,x){return Math.max(m,x.id);},0)+1;TEMPLATES.push({id:nid,key:nid,role:role,vertical:vertical,perms:perms});glLog('templates',nid,'Created');
   state.tplFilter={q:'',vertical:''};state.tplPage=Math.ceil(TEMPLATES.length/PAGE_SIZE);
   scCloseModal();scRender();scToast(role+' template created','success',vertical+'.');
 }
@@ -5267,11 +5267,12 @@ function glSrc(g){return typeof g.rows==='function'?g.rows():g.rows;}
 function glState(id){var g=GL[id];if(!state.gl)state.gl={};return state.gl[id]||(state.gl[id]={f:{},page:1});}
 function glRows(id){
   var g=GL[id],st=glState(id),f=st.f;
-  return glSrc(g).filter(function(r){
+  var rows=glSrc(g).filter(function(r){
     for(var i=0;i<g.filters.length;i++){var fl=g.filters[i],v=f[fl.k];if(v&&(fl.match?!fl.match(r,v):r[fl.k]!==v))return false;}
     if(f.q2&&g.search2&&!matchQ(f.q2,g.search2.fields.map(function(k){return r[k];})))return false;
     return matchQ(f.q||'',g.search.fields.map(function(k){return r[k];}));
   });
+  return g.sortBy?rows.slice().sort(g.sortBy(f.sort)):rows;
 }
 function glActive(id){var f=glState(id).f;return Object.keys(f).some(function(k){return f[k];});}
 function glPageHTML(id){
@@ -7033,7 +7034,7 @@ function scGlOpen(id,key){
   var o=state.glOpen;
   if(o&&o.id===id&&o.key===key){scGlClose();return;}
   var switching=!!(o&&o.id===id);
-  state.glEdit=null;
+  state.glEdit=null;state.glSub=null;state.permDraft=null;
   state.glOpen={id:id,key:key,tab:switching?o.tab:'details'};
   var sb=document.getElementById('sc-gl-sb');if(!sb)return;
   if(switching)refreshPanel('sc-gl-isb',glPanelHTML(id),true);
@@ -7041,7 +7042,7 @@ function scGlOpen(id,key){
   markSelectedRow(String(key));
 }
 function scGlClose(){
-  state.glOpen=null;state.glLogAdd=null;state.glEdit=null;if(state.expanded){state.expanded=false;applyExpanded();}
+  state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;if(state.expanded){state.expanded=false;applyExpanded();}
   var sb=document.getElementById('sc-gl-sb');if(sb)sb.classList.remove('open');
   markSelectedRow(null);
 }
@@ -7068,7 +7069,7 @@ function glExpHead(id,r){
 function glHero(id,r,withEdit){
   var g=GL[id],st=glStatusOf(r),e=state.glEdit,editing=!!(withEdit&&e&&e.id===id&&e.key===r.key);
   return heroCard({icon:navIcon(id),name:g.title(r),meta:[glOneCap(g),'Key '+r.key,st],editing:editing,
-    edit:withEdit&&g.form?"scGlEdit('"+id+"',"+r.key+")":'',expand:'scExpandTab()'});
+    edit:withEdit&&(g.form||g.editHTML)?"scGlEdit('"+id+"',"+r.key+")":'',expand:'scExpandTab()'});
 }
 /* the record's actions - what the row menu offered - as buttons */
 /* WHAT CAN BE DONE TO A RECORD. A change - activate, block, approve, mark
@@ -7103,7 +7104,7 @@ function glViewActsHTML(id,r){
 }
 function glDetailsHTML(id,r){
   var g=GL[id],seen={},e=state.glEdit;
-  if(e&&e.id===id&&e.key===r.key)return glHero(id,r,true)+glEditFormHTML(id,r);
+  if(e&&e.id===id&&e.key===r.key)return glHero(id,r,true)+(g.editHTML?g.editHTML(r):glEditFormHTML(id,r));
   var cards=g.cols.map(function(c){seen[c.h.toLowerCase()]=1;return fieldCard(fieldIco(c.h),c.h,c.cell(r));});
   /* what the form holds but the table does not show (a notice's description...) */
   (g.form||[]).forEach(function(fd){
@@ -7165,8 +7166,9 @@ function glLogsHTML(id,r){
    in place, the header says Editing, Cancel / Save Changes close it. The
    draft is kept as it is typed, so a repaint does not lose it. */
 function scGlEdit(id,key){
-  var g=GL[id],r=glRow(id,key);if(!r||!g.form)return;
-  var vals={};g.form.forEach(function(fd){vals[fd.k]=r[fd.k]==null?'':String(r[fd.k]);});
+  var g=GL[id],r=glRow(id,key);if(!r||!(g.form||g.editHTML))return;
+  var vals={};(g.form||[]).forEach(function(fd){vals[fd.k]=r[fd.k]==null?'':String(r[fd.k]);});
+  if(g.editStart)g.editStart(r);state.glSub=null;
   state.glEdit={id:id,key:key,vals:vals};state.glLogAdd=null;
   var o=state.glOpen,sb=document.getElementById('sc-gl-sb');if(!sb)return;
   if(o&&o.id===id&&o.key===key){o.tab='details';refreshPanel('sc-gl-isb',glPanelHTML(id),true);}
@@ -7191,7 +7193,7 @@ function glEditFormHTML(id,r){
 }
 function scGlEditInput(k,v){if(state.glEdit)state.glEdit.vals[k]=v;}
 function scGlEditPick(v,csid){scGlEditInput(csid.replace(/^ge-/,''),v);}
-function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
+function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;state.permDraft=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
 function scGlEditSave(){
   var e=state.glEdit;if(!e)return;var g=GL[e.id],r=glRow(e.id,e.key);if(!r){state.glEdit=null;scRender();return;}
   var vals={};
@@ -7643,6 +7645,217 @@ function scProfileDelete(){
   document.getElementById('sc-modal-root').innerHTML=modalShell('Delete Account',PROFILE.name,
     '<p class="sc-confirm-text">Delete <b>'+esc(PROFILE.name)+'</b>? Access to all '+PROFILE.stores.length+' stores ends and this cannot be undone.</p>',foot);
 }
+
+/* ══ TEAMS & TEMPLATES ON THE LISTING ENGINE ═══════════════════════════════
+   Both pages now open the standard side panel. A team: Details, Members (the
+   people in the store's team), Access (its task profiles - the permission
+   sets its people get), Workflow (what has happened, step by step) and Logs.
+   A template: Details, Permissions and Logs; editing it is the permission
+   allocation in place - modules with Select all, each action a checkbox. */
+
+/* the shared permission editor - a draft {role, vertical, perms} in state.permDraft */
+function permChipsHTML(vertical,perms){
+  var mods=tplModules(vertical).filter(function(m){return (perms[m[0]]||[]).length;});
+  if(!mods.length)return '<div class="lp-logs-empty">No permissions given.</div>';
+  return '<div class="sc-perm-groups">'+mods.map(function(m){
+    return '<div class="sc-perm-group"><div class="sc-perm-gname">'+esc(m[1])+'</div><div class="sc-perm-chips">'
+      +perms[m[0]].map(function(a){return '<span class="sc-perm-chip">'+esc(permLabel(m[0],a))+'</span>';}).join('')+'</div></div>';
+  }).join('')+'</div>';
+}
+function permEditorHTML(d){
+  if(!d.vertical)return '<div class="lp-logs-empty">Select a vertical to allocate its permissions.</div>';
+  return '<div class="sc-perm-edit">'+tplModules(d.vertical).map(function(m){
+    var have=d.perms[m[0]]||[],all=have.length===m[2].length;
+    return '<div class="sc-perm-emod"><div class="sc-perm-ehead"><b>'+esc(m[1])+'</b>'
+        +'<label class="sc-perm-all"><input type="checkbox"'+(all?' checked':'')+' onchange="scPermAll(\''+m[0]+'\',this.checked)"> Select all</label></div>'
+      +'<div class="sc-perm-eopts">'+m[2].map(function(a){
+        return '<label class="sc-perm-opt"><input type="checkbox"'+(have.indexOf(a)>=0?' checked':'')+' onchange="scPermTog(\''+m[0]+'\',\''+a+'\',this.checked)"> '+esc(permLabel(m[0],a))+'</label>';
+      }).join('')+'</div></div>';
+  }).join('')+'</div>';
+}
+function scPermTog(mod,act,on){
+  var d=state.permDraft;if(!d)return;var a=d.perms[mod]||(d.perms[mod]=[]),i=a.indexOf(act);
+  if(on&&i<0)a.push(act);if(!on&&i>=0)a.splice(i,1);if(!a.length)delete d.perms[mod];
+  var m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0],box=document.querySelector('.sc-perm-all input[onchange*="\''+mod+'\'"]');
+  if(box&&m)box.checked=(d.perms[mod]||[]).length===m[2].length;
+}
+function scPermAll(mod,on){
+  var d=state.permDraft,m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0];if(!d||!m)return;
+  if(on)d.perms[mod]=m[2].slice();else delete d.perms[mod];
+  if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));
+}
+function permsOrdered(vertical,perms){var out={};tplModules(vertical).forEach(function(m){var a=perms[m[0]];if(a&&a.length)out[m[0]]=m[2].filter(function(x){return a.indexOf(x)>=0;});});return out;}
+function permCount(perms){return Object.keys(perms).reduce(function(s,k){return s+perms[k].length;},0);}
+
+/* ── TEMPLATES ──────────────────────────────────────────────────────────── */
+TEMPLATES.forEach(function(t){t.key=t.id;});
+GL.templates={one:'template',noun:'templates',rows:TEMPLATES,
+  title:function(t){return t.role;},
+  search:{placeholder:'Search by role',fields:['role','vertical']},
+  filters:[{k:'vertical',label:'All Verticals',opts:VERTICALS}],
+  stats:function(rows){var roles={};rows.forEach(function(t){roles[t.role]=1;});
+    return [['Templates',rows.length,'active'],['Roles',Object.keys(roles).length,''],['Verticals',VERTICALS.filter(function(v){return rows.some(function(t){return t.vertical===v;});}).length,'']];},
+  cols:[{h:'Role',cell:function(t){var n=permCount(t.perms);return '<div class="lp-c-main">'+esc(t.role)+'</div><div class="lp-c-sub">'+n+(n===1?' permission':' permissions')+'</div>';}},
+    {h:'Vertical',cell:function(t){return plain(t.vertical);}},
+    {h:'Permissions',cell:function(t){return permsHTML(t);}}],
+  del:true,
+  tabs:[{id:'perms',label:'Permissions',html:function(t){
+    return relHead('templates',t,'Permission Allocation',permCount(t.perms)+' permissions')+permChipsHTML(t.vertical,t.perms);}}],
+  /* edit = the permission allocation, in place */
+  editStart:function(t){state.permDraft={role:t.role,vertical:t.vertical,perms:JSON.parse(JSON.stringify(t.perms))};},
+  editHTML:function(t){var d=state.permDraft;
+    return '<div class="sc-edit-card"><div class="policy-form-grid">'
+        +field('Template Name','<input class="ep-form-input" value="'+esc(d.role)+'" oninput="state.permDraft.role=this.value">',true)
+        +field('Vertical',csField('tpe-vertical',VERTICALS,d.vertical,'Select vertical','scPermVertical'),true)
+        +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Permission Allocation <span class="req">*</span></label>'+permEditorHTML(d)+'</div>'
+      +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
+      +'<button class="btn-primary" onclick="scTplEditSave()">Save Changes</button></div></div>';}};
+function scPermVertical(v){
+  var d=state.permDraft;if(!d)return;d.vertical=v;
+  var ok={};tplModules(v).forEach(function(m){ok[m[0]]=1;});Object.keys(d.perms).forEach(function(k){if(!ok[k])delete d.perms[k];});
+  if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));
+}
+function scTplEditSave(){
+  var e=state.glEdit,d=state.permDraft;if(!e||!d)return;var t=glRow('templates',e.key);if(!t)return;
+  var role=String(d.role||'').trim();
+  if(!role){scToast('Enter the template name','error');return;}
+  if(!d.vertical){scToast('Select the vertical','error');return;}
+  if(!permCount(d.perms)){scToast('Give the role at least one permission','error');return;}
+  if(TEMPLATES.some(function(x){return x.key!==t.key&&x.role.toLowerCase()===role.toLowerCase()&&x.vertical===d.vertical;})){scToast('A '+role+' template already exists for '+d.vertical,'error');return;}
+  var before=permCount(t.perms);t.role=role;t.vertical=d.vertical;t.perms=permsOrdered(d.vertical,d.perms);
+  glLog('templates',t.key,'Updated permissions',before+' → '+permCount(t.perms)+' permissions');
+  state.glEdit=null;state.permDraft=null;scRender();scToast(role+' template updated','success');
+}
+
+/* ── TEAMS ──────────────────────────────────────────────────────────────── */
+var MEMBER_ROLES=['Owner','Manager','Worker','Security','Delivery Partner'];
+function teamMembers(t){
+  if(!t.members){
+    var first=t.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g,'')||'team',n=1+t.key%3;
+    t.members=[{name:'Owner '+t.name.split(' ')[0],email:t.email,mobile:'+9198'+String(45000000+t.key*137).slice(-8),role:'Owner'}];
+    if(n>1)t.members.push({name:'Store Manager',email:'manager.'+first+'@gmail.com',mobile:'+9197'+String(31000000+t.key*911).slice(-8),role:'Manager'});
+    if(n>2)t.members.push({name:'Security Guard',email:first+'security@gmail.com',mobile:'+9196'+String(70456324+t.key).slice(-8),role:'Security'});
+  }
+  return t.members;
+}
+function teamProfiles(t){
+  if(!t.profiles)t.profiles=TEMPLATES.filter(function(x){return x.vertical===t.vertical;}).slice(0,2)
+    .map(function(x,i){return {id:i+1,role:x.role,perms:JSON.parse(JSON.stringify(x.perms))};});
+  return t.profiles;
+}
+GL.teams={one:'team',noun:'teams',rows:TEAMS,
+  title:function(t){return t.name;},
+  search:{placeholder:'Search by name, code or email',fields:['name','code','email','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'vertical',label:'All Verticals',opts:VERTICALS},
+    {k:'sort',label:'Sort by',opts:['Newest first','Oldest first','Name A–Z','Name Z–A'],match:function(){return true;}}],
+  sortBy:function(v){return {'Oldest first':function(a,b){return a.key-b.key;},'Name A–Z':function(a,b){return a.name.localeCompare(b.name);},
+    'Name Z–A':function(a,b){return b.name.localeCompare(a.name);}}[v]||function(a,b){return b.key-a.key;};},
+  stats:function(rows){return [['All Teams',rows.length,'active'],['Active',rows.filter(function(t){return t.status==='Active';}).length,'approved'],
+    ['Inactive',rows.filter(function(t){return t.status==='Inactive';}).length,'']];},
+  cols:[{h:'Key',cell:function(t){return plain(t.key);}},{h:'Team Name',cell:function(t){return mainTxt(t.name);}},
+    {h:'Team Code',cell:function(t){return '<span class="sc-mono">'+esc(t.code)+'</span>';}},{h:'Team Email',cell:function(t){return mailCell(t.email);}},
+    {h:'Vertical',cell:function(t){return plain(t.vertical);}},{h:'Date',cell:function(t){return plain(t.date);}},
+    {h:'Status',cell:function(t){return activeBadge(t.status);}}],
+  form:[{k:'name',label:'Team Name',req:true,ph:'e.g. Zing Grocery'},{k:'email',label:'Team Email',type:'email',req:true,ph:'owner@store.com'},
+    {k:'vertical',label:'Vertical',type:'select',opts:VERTICALS,req:true}],
+  defaults:function(){var code=TEAMS.reduce(function(m,x){return Math.max(m,+x.code.split(':')[1]);},0);return {code:'store:'+(code+1),date:stamp().date,status:'Active'};},
+  toggle:onOff,
+  tabs:[
+    {id:'members',label:'Members',html:function(t){
+      var ms=teamMembers(t),se=state.glSub,ed=se&&se.kind==='member'&&se.key===t.key?se:null;
+      var form=ed?'<div class="sc-edit-card sc-sub-edit"><div class="policy-form-grid">'
+          +field('Name','<input class="ep-form-input" id="tmm-name" value="'+esc(ed.v.name)+'">',true)
+          +field('Email','<input class="ep-form-input" id="tmm-email" type="email" value="'+esc(ed.v.email)+'">',true)
+          +field('Mobile','<input class="ep-form-input" id="tmm-mobile" value="'+esc(ed.v.mobile)+'" placeholder="+91">',true)
+          +field('Designation',csField('tmm-role',MEMBER_ROLES,ed.v.role,'Select designation'),true)
+        +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scSubCancel()">Cancel</button>'
+        +'<button class="btn-primary" onclick="scMemberSave()">'+(ed.idx<0?'Add Member':'Save Changes')+'</button></div></div>':'';
+      var rows=ms.map(function(m,i){return '<tr>'+td(i+1)+td(m.name)+td(m.email)+td(m.mobile)+td(m.role)
+        +'<td><div class="sc-gl-acts"><button class="lp-action-btn" type="button" title="Edit member" aria-label="Edit '+esc(m.name)+'" onclick="scMemberEdit('+t.key+','+i+')">'+ICO_EDIT+'</button>'
+        +'<button class="lp-action-btn sc-del-btn" type="button" title="Remove member" aria-label="Remove '+esc(m.name)+'" onclick="scMemberDel('+t.key+','+i+')">'+ICO_TRASH+'</button></div></td></tr>';}).join('');
+      return glHero('teams',t,false)
+        +secHead('Team Member Details',ed?'':'<button class="btn-primary btn-sm" type="button" onclick="scMemberEdit('+t.key+',-1)">'+ICO.plus+' Add Member</button>')
+        +form+(ms.length?recTable(['S.No','Name','Email','Mobile','Designation','Action'],rows):'<div class="lp-logs-empty">No members yet.</div>');
+    }},
+    {id:'access',label:'Access',html:function(t){
+      var ps=teamProfiles(t),se=state.glSub,ed=se&&se.kind==='profile'&&se.key===t.key?se:null;
+      if(ed){
+        var d=state.permDraft;
+        return glHero('teams',t,false)+secHead(ed.idx<0?'Add Task Profile':'Edit Task Profile')
+          +'<div class="sc-edit-card sc-sub-edit"><div class="policy-form-grid">'
+            +(ed.idx<0?field('Start From Template',csField('tpp-from',TEMPLATES.filter(function(x){return x.vertical===t.vertical;}).map(function(x){return x.role;}),ed.from||'','Select a template','scProfileFrom'),false):'')
+            +field('Profile Name','<input class="ep-form-input" value="'+esc(d.role)+'" oninput="state.permDraft.role=this.value">',true)
+            +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Permission Allocation <span class="req">*</span></label>'+permEditorHTML(d)+'</div>'
+          +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scSubCancel()">Cancel</button>'
+          +'<button class="btn-primary" onclick="scProfileSaveTP()">'+(ed.idx<0?'Add Task Profile':'Save Changes')+'</button></div></div>';
+      }
+      return glHero('teams',t,false)
+        +secHead('Roles & Permissions — '+t.name,'<button class="btn-primary btn-sm" type="button" onclick="scProfileEditTP('+t.key+',-1)">'+ICO.plus+' Add Task Profile</button>')
+        +(ps.length?ps.map(function(p,i){
+          return '<div class="sc-tp-card"><div class="sc-tp-head"><div><b>'+esc(p.role)+'</b><span class="lp-c-sub">'+permCount(p.perms)+' permissions</span></div>'
+            +'<div class="sc-gl-acts"><button class="lp-action-btn" type="button" title="Edit task profile" aria-label="Edit '+esc(p.role)+'" onclick="scProfileEditTP('+t.key+','+i+')">'+ICO_EDIT+'</button>'
+            +'<button class="lp-action-btn sc-del-btn" type="button" title="Delete task profile" aria-label="Delete '+esc(p.role)+'" onclick="scProfileDelTP('+t.key+','+i+')">'+ICO_TRASH+'</button></div></div>'
+            +permChipsHTML(t.vertical,p.perms)+'</div>';}).join('')
+          :'<div class="lp-logs-empty">No task profiles yet.</div>');
+    }},
+    {id:'workflow',label:'Workflow',html:function(t){
+      var steps=[{s:'Team Created',sub:'Registered',from:'Admin Portal',when:t.date}].concat((t._log||[]).slice().reverse().map(function(l){
+        return {s:l.text,sub:l.comment||'—',from:l.who+(l.role?' · '+l.role:''),when:l.date+(l.time?' · '+l.time:'')};}));
+      return glHero('teams',t,false)+secHead('Workflow Details')
+        +recTable(['S.No','Status','Sub Status','Add From','Time'],steps.map(function(x,i){return '<tr>'+td(i+1)+'<td><b>'+esc(x.s)+'</b></td>'+td(x.sub)+td(x.from)+td(x.when)+'</tr>';}).join(''));
+    }}
+  ]};
+/* members and task profiles are edited in the tab, as everything else is */
+function scSubCancel(){state.glSub=null;state.permDraft=null;if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));}
+function scMemberEdit(key,idx){
+  var t=glRow('teams',key);if(!t)return;var m=idx>=0?teamMembers(t)[idx]:{name:'',email:'',mobile:'',role:''};
+  state.glSub={kind:'member',key:key,idx:idx,v:Object.assign({},m)};refreshPanel('sc-gl-isb',glPanelHTML('teams'));
+  setTimeout(function(){var f=document.getElementById('tmm-name');if(f)f.focus();},0);
+}
+function scMemberSave(){
+  var se=state.glSub,t=se&&glRow('teams',se.key);if(!t)return;
+  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  var m={name:v('tmm-name'),email:v('tmm-email'),mobile:v('tmm-mobile'),role:csValue('tmm-role')};
+  if(!m.name){scToast('Enter the name','error');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.email)){scToast('Enter a valid email','error');return;}
+  if(!/^\+?\d{10,13}$/.test(m.mobile.replace(/\s/g,''))){scToast('Enter a valid mobile number','error');return;}
+  if(!m.role){scToast('Select the designation','error');return;}
+  var ms=teamMembers(t);if(se.idx<0)ms.push(m);else ms[se.idx]=m;
+  glLog('teams',t.key,(se.idx<0?'Added member ':'Updated member ')+m.name);state.glSub=null;scRender();scToast(m.name+(se.idx<0?' added':' updated'),'success');
+}
+function scMemberDel(key,idx){
+  var t=glRow('teams',key),m=t&&teamMembers(t)[idx];if(!m)return;
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scMemberDelGo('+key+','+idx+')">Remove</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Remove Member',t.name,'<p class="sc-confirm-text">Remove <b>'+esc(m.name)+'</b> from '+esc(t.name)+'?</p>',foot);
+}
+function scMemberDelGo(key,idx){var t=glRow('teams',key);var m=teamMembers(t).splice(idx,1)[0];glLog('teams',key,'Removed member '+m.name);scCloseModal();scRender();scToast(m.name+' removed','info');}
+function scProfileEditTP(key,idx){
+  var t=glRow('teams',key);if(!t)return;var p=idx>=0?teamProfiles(t)[idx]:{role:'',perms:{}};
+  state.glSub={kind:'profile',key:key,idx:idx};state.permDraft={role:p.role,vertical:t.vertical,perms:JSON.parse(JSON.stringify(p.perms))};
+  refreshPanel('sc-gl-isb',glPanelHTML('teams'));
+}
+function scProfileFrom(v){
+  var se=state.glSub,t=se&&glRow('teams',se.key),x=t&&TEMPLATES.filter(function(y){return y.vertical===t.vertical&&y.role===v;})[0];if(!x)return;
+  se.from=v;state.permDraft={role:x.role,vertical:t.vertical,perms:JSON.parse(JSON.stringify(x.perms))};refreshPanel('sc-gl-isb',glPanelHTML('teams'));
+}
+function scProfileSaveTP(){
+  var se=state.glSub,d=state.permDraft,t=se&&glRow('teams',se.key);if(!t||!d)return;
+  var role=String(d.role||'').trim();if(!role){scToast('Enter the profile name','error');return;}
+  if(!permCount(d.perms)){scToast('Give the profile at least one permission','error');return;}
+  var ps=teamProfiles(t),p={id:se.idx<0?ps.reduce(function(m,x){return Math.max(m,x.id);},0)+1:ps[se.idx].id,role:role,perms:permsOrdered(t.vertical,d.perms)};
+  if(se.idx<0)ps.push(p);else ps[se.idx]=p;
+  glLog('teams',t.key,(se.idx<0?'Added task profile ':'Updated task profile ')+role);state.glSub=null;state.permDraft=null;scRender();scToast(role+(se.idx<0?' added':' updated'),'success');
+}
+function scProfileDelTP(key,idx){
+  var t=glRow('teams',key),p=t&&teamProfiles(t)[idx];if(!p)return;
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scProfileDelGoTP('+key+','+idx+')">Delete</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Delete Task Profile',t.name,'<p class="sc-confirm-text">Delete the <b>'+esc(p.role)+'</b> task profile? Members on it lose these permissions.</p>',foot);
+}
+function scProfileDelGoTP(key,idx){var t=glRow('teams',key);var p=teamProfiles(t).splice(idx,1)[0];glLog('teams',key,'Deleted task profile '+p.role);scCloseModal();scRender();scToast(p.role+' deleted','info');}
+
+Object.assign(PAGE_ACTIONS,{teams:['Create Team',function(){scGlForm('teams');}],templates:['Create Template',function(){scOpenTemplateForm();}]});
 
 /* ══ BOOT ═════════════════════════════════════════════════════════════════  */
 [['ICO_DOWNLOAD','download'],['ICO_IMPORT','import'],['ICO_EXPAND','expand'],['ICO_COLLAPSE','collapse'],['ICO_PRINT','print'],

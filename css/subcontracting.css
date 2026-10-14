@@ -1358,3 +1358,20 @@ textarea.ep-form-input.sc-notice-desc{border-radius:10px}
 .sc-more-btn{display:inline-flex;align-items:center;gap:4px}
 .sc-gl-sa-pick{min-width:220px}
 .sc-pf-edit{margin-bottom:22px}
+/* TEAMS & TEMPLATES - task profiles and the permission allocation */
+.sc-perm-groups{display:flex;flex-direction:column;gap:10px}
+.sc-perm-group{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:start}
+.sc-perm-gname{font-size:12.5px;font-weight:600;color:var(--gray);padding-top:3px}
+.sc-perm-group .sc-perm-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sc-tp-card{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff}
+.sc-tp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sc-tp-head b{font-size:14px;color:var(--navy);margin-right:8px}
+.sc-perm-edit{border:1px solid var(--border);border-radius:10px;max-height:380px;overflow-y:auto;padding:4px 14px;background:#fff}
+.sc-perm-emod{padding:12px 0;border-bottom:1px solid var(--border)}
+.sc-perm-emod:last-child{border-bottom:0}
+.sc-perm-ehead{display:flex;align-items:center;gap:14px;margin-bottom:8px;font-size:13px;color:var(--navy)}
+.sc-perm-all{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--st-info-fg);cursor:pointer}
+.sc-perm-eopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.sc-perm-opt{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--navy);cursor:pointer}
+.sc-perm-opt input,.sc-perm-all input{width:15px;height:15px;accent-color:var(--orange)}
+.sc-sub-edit{margin-bottom:16px}
