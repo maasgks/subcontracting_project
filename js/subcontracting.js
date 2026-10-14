@@ -49,6 +49,59 @@ var ICO={
   hamburger:'<svg width="16" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="2" x2="17" y2="2"/><line x1="1" y1="7" x2="17" y2="7"/><line x1="1" y1="12" x2="17" y2="12"/></svg>',
   eye:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',
   sitemap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-5h14v5"/></svg>',
+  qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/></svg>',
+  basket:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11h14l-1.5 9h-11z"/><path d="M8 11l4-7 4 7"/><line x1="10" y1="15" x2="10" y2="17"/><line x1="14" y1="15" x2="14" y2="17"/></svg>',
+  barcode:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6v12M7 6v12M11 6v12M14 6v12M17 6v12M20 6v12"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 3 21 7 17 11"/><line x1="21" y1="7" x2="9" y2="7"/><polyline points="7 13 3 17 7 21"/><line x1="3" y1="17" x2="15" y2="17"/></svg>',
+  card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>',
+  refund:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9l-3 3 3 3"/><path d="M7 12h7a3 3 0 0 1 0 6"/></svg>',
+  gavel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6"/><path d="M11 7l6 6"/><path d="M9.5 8.5l6 6"/><path d="M12.5 11.5L4 20"/><line x1="3" y1="21" x2="10" y2="21"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2z"/></svg>',
+  menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="18" x2="12" y2="18"/></svg>',
+  percent:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>',
+  ledger:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>',
+  upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 16V8M8.5 11.5L12 8l3.5 3.5"/></svg>',
+  boxes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><rect x="8" y="3" width="8" height="8" rx="1"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3M14 9l2 2"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1.3"/></svg>',
+  live:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 7 12 12 2 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>',
+  building:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16"/><path d="M15 9h4a1 1 0 0 1 1 1v11"/><path d="M8 8h3M8 12h3M8 16h3"/><line x1="2" y1="21" x2="22" y2="21"/></svg>',
+  server:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><line x1="7" y1="6.5" x2="7.01" y2="6.5"/><line x1="7" y1="17.5" x2="7.01" y2="17.5"/></svg>',
+  sparkle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>',
+  dumbbell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/></svg>',
+  wave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>',
+  idcard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.6-1.6 1.7-2.4 3-2.4s2.4.8 3 2.4"/><line x1="14" y1="10" x2="19" y2="10"/><line x1="14" y1="14" x2="18" y2="14"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>',
+  broom:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 3l-7 7"/><path d="M12 10l-5 1-3 9 9-3 1-5z"/><path d="M7 15l2 2"/></svg>',
+  megaphone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M17 8a5 5 0 0 1 0 8"/><path d="M8 14l1 5h2"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>',
+  pluscircle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+  tower:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1"/><path d="M10 6h1M13 6h1M10 10h1M13 10h1M10 14h1M13 14h1"/><path d="M10 22v-4h4v4"/></svg>',
+  door:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17"/><line x1="3" y1="21" x2="21" y2="21"/><circle cx="14" cy="12" r=".8"/></svg>',
+  medal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="5"/><path d="M8.5 11.5L6 3h4l2 4 2-4h4l-2.5 8.5"/><path d="M12 13v4"/></svg>',
+  coins:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="9" cy="7" rx="6" ry="3"/><path d="M3 7v4c0 1.7 2.7 3 6 3s6-1.3 6-3V7"/><path d="M9 14v3c0 1.7 2.7 3 6 3s6-1.3 6-3v-4c0-1.7-2.7-3-6-3"/></svg>',
+  cup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 2v3M12 2v3"/></svg>',
+  logbook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><path d="M5 19a2 2 0 0 1 2-2h12"/><polyline points="9 9 11 11 15 7"/></svg>',
+  noimg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="M21 15l-5-5L5 21"/><line x1="3" y1="3" x2="21" y2="21"/></svg>',
+  image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
+  pdf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 15h1.5a1.5 1.5 0 0 0 0-3H8v5M14 12v5M17 12h-1.5v5"/></svg>',
+  usercog:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4"/><circle cx="18" cy="17" r="2.5"/><path d="M18 12.5v2M18 19.5v2M13.5 17h2M20.5 17h2"/></svg>',
+  ticket:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><line x1="10" y1="7" x2="10" y2="17" stroke-dasharray="2 2"/></svg>',
+  receipt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14v20l-3-2-2 2-2-2-2 2-2-2-3 2z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>',
+  notify:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/><circle cx="18" cy="5" r="2.5" fill="currentColor" stroke="none"/></svg>',
+  report:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="18" x2="8" y2="14"/><line x1="12" y1="18" x2="12" y2="11"/><line x1="16" y1="18" x2="16" y2="15"/></svg>',
+  banknote:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  barchart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="20"/><rect x="5" y="11" width="3" height="7"/><rect x="10.5" y="6" width="3" height="12"/><rect x="16" y="13" width="3" height="5"/></svg>',
+  trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>',
+  filex:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9.5" y1="12.5" x2="14.5" y2="17.5"/><line x1="14.5" y1="12.5" x2="9.5" y2="17.5"/></svg>',
+  sortlines:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="15" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>',
+  lifebuoy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg>',
+  policy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 14 11 16 15 12"/></svg>',
+  cards:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="12" rx="2"/><path d="M6 7V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2"/><line x1="2" y1="11" x2="18" y2="11"/></svg>',
+  map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="2 6 9 3 15 6 22 3 22 18 15 21 9 18 2 21 2 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>',
   sliders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="15" y1="4" x2="15" y2="8"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="13" y1="16" x2="13" y2="20"/></svg>',
   headset:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>',
   store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>',
@@ -57,21 +110,103 @@ var ICO={
   shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
 };
 
+/* EVERY ICON CARRIES ITS NAME (ic ic-<name>) so each can answer a hover with
+   its own animation - css/subcontracting.css, ICON MOTION. */
+function tagIco(svg,name){return svg.replace('<svg','<svg class="ic ic-'+name+'"');}
+Object.keys(ICO).forEach(function(k){ICO[k]=tagIco(ICO[k],k);});
+
 /* ── RAIL (MOCK) ──────────────────────────────────────────────────────────
    Mirrors the source prototype's nav. Same data shape as ADT's sidebarItems,
    so swapping in the real structure is an edit to this array alone. */
 var SC_NAV=[
   {id:'dashboard',label:'Dashboard',icon:ICO.grid},
-  {id:'stores',label:'Stores & Management',icon:ICO.store,placeholder:true},
+  {dropdown:'Team Management',icon:ICO.shield,children:[
+    {id:'teams',label:'Teams',icon:ICO.users},
+    {id:'templates',label:'Templates',icon:ICO.doc}
+  ]},
+  {dropdown:'Store & Management',icon:ICO.store,children:[
+    {id:'retailers',label:'All Retailers',icon:ICO.users},
+    {id:'stores',label:'All Stores',icon:ICO.store},
+    {id:'storecats',label:'Store Category',icon:ICO.sitemap},
+    {id:'qrcodes',label:'All QR Code',icon:ICO.qr},
+    {id:'tags',label:'All Tags',icon:ICO.tag}
+  ]},
+  {dropdown:'Orders and Billing',icon:ICO.basket,children:[
+    {id:'billing',label:'Order Billing',icon:ICO.barcode},
+    {id:'myorders',label:'My Orders',icon:ICO.basket},
+    {id:'returns',label:'Returns & Cancellation',icon:ICO.swap},
+    {id:'ipay',label:'Instant Payment Orders',icon:ICO.card},
+    {id:'irefund',label:'Instant Payment Refund',icon:ICO.refund},
+    {id:'schedule',label:'Schedule Orders',icon:ICO.clock},
+    {id:'retaildeals',label:'Deals',icon:ICO.gavel},
+    {id:'allorders',label:'All Orders',icon:ICO.cart}
+  ]},
+  {dropdown:'Product & Inventory',icon:ICO.cube,children:[
+    {id:'allproducts',label:'All Products / Services',icon:ICO.boxes},
+    {id:'productlist',label:'Product List',icon:ICO.cube},
+    {id:'custommenu',label:'Custom Menu',icon:ICO.menu},
+    {id:'brands',label:'Brands',icon:ICO.tag},
+    {id:'tax',label:'Tax',icon:ICO.percent},
+    {id:'hsn',label:'HSN/SAC Master',icon:ICO.ledger},
+    {id:'bulkupload',label:'Bulk Upload',icon:ICO.upload}
+  ]},
+  {dropdown:'Buyers',icon:ICO.users,children:[
+    {id:'allbuyers',label:'All Buyers',icon:ICO.users},
+    {id:'livebuyers',label:'Live Buyers',icon:ICO.live},
+    {id:'creditcustomers',label:'Credit Customer List',icon:ICO.user},
+    {id:'creditbands',label:'Credit Bands',icon:ICO.wallet}
+  ]},
+  {dropdown:'Category',icon:ICO.sitemap,children:[
+    {id:'maincats',label:'Main Category',icon:ICO.sitemap},
+    {id:'subcats',label:'Sub Category',icon:ICO.layers},
+    {id:'grandcats',label:'Grand Sub Category',icon:ICO.layers}
+  ]},
+  {dropdown:'Community',icon:ICO.building,children:[
+    {id:'communities',label:'All Community',icon:ICO.building},
+    {id:'platforms',label:'All Platform',icon:ICO.server},
+    {id:'amenities',label:'All Amenities',icon:ICO.sparkle},
+    {id:'cmembers',label:'All Community Members',icon:ICO.idcard},
+    {id:'residents',label:'All Residents',icon:ICO.home},
+    {group:'Daily Help',icon:ICO.broom,children:[{id:'dailyhelp',label:'Daily Help',icon:ICO.user}]},
+    {group:'Notice Board',icon:ICO.megaphone,children:[{id:'notices',label:'All Notices',icon:ICO.list},{id:'addnotice',label:'Add Notice',icon:ICO.pluscircle}]},
+    {group:'Properties',icon:ICO.tower,children:[{id:'blocks',label:'All Blocks',icon:ICO.tower},{id:'flats',label:'All Flats',icon:ICO.door}]},
+    {id:'custbands',label:'Customer Bands',icon:ICO.medal},
+    {id:'ewallets',label:'E-Wallets',icon:ICO.coins},
+    {id:'partners',label:'All Partners',icon:ICO.handshake},
+    {id:'cafeteria',label:'Cafeteria',icon:ICO.cup},
+    {id:'visitorlogs',label:'Visitor Logs',icon:ICO.logbook}
+  ]},
+  {id:'staff',label:'Manage Staff and Roles',icon:ICO.usercog},
+  {dropdown:'Pricing & Discounts',icon:ICO.ticket,children:[
+    {id:'discounts',label:'Discount',icon:ICO.percent},
+    {id:'discounttxns',label:'Transaction List',icon:ICO.receipt},
+    {id:'notifevents',label:'Notification Event',icon:ICO.notify}
+  ]},
+  {dropdown:'Reports & Analytics',icon:ICO.report,children:[
+    {id:'settlement',label:'Settlement Reports',icon:ICO.banknote},
+    {id:'salesproducts',label:'Sales By Products Reports',icon:ICO.barchart},
+    {id:'salesorders',label:'Sales Orders Reports',icon:ICO.trend},
+    {id:'catalogreject',label:'Catalog Reject Report',icon:ICO.filex}
+  ]},
+  {id:'sequence',label:'Category & Sequence',icon:ICO.sortlines},
+  {dropdown:'Support & Help Desk',icon:ICO.headset,children:[
+    {id:'tickets',label:'Tickets',icon:ICO.inbox},
+    {id:'supteams',label:'Teams',icon:ICO.users},
+    {id:'supcats',label:'Support Categories',icon:ICO.lifebuoy},
+    {id:'policies',label:'Policies',icon:ICO.policy}
+  ]},
+  {dropdown:'Cards and Subscriptions',icon:ICO.card,children:[
+    {id:'cards',label:'Cards',icon:ICO.card},
+    {id:'cardlist',label:'Card Listing',icon:ICO.cards}
+  ]},
+  {dropdown:'Location control',icon:ICO.map,children:[
+    {id:'cities',label:'Location control',icon:ICO.pin}
+  ]},
   {dropdown:'Transactions',icon:ICO.file,children:[
     {id:'deals',label:'Deals',icon:ICO.file},
     {id:'orders',label:'Orders',icon:ICO.cart}
   ]},
-  {id:'products',label:'Product & Inventory',icon:ICO.cube,placeholder:true},
-  {id:'category',label:'Category',icon:ICO.sitemap,placeholder:true},
-  {id:'masters',label:'Masters',icon:ICO.sliders,placeholder:true},
-  {id:'support',label:'Support & Help Desk',icon:ICO.headset,placeholder:true},
-  {id:'location',label:'Location control',icon:ICO.globe,placeholder:true}
+  {id:'masters',label:'Masters',icon:ICO.sliders,placeholder:true}
 ];
 
 var SC_ROLES=['Planner','PMG Approver','Buyer','PO Approver','Stores User',
@@ -173,6 +308,10 @@ var state={
   scrForm:null,      // the SCR open on the Create / Edit SCR page (null = new)
   edit:null,         // a tab being edited in place: {id, tab, vals, dirty}
   logAdd:null,       // the Logs tab's open composer: {key, action[, target]}
+  teamFilter:{q:'',status:'',vertical:'',sort:''},teamPage:1,
+  tplFilter:{q:'',vertical:''},tplPage:1,tplOpen:{},
+  dashTab:'sc',      // the Dashboard's view: sc | sales | settlement
+  salesRange:{key:'today'},salesCh:'All',purCh:'All',setRange:{key:'yesterday'},setPage:1,
   expanded:false,    // the open detail panel is lifted into a large centred window
   /* Logs design - TEMPORARY toggle, see logsTabHTML */
   stageFilter:null,
@@ -806,7 +945,10 @@ function poTone(){
 function badge(tone,text){return '<span class="lp-status-badge '+tone+'">'+esc(text)+'</span>';}
 
 /* ══ RAIL ═════════════════════════════════════════════════════════════════  */
-var openGroups={'Transactions':true};
+var openGroups={'Transactions':true},openSubs={};
+/* every page a dropdown holds, groups inside it included */
+function navIds(item){var out=[];(item.children||[]).forEach(function(c){if(c.group)c.children.forEach(function(x){out.push(x.id);});else out.push(c.id);});return out;}
+function navH(item){var n=0;(item.children||[]).forEach(function(c){n++;if(c.group)n+=c.children.length;});return (n*38+16)+'px';}
 function buildRail(){
   var el=document.getElementById('sc-sidebar');if(!el)return;
   el.className='sidebar'+(state.railCollapsed?' collapsed':'');
@@ -819,7 +961,7 @@ function buildRail(){
   top.className='sb-top';
   top.innerHTML=(state.railCollapsed?'':'<span class="sb-menu-label">Menu</span>')
     +'<button class="sidebar-toggle" onclick="scToggleRail()" title="Toggle sidebar">'
-    +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2"/><line x1="15" y1="5" x2="15" y2="19"/></svg></button>';
+    +'<svg class="ic ic-panel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2"/><line x1="15" y1="5" x2="15" y2="19"/></svg></button>';
   el.appendChild(top);
 
   SC_NAV.forEach(function(item){
@@ -829,7 +971,7 @@ function buildRail(){
     }
     if(item.dropdown){
       var isOpen=!!openGroups[item.dropdown];
-      var hasActive=(item.children||[]).some(function(c){return c.id===navPage();});
+      var hasActive=navIds(item).indexOf(navPage())>=0;
       if(state.railCollapsed){
         var d=document.createElement('button');d.type='button';
         d.className='sb-parent'+(hasActive?' has-active':'');
@@ -844,8 +986,30 @@ function buildRail(){
         +'<svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
       var kids=document.createElement('div');
       kids.className='sb-children';
-      kids.style.maxHeight=isOpen?'600px':'0';
+      kids.style.maxHeight=isOpen?navH(item):'0';
       (item.children||[]).forEach(function(child){
+        if(child.group){
+          var sOpen=!!openSubs[child.group],sAct=child.children.some(function(x){return x.id===navPage();});
+          var sp=document.createElement('button');sp.type='button';
+          sp.className='sb-parent sb-subparent'+(sOpen?' open':'')+(sAct?' has-active':'');
+          sp.innerHTML='<div class="sb-ico-wrap">'+child.icon+'</div><span>'+child.group+'</span>'
+            +'<svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
+          sp.title=child.group;
+          var sk=document.createElement('div');sk.className='sb-children sb-subchildren';
+          sk.style.maxHeight=sOpen?(child.children.length*38+8)+'px':'0';
+          child.children.forEach(function(x){
+            var c=document.createElement('button');c.type='button';
+            c.className='sb-item'+(x.id===navPage()?' active':'');
+            c.innerHTML='<div class="sb-ico-wrap">'+x.icon+'</div><span>'+x.label+'</span>';
+            c.title=x.label;c.onclick=function(){scGo(x.id);};
+            sk.appendChild(c);
+          });
+          sp.onclick=function(){
+            if(openSubs[child.group]){delete openSubs[child.group];sk.style.maxHeight='0';sp.classList.remove('open');}
+            else{openSubs[child.group]=true;sk.style.maxHeight=(child.children.length*38+8)+'px';sp.classList.add('open');}
+          };
+          kids.appendChild(sp);kids.appendChild(sk);return;
+        }
         var c=document.createElement('button');c.type='button';
         c.className='sb-item'+(child.id===navPage()?' active':'');
         c.innerHTML='<div class="sb-ico-wrap">'+child.icon+'</div><span>'+child.label+'</span>';
@@ -855,7 +1019,7 @@ function buildRail(){
       });
       parent.onclick=function(){
         if(openGroups[item.dropdown]){delete openGroups[item.dropdown];kids.style.maxHeight='0';parent.classList.remove('open');}
-        else{openGroups={};openGroups[item.dropdown]=true;kids.style.maxHeight='600px';parent.classList.add('open');
+        else{openGroups={};openGroups[item.dropdown]=true;kids.style.maxHeight=navH(item);parent.classList.add('open');
              el.querySelectorAll('.sb-parent.open').forEach(function(b){if(b!==parent)b.classList.remove('open');});
              el.querySelectorAll('.sb-children').forEach(function(k){if(k!==kids)k.style.maxHeight='0';});}
       };
@@ -897,12 +1061,30 @@ function scSetRole(role){
 }
 
 /* ══ ROUTER ═══════════════════════════════════════════════════════════════  */
-var TITLES={dashboard:'Dashboard',deals:'Deals',orders:'Purchase Orders','scr-form':'Deals'};
+var TITLES={dashboard:'Dashboard',deals:'Deals',orders:'Purchase Orders','scr-form':'Deals',teams:'Teams',templates:'Templates',
+  retailers:'All Retailers',stores:'All Stores',storecats:'Store Categories',qrcodes:'All QR Code',tags:'Tags',
+  billing:'Order Billing',myorders:'My Orders',returns:'Returns & Cancellation',ipay:'Instant Payment Orders',irefund:'Refund',
+  schedule:'Schedule Orders',retaildeals:'Deals',allorders:'All Orders',
+  allproducts:'All Products / Services',productlist:'Product List',custommenu:'Custom Menu',brands:'Brands',tax:'Tax',hsn:'HSN/SAC Master',bulkupload:'Bulk Upload',
+  allbuyers:'All Buyers',livebuyers:'All Live Buyers',creditcustomers:'Credit Customer List',creditbands:'Credit Bands',
+  maincats:'Main Category',subcats:'Sub Category',grandcats:'Grand Sub Category',
+  communities:'All Community',platforms:'All Platform',amenities:'Amenities',cmembers:'All Community Members',residents:'All Residents',
+  dailyhelp:'All Daily Help',notices:'Notice Board',addnotice:'Add Notice',blocks:'All Blocks',flats:'All Flats',custbands:'Customer Bands',
+  ewallets:'E-Wallets',partners:'All Partners',cafeteria:'Cafeteria',visitorlogs:'Visitor Logs',
+  staff:'Staff And Roles',discounts:'Discounts',discounttxns:'Discount Transactions',notifevents:'Notifications',
+  settlement:'Settlement Reports',salesproducts:'Sales By Products',salesorders:'Sales Orders Report',catalogreject:'Catalog Reject Report',
+  sequence:'Sequence Management',tickets:'Tickets',supteams:'Support Teams',supcats:'Support Categories',policies:'All Policies',
+  cards:'Cards',cardlist:'Card Listing',cities:'City Status Management',profile:'My Profile'};
 /* The SCR form is a page of its own but belongs to Deals. */
 function navPage(){return state.page==='scr-form'?'deals':state.page;}
 function scGo(page){
   state.page=page;
-  state.dealOpen=false;state.orderOpen=false;
+  SC_NAV.forEach(function(g){if(g.dropdown&&navIds(g).indexOf(page)>=0){openGroups={};openGroups[g.dropdown]=true;openSubs={};
+    (g.children||[]).forEach(function(c){if(c.group&&c.children.some(function(x){return x.id===page;}))openSubs[c.group]=true;});}});
+  /* the listing panel's own state; Deals and Purchase Orders keep their behaviour */
+  var glWasOpen=!!state.glOpen;
+  state.dealOpen=false;state.orderOpen=false;state.glOpen=null;state.glLogAdd=null;state.glEdit=null;
+  if(glWasOpen&&state.expanded){state.expanded=false;applyExpanded();}
   /* Arriving from the rail is a fresh arrival at the page. Carrying a stage
      filter over from a dashboard card would leave the listing quietly scoped
      to something the user did not ask for on this visit. */
@@ -1000,13 +1182,16 @@ function historyHTML(id,poOnly){
 
 function scRender(){
   document.getElementById('sc-page-title').textContent=TITLES[state.page]||'Sub-Contracting';
-  /* Create SCR belongs to Deals and is hidden elsewhere, like every other
-     page action in this header. */
-  document.getElementById('sc-create-btn').style.display=state.page==='deals'?'inline-flex':'none';
+  /* The header's page action belongs to its page - Create SCR on Deals,
+     Create Team on Teams, Create Template on Templates - hidden elsewhere. */
+  var act=PAGE_ACTIONS[state.page],cb=document.getElementById('sc-create-btn');
+  cb.style.display=act?'inline-flex':'none';
+  if(act)cb.innerHTML=(act[2]||ICO.plus)+' '+act[0];
   buildRoleMenu();
   buildRail();
   var el=document.getElementById('adt-content');
-  el.innerHTML=state.page==='deals'?dealsPageHTML():state.page==='orders'?ordersPageHTML():state.page==='scr-form'?scrFormPageHTML():dashboardHTML();
+  el.innerHTML=state.page==='deals'?dealsPageHTML():state.page==='orders'?ordersPageHTML():state.page==='scr-form'?scrFormPageHTML()
+    :state.page==='teams'?teamsPageHTML():state.page==='templates'?templatesPageHTML():state.page==='billing'?billingPageHTML():state.page==='bulkupload'?bulkUploadHTML():state.page==='addnotice'?addNoticeHTML():state.page==='profile'?profileHTML():GL[state.page]?glPageHTML(state.page):dashboardHTML();
   /* A panel that was already open stays open through a re-render — with the
      class applied in the same frame, so it does not replay the slide-in every
      time a log is saved. Opening it from a row click is the other path, and
@@ -1018,6 +1203,11 @@ function scRender(){
   if(state.page==='orders'&&state.orderOpen){
     var ob=document.getElementById('sc-order-sb');
     if(ob){ob.classList.add('sc-still','open');fillPanel('sc-order-isb',orderPanelHTML());}
+  }
+  if(GL[state.page]&&state.glOpen&&state.glOpen.id===state.page){
+    var gb=document.getElementById('sc-gl-sb');
+    if(!glRow(state.page,state.glOpen.key)){state.glOpen=null;if(state.expanded){state.expanded=false;applyExpanded();}}
+    else if(gb){gb.classList.add('sc-still','open');fillPanel('sc-gl-isb',glPanelHTML(state.page));applyExpanded();}
   }
 }
 /* Status changes are recorded before anything is drawn, so a History tab that
@@ -1041,7 +1231,375 @@ scRender=function(){
 };
 
 /* ══ DASHBOARD ════════════════════════════════════════════════════════════  */
+/* ══ DASHBOARD VIEWS ═══════════════════════════════════════════════════════
+   One Dashboard page, three views, switched by ADT's dashboard tab row
+   (.dashboard-tabs / .tab-btn - the same row the multi-role dashboard uses):
+   Sub-Contracting, Sales and Settlement. Every view is built from the shared
+   pieces only - .hr-header, .hr-band, .hr-stat-card, .hr-section, the record
+   and listing tables, .segmented, the status badges. */
+var DASH_TABS=[{id:'sc',label:'Sub-Contracting Dashboard'},{id:'sales',label:'Sales Dashboard'},{id:'settlement',label:'Settlement Dashboard'}];
 function dashboardHTML(){
+  var view=state.dashTab==='sales'?salesDashHTML():state.dashTab==='settlement'?settlementDashHTML():scDashboardHTML();
+  return '<div class="listing-page">'
+    +'<div class="dashboard-tabs-wrap"><div class="dashboard-tabs" role="tablist">'
+      +DASH_TABS.map(function(t){
+        var on=state.dashTab===t.id;
+        return '<button type="button" role="tab" aria-selected="'+on+'" class="tab-btn'+(on?' active':'')+'" onclick="scDashTab(\''+t.id+'\')">'+esc(t.label)+'</button>';
+      }).join('')
+    +'</div></div>'
+    +'<div class="dashboard-view active">'+view+'</div>'
+  +'</div>';
+}
+function scDashTab(id){state.dashTab=id;scRender();}
+function scDashSet(key,v){state[key]=v;scRender();}
+/* ── DATE RANGE ──────────────────────────────────────────────────────────
+   A button naming the period opens a menu of presets; Custom opens a two-
+   month calendar beside the list to pick a range - future days struck out -
+   with the range spelled out and Cancel / Apply at the foot. Settlement has
+   no "Today": the day's payouts are not settled yet. */
+var RANGE_PRESETS=[['today','Today'],['yesterday','Yesterday'],['last7','Last 7 Days'],['last30','Last 30 Days'],
+  ['thisMonth','This Month'],['lastMonth','Last Month'],['custom','Custom']];
+function rangeKey(scope){return scope==='settlement'?'setRange':'salesRange';}
+function rangePresets(scope){return scope==='settlement'?RANGE_PRESETS.slice(1):RANGE_PRESETS;}
+function addD(d,n){var x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function rangeOf(scope){
+  var r=state[rangeKey(scope)],T=DASH_TODAY,y=T.getFullYear(),m=T.getMonth();
+  if(r.key==='custom')return {from:new Date(r.from),to:new Date(r.to)};
+  if(r.key==='yesterday')return {from:addD(T,-1),to:addD(T,-1)};
+  if(r.key==='last7')return {from:addD(T,-6),to:T};
+  if(r.key==='last30')return {from:addD(T,-29),to:T};
+  if(r.key==='thisMonth')return {from:new Date(y,m,1),to:T};
+  if(r.key==='lastMonth')return {from:new Date(y,m-1,1),to:new Date(y,m,0)};
+  return {from:T,to:T};
+}
+function shortDate(d){return ('0'+d.getDate()).slice(-2)+' '+MONTHS[d.getMonth()];}
+function rangeLabel(scope){
+  var r=state[rangeKey(scope)];
+  if(r.key!=='custom')return (RANGE_PRESETS.filter(function(x){return x[0]===r.key;})[0]||['',''])[1];
+  var g=rangeOf(scope);
+  return +g.from===+g.to?fmtDate(g.from):shortDate(g.from)+' – '+fmtDate(g.to);
+}
+function rangeBtnHTML(scope){
+  return '<button type="button" class="sc-range-btn" onclick="event.stopPropagation();scRangeOpen(this,\''+scope+'\')">'
+    +'<span class="sc-range-ico">'+ICO.cal+'</span><span>'+esc(rangeLabel(scope))+'</span>'+ICO_DOWN+'</button>';
+}
+function platformBtnHTML(key){
+  var v=state[key];
+  return '<button type="button" class="sc-range-btn sc-plat-btn" onclick="event.stopPropagation();scPlatformOpen(this,\''+key+'\')">'
+    +'<span>'+esc(v==='All'?'All Platforms':v)+'</span>'+ICO_DOWN+'</button>';
+}
+var rangePick=null;   // the open popover: {scope, start, end, view:Date(first of left month), custom:bool}
+function popEl(){
+  var m=document.getElementById('sc-range-pop');
+  if(!m){m=document.createElement('div');m.id='sc-range-pop';m.className='sc-range-pop';
+    m.addEventListener('click',function(e){e.stopPropagation();});document.body.appendChild(m);}
+  return m;
+}
+function scRangeClose(){var m=document.getElementById('sc-range-pop');if(m){m.classList.remove('open');m.innerHTML='';}rangePick=null;}
+document.addEventListener('click',function(){if(rangePick)scRangeClose();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&rangePick)scRangeClose();});
+window.addEventListener('resize',function(){if(rangePick)scRangeClose();});
+function placePop(m,btn){
+  m.style.maxHeight=(window.innerHeight-16)+'px';
+  var r=btn.getBoundingClientRect(),vw=window.innerWidth,vh=window.innerHeight,w=m.offsetWidth,h=m.offsetHeight;
+  var left=Math.max(8,Math.min(r.right-w,vw-w-8)),top=r.bottom+8;
+  if(top+h>vh-8)top=r.top-h-8>=8?r.top-h-8:Math.max(8,vh-h-8);
+  m.style.left=Math.round(left)+'px';m.style.top=Math.round(top)+'px';
+}
+function scRangeOpen(btn,scope){
+  if(rangePick&&rangePick.scope===scope){scRangeClose();return;}
+  var r=state[rangeKey(scope)],g=rangeOf(scope);
+  rangePick={scope:scope,btn:btn,custom:r.key==='custom',start:r.key==='custom'?g.from:null,end:r.key==='custom'?g.to:null,
+    view:new Date(DASH_TODAY.getFullYear(),DASH_TODAY.getMonth()-1,1)};
+  drawRangePop();
+}
+function drawRangePop(){
+  var P=rangePick,m=popEl(),cur=state[rangeKey(P.scope)].key;
+  var list='<div class="sc-range-list">'+rangePresets(P.scope).map(function(x){
+    var on=P.custom?x[0]==='custom':cur===x[0];
+    return '<button type="button" class="sc-range-opt'+(on?' is-on':'')+'" onclick="scRangePick(\''+x[0]+'\')">'+esc(x[1])+'</button>';
+  }).join('')+'</div>';
+  var cal='';
+  if(P.custom){
+    var v=P.view,two=window.innerWidth>=880,v2=new Date(v.getFullYear(),v.getMonth()+1,1);
+    var a=P.start,b=P.end||P.start,days=a?Math.round((b-a)/864e5)+1:0;
+    var said=!a?'<span class="sc-cal-hint">Pick a start date</span>'
+      :'<span class="sc-cal-range">'+fmtDate(a)+(+a===+b?'':' – '+fmtDate(b))+'</span>'
+        +'<span class="sc-cal-days">'+(P.end?days+(days===1?' day':' days'):'Pick an end date')+'</span>';
+    cal='<div class="sc-cal-wrap"><div class="sc-cal-months">'+(two?monthHTML(v,'prev')+monthHTML(v2,'next'):monthHTML(v,'both'))+'</div>'
+      +'<div class="sc-cal-foot"><div class="sc-cal-said">'+said+'</div>'
+        +'<button class="btn-outline btn-sm" type="button" onclick="scRangeClose()">Cancel</button>'
+        +'<button class="btn-primary btn-sm" type="button" onclick="scRangeApply()"'+(P.start?'':' disabled')+'>Apply</button></div></div>';
+  }
+  m.innerHTML='<div class="sc-range-body'+(P.custom?' has-cal':'')+'">'+list+cal+'</div>';
+  m.classList.add('open');placePop(m,P.btn);
+}
+function monthHTML(first,side){
+  var y=first.getFullYear(),mo=first.getMonth(),start=addD(first,-first.getDay()),P=rangePick;
+  var nav=side!=='next'?'<button type="button" class="sc-cal-nav" aria-label="Previous month" onclick="scCalNav(-1)">'+ICO.chevL+'</button>':'<span></span>';
+  var nav2=side!=='prev'?'<button type="button" class="sc-cal-nav" aria-label="Next month" onclick="scCalNav(1)">'+ICO.chevR+'</button>':'<span></span>';
+  var head='<div class="sc-cal-head">'+nav+'<span class="sc-cal-title">'+MONTHS[mo]+' '+y+'</span>'+nav2+'</div>';
+  var dows='<div class="sc-cal-grid">'+['Su','Mo','Tu','We','Th','Fr','Sa'].map(function(d){return '<span class="sc-cal-dow">'+d+'</span>';}).join('');
+  var a=P.start,b=P.end||(a&&P.hover&&P.hover>a?P.hover:a),cells='',preview=!P.end&&b&&+b!==+a;
+  for(var i=0;i<42;i++){
+    var d=addD(start,i),out=d.getMonth()!==mo,future=d>DASH_TODAY,cls='sc-cal-day';
+    if(out)cls+=' is-out';
+    if(future)cls+=' is-future';
+    if(!out&&a&&d>=a&&d<=b)cls+=' is-in'+(preview?' is-preview':'');
+    if(+d===+DASH_TODAY)cls+=' is-today';
+    if(!out&&a&&+d===+a)cls+=' is-start';
+    if(!out&&b&&+d===+b)cls+=' is-end';
+    var ymd=d.getFullYear()+','+d.getMonth()+','+d.getDate();
+    var click=!out&&!future?' onclick="scCalDay('+ymd+')" onmouseenter="scCalHover('+ymd+')"':' disabled';
+    cells+='<button type="button" class="'+cls+'"'+click+'>'+d.getDate()+'</button>';
+  }
+  return '<div class="sc-cal">'+head+dows+cells+'</div></div>';
+}
+function scCalNav(n){var v=rangePick.view;rangePick.view=new Date(v.getFullYear(),v.getMonth()+n,1);drawRangePop();}
+function scCalHover(y,m,d){
+  var P=rangePick;if(!P||!P.start||P.end)return;
+  var t=new Date(y,m,d);if(P.hover&&+P.hover===+t)return;
+  P.hover=t;drawRangePop();
+}
+function scCalDay(y,m,d){
+  var P=rangePick,t=new Date(y,m,d);
+  P.hover=null;
+  if(!P.start||P.end){P.start=t;P.end=null;}
+  else if(t<P.start){P.start=t;}
+  else P.end=t;
+  drawRangePop();
+}
+function scRangePick(key){
+  var P=rangePick;if(!P)return;
+  if(key==='custom'){P.custom=true;drawRangePop();return;}
+  state[rangeKey(P.scope)]={key:key};if(P.scope==='settlement')state.setPage=1;scRangeClose();scRender();
+}
+function scRangeApply(){
+  var P=rangePick;if(!P||!P.start)return;
+  state[rangeKey(P.scope)]={key:'custom',from:+P.start,to:+(P.end||P.start)};if(P.scope==='settlement')state.setPage=1;scRangeClose();scRender();
+}
+/* the platform filter: the same menu, a short list */
+function scPlatformOpen(btn,key){
+  if(rangePick&&rangePick.scope==='plat:'+key){scRangeClose();return;}
+  rangePick={scope:'plat:'+key,btn:btn};
+  var m=popEl();
+  m.innerHTML='<div class="sc-range-body"><div class="sc-range-list">'+CHANNELS.map(function(c){
+    return '<button type="button" class="sc-range-opt'+(state[key]===c?' is-on':'')+'" onclick="scPlatformPick(\''+key+'\',\''+c+'\')">'+esc(c==='All'?'All Platforms':c)+'</button>';
+  }).join('')+'</div></div>';
+  m.classList.add('open');placePop(m,btn);
+}
+function scPlatformPick(key,c){state[key]=c;scRangeClose();scRender();}
+/* coins: a money tile drops a few rupee coins down its background on hover */
+function statCard(label,value,ico,sub,tone,coins){
+  return '<div class="hr-stat-card sc-stat-hover'+(coins?' has-coins':'')+'">'
+    +(coins?'<span class="sc-coins" aria-hidden="true">'+new Array(8).join('<i>₹</i>')+'</span>':'')
+    +'<div class="hr-stat-head"><div class="hr-stat-label">'+esc(label)+'</div>'
+    +'<span class="hr-stat-ico">'+ico+'</span></div>'
+    +'<div class="hr-stat-number'+(tone?' '+tone:'')+'">'+value+'</div>'
+    +'<div class="hr-stat-sub">'+esc(sub)+'</div></div>';
+}
+function band(title,right){
+  return '<div class="hr-band"><span class="hr-band-title">'+esc(title)+'</span><span class="hr-band-rule"></span>'+(right||'')+'</div>';
+}
+function dashSection(title,right,body){
+  return '<div class="hr-section"><div class="hr-section-header"><span class="hr-section-title">'+esc(title)+'</span>'+(right||'')+'</div>'+body+'</div>';
+}
+function rupee(n){return '₹'+fmtAmt(n);}
+function rupee0(n){return '₹'+Math.round(n).toLocaleString('en-IN');}
+function dashEmpty(text){return '<div class="lp-logs-empty">'+esc(text)+'</div>';}
+
+/* ── SALES DASHBOARD ─────────────────────────────────────────────────────
+   Sample figures for the store: today / this week / this month, by channel. */
+var SALES_DAYS=[18400,22150,19800,24600,27300,31200,29850,21400,23900,26150,28700,30400,33800,12450]; // 01-14 Oct
+/* Sample daily sales, 01 Sep - 14 Oct 2026; every range sums the days in it. */
+var DASH_TODAY=new Date(2026,9,14);
+var SALES_DAILY=(function(){
+  var m={},d=new Date(2026,7,1),i=0;
+  for(;d<=DASH_TODAY;d.setDate(d.getDate()+1),i++){
+    var oct=d.getMonth()===9&&d.getFullYear()===2026;
+    m[dayKey(d)]=oct?SALES_DAYS[d.getDate()-1]:15000+((i*7919)%17000);
+  }
+  return m;
+})();
+function dayKey(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+var CH_SHARE={All:1,Paytm:0.375,Mystore:0.45,Bhaiyaa:0.175};
+function salesFor(range){
+  var sales=0,d=new Date(range.from);
+  for(;d<=range.to;d.setDate(d.getDate()+1))sales+=SALES_DAILY[dayKey(d)]||0;
+  var orders=Math.round(sales/330);
+  var split=function(ch){var t=Math.round(orders*CH_SHARE[ch]),c=Math.round(t*0.915),ip=Math.round(t*0.055);return [t,c,ip,Math.max(0,t-c-ip)];};
+  var pur=function(ch){var t=Math.round(orders*CH_SHARE[ch]/12);return [t,Math.round(t*0.07),Math.round(t*0.045)];};
+  return {sales:sales,orders:split('All'),split:split,pur:pur};
+}
+var SALES_WEEKS=[['Week 1','01 – 07 Oct',172300],['Week 2','08 – 14 Oct',177800]];
+var TOP_CATEGORIES=[['Groceries & Staples',412],['Personal Care',236],['Beverages',198],['Household',154],['Snacks',121]];
+var TOP_PRODUCTS=[['Toor Dal 1 kg',148],['Sunflower Oil 1 L',131],['Basmati Rice 5 kg',112],['Detergent Powder 1 kg',96],['Assam Tea 500 g',84]];
+var LOW_STOCK=[['Surf Excel 1 kg',3,20],['Amul Butter 500 g',4,24],['Maggi Noodles 12-pack',6,30],['Colgate Paste 200 g',8,25],['Parle-G 800 g',9,30]];
+var CHANNELS=['All','Paytm','Mystore','Bhaiyaa'];
+function salesDashHTML(){
+  var rg=rangeOf('sales'),P=salesFor(rg),o=P.orders,label=rangeLabel('sales');
+  var period=rangeBtnHTML('sales');
+  var stats='<div class="hr-stat-grid">'
+    +statCard('Sales',rupee0(P.sales),ICO.money,'Revenue · '+label,'',true)
+    +statCard('Total Orders',o[0],ICO.cart,'All platforms · '+label)
+    +statCard('Completed Orders',o[1],ICO.check,'Delivered and paid','green')
+    +statCard('Pending Orders',o[3],ICO.clock,'Awaiting acceptance','orange')
+  +'</div>';
+  var total=SALES_WEEKS.reduce(function(t,w){return t+w[2];},0);
+  var weekTable=recTable(['Week','Dates','Total Sales','%'],SALES_WEEKS.map(function(w){
+    return '<tr><td><b>'+esc(w[0])+'</b></td><td>'+esc(w[1])+'</td><td>'+rupee0(w[2])+'</td><td>'+(w[2]/total*100).toFixed(1)+'%</td></tr>';
+  }).join(''));
+  var rankTable=function(head,rows,unit){
+    return rows.length?recTable(['#',head,unit],rows.map(function(r,i){
+      return '<tr><td>'+(i+1)+'</td><td><b>'+esc(r[0])+'</b></td><td>'+r[1]+'</td></tr>';}).join('')):dashEmpty('No data available');
+  };
+  var stock=LOW_STOCK.length?recTable(['Product','Quantity','Status'],LOW_STOCK.map(function(r){
+    var crit=r[1]<=r[2]*0.2;
+    return '<tr><td><b>'+esc(r[0])+'</b><span class="sc-rec-sub">Reorder at '+r[2]+'</span></td><td>'+r[1]+'</td>'
+      +'<td>'+badge(crit?'unapproved':'pending',crit?'Critical':'Low')+'</td></tr>';}).join('')):dashEmpty('No data available');
+  return '<div class="hr-header"><div class="hr-header-title">Sales Dashboard</div>'
+      +'<div class="hr-header-desc">Revenue, orders and stock across Paytm, Mystore and Bhaiyaa.</div></div>'
+    +band('Overview',period)+stats
+    +band('Sales Trend')
+    +'<div class="hr-grid-2">'
+      +dashSection('Sales Over The Month','<span class="hr-band-meta">October 2026</span>',salesChartHTML())
+      +dashSection('Sales Over The Week','',weekTable)
+    +'</div>'
+    +band('Order Analytics')
+    +'<div class="hr-grid-2">'
+      +dashSection('Sales Analytics',platformBtnHTML('salesCh'),
+        (function(x){return analyticsRows([['Total Sales Orders',x[0]],['Completed Orders',x[1]],['In Progress Orders',x[2]],['Pending Orders',x[3]]]);})(P.split(state.salesCh)))
+      +dashSection('Purchase Analytics',platformBtnHTML('purCh'),
+        (function(x){return analyticsRows([['Total Purchase Orders',x[0]],['Cancelled Orders',x[1]],['Returned Orders',x[2]]]);})(P.pur(state.purCh)))
+    +'</div>'
+    +band('Products & Inventory')
+    +'<div class="sc-dash-grid-3">'
+      +dashSection('Top Selling Category','',rankTable('Category',TOP_CATEGORIES,'Orders'))
+      +dashSection('Top Selling Products','',rankTable('Product',TOP_PRODUCTS,'Orders'))
+      +dashSection('Low Stock Inventory','',stock)
+    +'</div>';
+}
+/* label · count, with a share bar against the first (the total) */
+function analyticsRows(rows){
+  var max=Math.max(1,rows[0][1]);
+  return '<div class="sc-an-list">'+rows.map(function(r,i){
+    return '<div class="sc-an-row"><div class="sc-an-top"><span class="sc-an-label">'+esc(r[0])+'</span><b class="sc-an-val">'+r[1]+'</b></div>'
+      +'<div class="sc-an-track"><span class="sc-an-fill'+(i?'':' is-total')+'" style="width:'+(r[1]/max*100).toFixed(1)+'%"></span></div></div>';
+  }).join('')+'</div>';
+}
+/* Daily sales, one series: thin bars rounded at the top, a recessive grid,
+   no legend (the title names it), a tooltip on each day. */
+function salesChartHTML(){
+  var W=600,H=230,L=48,R=8,T=12,B=26,max=40000,steps=4,n=SALES_DAYS.length;
+  var cw=(W-L-R)/n,bw=Math.min(22,cw*0.56),y=function(v){return T+(H-T-B)*(1-v/max);};
+  var g='';
+  for(var i=0;i<=steps;i++){var v=max/steps*i,yy=y(v);
+    g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+yy+'" y2="'+yy+'" class="sc-ch-grid'+(i?'':' is-base')+'"/>'
+      +'<text x="'+(L-8)+'" y="'+(yy+4)+'" class="sc-ch-axis" text-anchor="end">'+(v?'₹'+v/1000+'k':'0')+'</text>';}
+  var bars=SALES_DAYS.map(function(v,i){
+    var x=L+cw*i+(cw-bw)/2,top=y(v),h=Math.max(0,y(0)-top),r=Math.min(4,bw/2,h);
+    var d='M'+x+','+y(0)+'V'+(top+r)+'Q'+x+','+top+' '+(x+r)+','+top+'H'+(x+bw-r)+'Q'+(x+bw)+','+top+' '+(x+bw)+','+(top+r)+'V'+y(0)+'Z';
+    var day=('0'+(i+1)).slice(-2)+' Oct';
+    return '<g class="sc-ch-col" onmouseenter="scChartTip(this,\''+day+'\',\''+rupee0(v)+'\')" onmouseleave="scChartTip(null)">'
+      +'<rect x="'+(L+cw*i)+'" y="'+T+'" width="'+cw+'" height="'+(H-T-B)+'" class="sc-ch-hit"/>'
+      +'<path d="'+d+'" class="sc-ch-bar'+(i===n-1?' is-today':'')+'"/>'
+      +((i%2===0||i===n-1)?'<text x="'+(L+cw*i+cw/2)+'" y="'+(H-8)+'" class="sc-ch-axis" text-anchor="middle">'+(i+1)+'</text>':'')
+      +'</g>';
+  }).join('');
+  return '<div class="sc-chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Daily sales, 1 to 14 October 2026">'+g+bars+'</svg>'
+    +'<div class="sc-ch-tip" id="sc-ch-tip"></div></div>';
+}
+function scChartTip(el,day,val){
+  var tip=document.getElementById('sc-ch-tip');if(!tip)return;
+  if(!el){tip.classList.remove('show');return;}
+  tip.innerHTML='<span>'+esc(day)+'</span><b>'+esc(val)+'</b>';
+  var box=el.closest('.sc-chart').getBoundingClientRect(),r=el.querySelector('.sc-ch-bar').getBoundingClientRect();
+  tip.style.left=(r.left-box.left+r.width/2)+'px';tip.style.top=(r.top-box.top)+'px';
+  tip.classList.add('show');
+}
+
+/* ── SETTLEMENT DASHBOARD ────────────────────────────────────────────────
+   Payouts to the store's account, by payment date. */
+var SETTLEMENTS=[
+  {date:'14 Oct 2026',amount:0,utr:'',orders:31,acct:'XXXX 4821',item:11840,order:620,status:'Pending'},
+  {date:'13 Oct 2026',amount:29760,utr:'UTIB26101345872',orders:44,acct:'XXXX 4821',item:28910,order:850,status:'Settled'},
+  {date:'12 Oct 2026',amount:27340,utr:'UTIB26101245310',orders:41,acct:'XXXX 4821',item:26600,order:740,status:'Settled'},
+  {date:'11 Oct 2026',amount:25480,utr:'',orders:39,acct:'XXXX 4821',item:24900,order:580,status:'Failed'},
+  {date:'10 Oct 2026',amount:22910,utr:'UTIB26101044127',orders:36,acct:'XXXX 4821',item:22300,order:610,status:'Settled'},
+  {date:'09 Oct 2026',amount:20870,utr:'UTIB26100943906',orders:33,acct:'XXXX 4821',item:20350,order:520,status:'Settled'},
+  {date:'08 Oct 2026',amount:19110,utr:'UTIB26100843355',orders:30,acct:'XXXX 4821',item:18640,order:470,status:'Settled'},
+  {date:'05 Oct 2026',amount:24320,utr:'UTIB26100542890',orders:38,acct:'XXXX 4821',item:23700,order:620,status:'Settled'},
+  {date:'01 Oct 2026',amount:16980,utr:'UTIB26100141105',orders:27,acct:'XXXX 4821',item:16550,order:430,status:'Settled'},
+  {date:'28 Sep 2026',amount:21440,utr:'UTIB26092840918',orders:34,acct:'XXXX 4821',item:20890,order:550,status:'Settled'},
+  {date:'22 Sep 2026',amount:18760,utr:'UTIB26092240377',orders:29,acct:'XXXX 4821',item:18310,order:450,status:'Settled'},
+  {date:'15 Sep 2026',amount:23050,utr:'UTIB26091539862',orders:37,acct:'XXXX 4821',item:22480,order:570,status:'Settled'},
+  {date:'08 Sep 2026',amount:17620,utr:'UTIB26090839145',orders:28,acct:'XXXX 4821',item:17190,order:430,status:'Settled'}
+];
+function setRows(){
+  var rg=rangeOf('settlement');
+  return SETTLEMENTS.filter(function(r){var d=new Date(r.date);return d>=rg.from&&d<=rg.to;});
+}
+function settlementDashHTML(){
+  var rows=setRows();
+  var due=SETTLEMENTS.filter(function(r){return r.status!=='Settled';}).reduce(function(t,r){return t+r.item+r.order;},0);
+  var paid=rows.filter(function(r){return r.status==='Settled';}).reduce(function(t,r){return t+r.amount;},0);
+  var label=rangeLabel('settlement');
+  var tools='<div class="sc-dash-tools">'+rangeBtnHTML('settlement')
+    +'<button class="btn-outline btn-sm" type="button" onclick="scDownloadSettlements()">'+ICO_DOWNLOAD+' Download Payment Details</button>'
+    +'<button class="btn-primary btn-sm" type="button" onclick="document.getElementById(\'sc-set-import\').click()">'+ICO_IMPORT+' Import</button>'
+    +'<input type="file" id="sc-set-import" accept=".csv,.xlsx" style="display:none" onchange="scImportSettlements(this)"></div>';
+  var stats='<div class="hr-stat-grid sc-stat-3">'
+    +statCard('Total Amount to be Settled',rupee(due),ICO.money,'Amount to be credited to your account','orange',true)
+    +statCard('Amount Settled',rupee(paid),ICO.check,'Credited · '+label,'green',true)
+    +statCard('Settlements',rows.length,ICO.clipboard,'Payouts · '+label)
+  +'</div>';
+  var tone={Settled:'approved',Pending:'pending',Failed:'unapproved'};
+  /* the listing's own paging: ten rows a page */
+  var pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));if(state.setPage>pages)state.setPage=pages;
+  var off=(state.setPage-1)*PAGE_SIZE;
+  var body=rows.length?pageSlice(rows,state.setPage).map(function(r,i){
+    return '<tr><td>'+(off+i+1)+'</td><td><div class="lp-c-main">'+esc(r.date)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+(r.status==='Settled'?rupee(r.amount):'<span class="lp-dash">—</span>')+'</div></td>'
+      +'<td><div class="lp-c-plain">'+(r.utr?esc(r.utr):'<span class="lp-dash">—</span>')+'</div></td>'
+      +'<td><div class="lp-c-plain">'+r.orders+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(r.acct)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+rupee(r.item)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+rupee(r.order)+'</div></td>'
+      +'<td>'+badge(tone[r.status],r.status)+'</td></tr>';
+  }).join(''):emptyRow(9,'No settlements in this period','Choose another period to see its payouts.');
+  return '<div class="hr-header"><div class="hr-header-title">Settlement Dashboard</div>'
+      +'<div class="hr-header-desc">Payouts to your account, with the UTR for every settlement.</div></div>'
+    +band('Overview',tools)+stats
+    +band('Settlement History','<span class="hr-band-meta">'+rows.length+(rows.length===1?' payout':' payouts')+'</span>')
+    +'<div class="lp-table-card"><table class="lp-table sc-set-table"><thead><tr>'
+      +'<th>S.No</th><th>Payment Date</th><th>Amount Settled</th><th>UTR Number</th><th>Orders</th><th>Account Number</th>'
+      +'<th>Item Level Settlement</th><th>Order Level Settlement</th><th>Status</th>'
+    +'</tr></thead><tbody>'+body+'</tbody></table>'
+    +(rows.length?paginationHTML(rows.length,state.setPage,'settlements','scSetPage'):'')+'</div>';
+}
+function scSetPage(n){state.setPage=n;scRender();}
+var ICO_DOWNLOAD='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 17v3h16v-3"/></svg>';
+var ICO_IMPORT='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 17v3h16v-3"/></svg>';
+/* Download hands back the rows on screen as a CSV. */
+function scDownloadSettlements(){
+  var rows=setRows();
+  if(!rows.length){scToast('Nothing to download','info','There are no settlements in this period.');return;}
+  var q=function(v){return '"'+String(v).replace(/"/g,'""')+'"';};
+  var csv=[['S.No','Payment Date','Amount Settled','UTR Number','Orders','Account Number','Item Level Settlement','Order Level Settlement','Status']]
+    .concat(rows.map(function(r,i){return [i+1,r.date,r.status==='Settled'?r.amount:'',r.utr,r.orders,r.acct,r.item,r.order,r.status];}))
+    .map(function(l){return l.map(q).join(',');}).join('\r\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='payment-details-'+state.setRange.key+'.csv';
+  document.body.appendChild(a);a.click();a.remove();
+  scToast('Payment details downloaded','success',rows.length+(rows.length===1?' settlement':' settlements')+' in the file.');
+}
+function scImportSettlements(input){
+  var f=input.files&&input.files[0];if(!f)return;
+  scToast('File received','success',f.name+' is queued for import. Settlements update once it is processed.');
+  input.value='';
+}
+
+function scDashboardHTML(){
   var work=[
     {label:'Pending With Me',value:12,ico:ICO.inbox,sub:'Items awaiting your action'},
     {label:'Waiting for Approval',value:5,ico:ICO.clock,sub:'Sent for approval'},
@@ -1071,7 +1629,7 @@ function dashboardHTML(){
       +'</button>';
   }).join('');
 
-  return '<div class="listing-page">'
+  return ''
     +'<div class="hr-header">'
       +'<div class="hr-header-title">Sub-Contracting Dashboard</div>'
       +'<div class="hr-header-desc">Track your work and deal progress across the Sub-Contracting lifecycle. Viewing as <b>'+esc(state.role)+'</b>.</div>'
@@ -1079,8 +1637,7 @@ function dashboardHTML(){
     +'<div class="hr-band"><span class="hr-band-title">My Work</span><span class="hr-band-rule"></span></div>'
     +'<div class="hr-stat-grid">'+cards+'</div>'
     +'<div class="hr-band"><span class="hr-band-title">Current Deal Stage</span><span class="hr-band-rule"></span></div>'
-    +'<div class="sc-stage-grid">'+stages+'</div>'
-  +'</div>';
+    +'<div class="sc-stage-grid">'+stages+'</div>';
 }
 function scOpenStage(key,title,count){
   state.stageFilter=key;state.stageLabel=title;state.dealPage=1;state.orderPage=1;
@@ -2205,16 +2762,17 @@ function scCollapsePanel(){setExpanded(false);}
 function setExpanded(on){
   state.expanded=!!on;
   applyExpanded();
-  if(on)['sc-deal-sb','sc-order-sb'].forEach(function(id){
+  if(on)['sc-deal-sb','sc-order-sb','sc-gl-sb'].forEach(function(id){
     var sb=document.getElementById(id);if(!sb||!sb.classList.contains('sc-expanded'))return;
     sb.classList.add('sc-expand-anim');setTimeout(function(){sb.classList.remove('sc-expand-anim');},260);
   });
   /* redraw the open tab so its header shows Collapse instead of Expand */
   if(state.page==='deals'&&state.dealOpen)refreshPanel('sc-deal-isb',dealPanelHTML());
   if(state.page==='orders'&&state.orderOpen)refreshPanel('sc-order-isb',orderPanelHTML());
+  if(GL[state.page]&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.page));
 }
 function applyExpanded(){
-  ['sc-deal-sb','sc-order-sb'].forEach(function(id){
+  ['sc-deal-sb','sc-order-sb','sc-gl-sb'].forEach(function(id){
     var sb=document.getElementById(id);
     if(sb)sb.classList.toggle('sc-expanded',state.expanded&&sb.classList.contains('open'));
   });
@@ -4373,6 +4931,2723 @@ function sampleView(type,index,id){
     '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>',true);
 }
 
+/* ══ TEAM MANAGEMENT ═══════════════════════════════════════════════════════
+   Teams (the stores on the platform) and Templates (the permission set each
+   role gets, by vertical), both on the shared listing: filter bar, stats,
+   .lp-table, ten rows a page, a popup form to create or edit. */
+var PAGE_ACTIONS={deals:['Create SCR','scOpenCreateSCR'],teams:['Create Team','scOpenTeamForm'],templates:['Create Template','scOpenTemplateForm']};
+function scPageAction(){var a=PAGE_ACTIONS[state.page];if(a)(typeof a[1]==='function'?a[1]():window[a[1]]());}
+var VERTICALS=['Grocery Retail','Fashion','Electronics','Dispensary'];
+var ICO_KEBAB='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
+var ICO_TRASH='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+
+/* ── TEAMS ──────────────────────────────────────────────────────────────── */
+var TEAMS=(function(){
+  var names=[['Zing Grocery','antar@seller.com','Grocery Retail'],['C mart','tastefood@gmail.com','Grocery Retail'],
+    ['Suma Grocery','sumalatha@gmail.com','Grocery Retail'],['Chennai Fashion Store 2k26','sadalawar@newforceltd.com','Fashion'],
+    ['Comm store chennai2','sadalawar@newforceltd.com','Electronics'],['Comm store chennai','sadalawar@newforceltd.com','Electronics'],
+    ['Apollo Wellness','apollo.wellness@gmail.com','Dispensary'],['Fresh Basket','freshbasket@retail.in','Grocery Retail'],
+    ['Style Hub Hyderabad','stylehub@fashion.in','Fashion'],['Gadget Point','gadgetpoint@tech.in','Electronics'],
+    ['MedPlus Kondapur','medplus.kdp@gmail.com','Dispensary'],['Daily Needs Mart','dailyneeds@retail.in','Grocery Retail'],
+    ['Trendy Threads','trendythreads@fashion.in','Fashion'],['Smart Electronics','smartelec@tech.in','Electronics'],
+    ['Care Pharmacy','carepharma@gmail.com','Dispensary'],['Kirana King','kiranaking@retail.in','Grocery Retail']];
+  var rows=[],d=new Date(2026,9,14);
+  for(var i=0;i<64;i++){
+    var n=names[i%names.length],suffix=i<names.length?'':' '+(Math.floor(i/names.length)+1);
+    if(i&&i%2===0)d=addD(d,-1);
+    rows.push({key:2899-i,name:n[0]+suffix,code:'store:'+(3136-i),email:n[1],vertical:n[2],date:fmtDate(d),
+      status:i%9===7?'Inactive':'Active'});
+  }
+  return rows;
+})();
+function filteredTeams(){
+  var f=state.teamFilter;
+  var rows=TEAMS.filter(function(t){
+    if(f.status&&t.status!==f.status)return false;
+    if(f.vertical&&t.vertical!==f.vertical)return false;
+    return matchQ(f.q,[t.name,t.code,t.email,String(t.key)]);
+  });
+  var by={'Oldest first':function(a,b){return a.key-b.key;},'Name A–Z':function(a,b){return a.name.localeCompare(b.name);},
+    'Name Z–A':function(a,b){return b.name.localeCompare(a.name);}}[f.sort]||function(a,b){return b.key-a.key;};
+  return rows.slice().sort(by);
+}
+function teamFiltersActive(){var f=state.teamFilter;return !!(f.q||f.status||f.vertical||f.sort);}
+function teamsPageHTML(){
+  var all=filteredTeams(),f=state.teamFilter;
+  var pages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));if(state.teamPage>pages)state.teamPage=pages;
+  var off=(state.teamPage-1)*PAGE_SIZE;
+  var rows=pageSlice(all,state.teamPage).map(function(t,n){
+    return '<tr class="lp-row">'
+      +'<td>'+(off+n+1)+'</td>'
+      +'<td><div class="lp-c-plain">'+t.key+'</div></td>'
+      +'<td><div class="lp-c-main">'+esc(t.name)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(t.code)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(t.email)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(t.vertical)+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(t.date)+'</div></td>'
+      +'<td>'+badge(t.status==='Active'?'approved':'unapproved',t.status)+'</td>'
+      +'<td><button class="lp-action-btn" type="button" title="Actions" aria-label="Actions for '+esc(t.name)+'" onclick="event.stopPropagation();scTeamMenu(this,'+t.key+')">'+ICO_KEBAB+'</button></td>'
+      +'</tr>';
+  }).join('')||emptyRow(9,'No teams match','Change the search or filters, or Reset to see every team.');
+  var count=function(st){return TEAMS.filter(function(t){return !st||t.status===st;}).length;};
+  var stats='<div class="listing-stats">'
+    +'<div class="listing-stat active"><div class="listing-stat-count">'+count('')+'</div><div class="listing-stat-label">All Teams</div></div>'
+    +'<div class="listing-stat approved"><div class="listing-stat-count">'+count('Active')+'</div><div class="listing-stat-label">Active</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+count('Inactive')+'</div><div class="listing-stat-label">Inactive</div></div>'
+    +'</div>';
+  return '<div class="listing-page">'
+    +'<div class="listing-top">'
+      +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
+        +'<div class="lp-filter-bar-label">Select Filter</div>'
+        +'<div class="lp-filter-bar-row sc-filters">'
+          +'<input class="lp-search-input" id="sc-team-q" type="text" value="'+esc(f.q)+'" placeholder="Search by name, code or email" oninput="scTeamSync()" onkeydown="scSearchKey(event,\'scSearchTeams\')">'
+          +csField('sc-tf-status',['Active','Inactive'],f.status,'Select Status','scTeamSync')
+          +csField('sc-tf-vertical',VERTICALS,f.vertical,'All Verticals','scTeamSync')
+          +csField('sc-tf-sort',['Newest first','Oldest first','Name A–Z','Name Z–A'],f.sort,'Sort by','scTeamSync')
+          +'<button class="lp-pill-clear" id="sc-team-reset" onclick="scResetTeams()"'+(teamFiltersActive()?'':' hidden')+'>'+ICO.close+' Reset</button>'
+          +'<button class="lp-pill-search" onclick="scSearchTeams()">Search</button>'
+        +'</div>'
+      +'</div>'
+      +stats
+    +'</div>'
+    +'<div class="lp-table-card">'
+      +'<table class="lp-table"><thead><tr><th>S.No</th><th>Key</th><th>Team Name</th><th>Team Code</th><th>Team Email</th>'
+        +'<th>Vertical</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +paginationHTML(all.length,state.teamPage,'teams','scTeamPage')
+    +'</div>'
+  +'</div>';
+}
+function scTeamSync(){
+  var b=document.getElementById('sc-team-reset');if(!b)return;
+  var q=document.getElementById('sc-team-q'),picked=document.querySelectorAll('.sc-filters .cs-trigger:not(.cs-placeholder)').length;
+  b.hidden=!(teamFiltersActive()||(q&&q.value.trim())||picked);
+}
+function scSearchTeams(){
+  var q=document.getElementById('sc-team-q');
+  state.teamFilter={q:q?q.value:'',status:csValue('sc-tf-status'),vertical:csValue('sc-tf-vertical'),sort:csValue('sc-tf-sort')};
+  state.teamPage=1;scRender();
+}
+function scResetTeams(){state.teamFilter={q:'',status:'',vertical:'',sort:''};state.teamPage=1;scRender();}
+function scTeamPage(n){state.teamPage=n;scRender();}
+function teamByKey(k){return TEAMS.filter(function(t){return t.key===k;})[0];}
+/* the row's menu: the shared action menu */
+function scTeamMenu(btn,key){
+  var m=rowMenuEl(),t=teamByKey(key);if(!t)return;
+  if(m.classList.contains('open')&&m.dataset.id==='team:'+key){scCloseRowMenu();return;}
+  m.innerHTML='<div class="sc-act-head">'+esc(t.name)+'</div>'
+    +'<div class="ct-act-item sc-act-avail" onclick="scCloseRowMenu();scOpenTeamForm('+key+')">Edit Team</div>'
+    +'<div class="ct-act-item sc-act-avail" onclick="scCloseRowMenu();scToggleTeam('+key+')">'+(t.status==='Active'?'Deactivate':'Activate')+'</div>';
+  m.dataset.id='team:'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
+  var r=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
+  scPlaceMenu(m,{left:r.right-w,right:r.right,top:r.top,bottom:r.bottom,width:w});
+}
+function scToggleTeam(key){
+  var t=teamByKey(key);if(!t)return;
+  t.status=t.status==='Active'?'Inactive':'Active';scRender();
+  scToast(t.name+(t.status==='Active'?' activated':' deactivated'),t.status==='Active'?'success':'info');
+}
+function scOpenTeamForm(key){
+  var t=typeof key==='number'?teamByKey(key):null;
+  var body=section('Team Details','<div class="policy-form-grid">'
+      +field('Team Name','<input class="ep-form-input" id="tm-name" value="'+esc(t?t.name:'')+'" placeholder="e.g. Zing Grocery">',true)
+      +field('Team Email','<input class="ep-form-input" id="tm-email" type="email" value="'+esc(t?t.email:'')+'" placeholder="owner@store.com">',true)
+      +field('Vertical',csField('tm-vertical',VERTICALS,t?t.vertical:'','Select vertical'),true)
+      +field('Status',csField('tm-status',['Active','Inactive'],t?t.status:'Active','Select status'),true)
+      +(t?field('Team Code','<div class="sc-ro">'+esc(t.code)+'</div>'):'')
+    +'</div>');
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scSaveTeam('+(t?t.key:'null')+')">'+(t?'Save Changes':'Create Team')+'</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell(t?'Edit Team':'Create Team',t?'Key '+t.key:'A new store on the platform',body,foot,true);
+  var f=document.getElementById('tm-name');if(f)f.focus();
+}
+function scSaveTeam(key){
+  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  var name=v('tm-name'),email=v('tm-email'),vertical=csValue('tm-vertical'),status=csValue('tm-status')||'Active';
+  if(!name){scToast('Enter the team name','error');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){scToast('Enter a valid team email','error');return;}
+  if(!vertical){scToast('Select the vertical','error');return;}
+  if(key){var t=teamByKey(key);t.name=name;t.email=email;t.vertical=vertical;t.status=status;scCloseModal();scRender();scToast(name+' updated','success');return;}
+  var top=TEAMS.reduce(function(m,x){return Math.max(m,x.key);},0),code=TEAMS.reduce(function(m,x){return Math.max(m,+x.code.split(':')[1]);},0);
+  TEAMS.unshift({key:top+1,name:name,code:'store:'+(code+1),email:email,vertical:vertical,date:stamp().date,status:status});
+  state.teamFilter={q:'',status:'',vertical:'',sort:''};state.teamPage=1;
+  scCloseModal();scRender();scToast(name+' created','success','Team code store:'+(code+1)+'.');
+}
+
+/* ── TEMPLATES ──────────────────────────────────────────────────────────── */
+/* The modules a role can be given, the actions each offers, and the verticals
+   it belongs to (Medicines and Prescriptions are Dispensary only). */
+var TPL_MODULES=[
+  ['Product','Product',['View','Create','Update','Delete']],['Inventory','Inventory',['View','Create','Update','Delete']],
+  ['Order','Order',['View','Create','Update','Delete']],['Discount','Discount & Offers',['View','Create','Update','Delete']],
+  ['Store','Store Settings',['View','Create','Update','Delete','Bank View','Bank Update']],['Staff','Staff & Roles',['View','Create','Update','Delete']],
+  ['Support','Support',['View','Create']],['Partner','Logistic Partner',['View']],['Category','Category',['View']],['Tax','Tax',['View']],
+  ['HSN','HSN/SAC Master',['View']],['Brand','Brand',['View']],['Buyer','Buyer / Customer',['View']],['Analytics','Analytics / Settlement',['View']],
+  ['Variants','Product Variants',['View','Create','Update']],['Bulk Upload','Bulk Upload',['Create']],['QR','Payment QR',['View','Create']],
+  ['Medicine','Medicines',['View','Create','Update','Delete'],'Dispensary'],['Prescription','Prescriptions',['View','Create','Update','Delete'],'Dispensary']
+];
+function tplModules(vertical){return TPL_MODULES.filter(function(m){return !m[3]||m[3]===vertical;});}
+function permLabel(mod,act){
+  var m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0];
+  return /^Bank /.test(act)?act+' Store Settings':act+' '+(m?m[1]:mod);
+}
+var TEMPLATES=(function(){
+  var all=function(v){var o={};tplModules(v).forEach(function(m){o[m[0]]=m[2].slice();});return o;};
+  var mgr=function(){return {Product:['View','Create','Update'],Inventory:['View','Create','Update'],Order:['View','Create','Update'],
+    Discount:['View','Create','Update'],Staff:['View','Create'],Category:['View'],Tax:['View'],HSN:['View'],Brand:['View'],Buyer:['View'],Analytics:['View']};};
+  var id=0,t=function(role,vertical,perms){return {id:++id,role:role,vertical:vertical,perms:perms};};
+  return [
+    t('Owner','Grocery Retail',all('Grocery Retail')),t('Manager','Grocery Retail',mgr()),
+    t('Worker','Grocery Retail',{Product:['View'],Inventory:['View','Update'],Order:['View','Create']}),
+    t('Delivery Partner','Grocery Retail',{Order:['View','Update']}),
+    t('Owner','Dispensary',all('Dispensary')),
+    t('Pharmacist','Dispensary',{Order:['View','Create','Update'],Medicine:['View','Create','Update'],Prescription:['View','Create','Update']}),
+    t('Assistant','Dispensary',{Inventory:['View','Update'],Order:['View'],Medicine:['View']}),
+    t('Worker','Dispensary',{Order:['View','Update']}),
+    t('Owner','Fashion',all('Fashion')),t('Manager','Fashion',mgr()),
+    t('Worker','Fashion',{Product:['View'],Inventory:['View','Update'],Order:['View','Create']}),
+    t('Owner','Electronics',all('Electronics')),t('Manager','Electronics',mgr())
+  ];
+})();
+function filteredTemplates(){
+  var f=state.tplFilter;
+  return TEMPLATES.filter(function(t){
+    if(f.vertical&&t.vertical!==f.vertical)return false;
+    return matchQ(f.q,[t.role,t.vertical]);
+  });
+}
+function tplFiltersActive(){var f=state.tplFilter;return !!(f.q||f.vertical);}
+var TPL_FOLD=6;   // modules shown before "+N more"
+function permsHTML(t){
+  var mods=tplModules(t.vertical).filter(function(m){return (t.perms[m[0]]||[]).length;});
+  if(!mods.length)return '<span class="lp-dash">No permissions</span>';
+  var open=!!state.tplOpen[t.id],show=open?mods:mods.slice(0,TPL_FOLD);
+  return '<div class="sc-perm-list">'+show.map(function(m){
+      return '<div class="sc-perm-row"><span class="sc-perm-mod">'+esc(m[1])+'</span><span class="sc-perm-chips">'
+        +t.perms[m[0]].map(function(a){return '<span class="sc-perm-chip">'+esc(a)+'</span>';}).join('')+'</span></div>';
+    }).join('')
+    +(mods.length>TPL_FOLD?'<button type="button" class="sc-perm-more" onclick="scTplFold('+t.id+')">'
+      +(open?'Show less':'+'+(mods.length-TPL_FOLD)+' more '+(mods.length-TPL_FOLD===1?'module':'modules'))+'</button>':'')
+    +'</div>';
+}
+function scTplFold(id){state.tplOpen[id]=!state.tplOpen[id];scRender();}
+function templatesPageHTML(){
+  var all=filteredTemplates(),f=state.tplFilter;
+  var pages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));if(state.tplPage>pages)state.tplPage=pages;
+  var off=(state.tplPage-1)*PAGE_SIZE;
+  var rows=pageSlice(all,state.tplPage).map(function(t,n){
+    var count=Object.keys(t.perms).reduce(function(s,k){return s+t.perms[k].length;},0);
+    return '<tr class="lp-row sc-tmpl-row">'
+      +'<td>'+(off+n+1)+'</td>'
+      +'<td><div class="lp-c-main">'+esc(t.role)+'</div><div class="lp-c-sub">'+count+(count===1?' permission':' permissions')+'</div></td>'
+      +'<td><div class="lp-c-plain">'+esc(t.vertical)+'</div></td>'
+      +'<td>'+permsHTML(t)+'</td>'
+      +'<td><div class="sc-tmpl-acts">'
+        +'<button class="lp-action-btn" type="button" title="Edit template" aria-label="Edit '+esc(t.role)+'" onclick="scOpenTemplateForm('+t.id+')">'+ICO_EDIT+'</button>'
+        +'<button class="lp-action-btn sc-del-btn" type="button" title="Delete template" aria-label="Delete '+esc(t.role)+'" onclick="scDeleteTemplate('+t.id+')">'+ICO_TRASH+'</button>'
+      +'</div></td></tr>';
+  }).join('')||emptyRow(5,'No templates match','Change the search or vertical, or Reset to see every template.');
+  var verts=VERTICALS.filter(function(v){return TEMPLATES.some(function(t){return t.vertical===v;});}).length;
+  var roles={};TEMPLATES.forEach(function(t){roles[t.role]=1;});
+  var stats='<div class="listing-stats">'
+    +'<div class="listing-stat active"><div class="listing-stat-count">'+TEMPLATES.length+'</div><div class="listing-stat-label">Templates</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+Object.keys(roles).length+'</div><div class="listing-stat-label">Roles</div></div>'
+    +'<div class="listing-stat"><div class="listing-stat-count">'+verts+'</div><div class="listing-stat-label">Verticals</div></div>'
+    +'</div>';
+  return '<div class="listing-page">'
+    +'<div class="listing-top">'
+      +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
+        +'<div class="lp-filter-bar-label">Select Filter</div>'
+        +'<div class="lp-filter-bar-row sc-filters">'
+          +'<input class="lp-search-input" id="sc-tpl-q" type="text" value="'+esc(f.q)+'" placeholder="Search by role" oninput="scTplSync()" onkeydown="scSearchKey(event,\'scSearchTemplates\')">'
+          +csField('sc-tp-vertical',VERTICALS,f.vertical,'All Verticals','scTplSync')
+          +'<button class="lp-pill-clear" id="sc-tpl-reset" onclick="scResetTemplates()"'+(tplFiltersActive()?'':' hidden')+'>'+ICO.close+' Reset</button>'
+          +'<button class="lp-pill-search" onclick="scSearchTemplates()">Search</button>'
+        +'</div>'
+      +'</div>'
+      +stats
+    +'</div>'
+    +'<div class="lp-table-card">'
+      +'<table class="lp-table sc-tmpl-table"><thead><tr><th>S.No</th><th>Role</th><th>Vertical</th><th>Permissions</th><th>Action</th></tr></thead>'
+      +'<tbody>'+rows+'</tbody></table>'
+      +paginationHTML(all.length,state.tplPage,'templates','scTplPage')
+    +'</div>'
+  +'</div>';
+}
+function scTplSync(){
+  var b=document.getElementById('sc-tpl-reset');if(!b)return;
+  var q=document.getElementById('sc-tpl-q'),picked=document.querySelectorAll('.sc-filters .cs-trigger:not(.cs-placeholder)').length;
+  b.hidden=!(tplFiltersActive()||(q&&q.value.trim())||picked);
+}
+function scSearchTemplates(){
+  var q=document.getElementById('sc-tpl-q');
+  state.tplFilter={q:q?q.value:'',vertical:csValue('sc-tp-vertical')};state.tplPage=1;scRender();
+}
+function scResetTemplates(){state.tplFilter={q:'',vertical:''};state.tplPage=1;scRender();}
+function scTplPage(n){state.tplPage=n;scRender();}
+function tplById(id){return TEMPLATES.filter(function(t){return t.id===id;})[0];}
+/* Create / edit: role, vertical, and a permission matrix - modules down,
+   actions across, only the actions a module offers. */
+var tplDraft=null;
+function scOpenTemplateForm(id){
+  var t=typeof id==='number'?tplById(id):null;
+  tplDraft={id:t?t.id:null,role:t?t.role:'',vertical:t?t.vertical:'',perms:JSON.parse(JSON.stringify(t?t.perms:{}))};
+  drawTemplateForm();
+}
+function drawTemplateForm(){
+  var d=tplDraft,acts=['View','Create','Update','Delete'];
+  var matrix=d.vertical?recTable(['Module'].concat(acts).concat(['More']),tplModules(d.vertical).map(function(m){
+    var have=d.perms[m[0]]||[];
+    var box=function(a){
+      if(m[2].indexOf(a)<0)return '<span class="lp-dash">—</span>';
+      return '<label class="sc-perm-check"><input type="checkbox"'+(have.indexOf(a)>=0?' checked':'')
+        +' onchange="scTplToggle(\''+m[0]+'\',\''+a+'\',this.checked)"><span class="sr-only">'+esc(permLabel(m[0],a))+'</span></label>';
+    };
+    var extra=m[2].filter(function(a){return acts.indexOf(a)<0;});
+    return '<tr><td><b>'+esc(m[1])+'</b></td>'+acts.map(function(a){return '<td>'+box(a)+'</td>';}).join('')
+      +'<td>'+(extra.length?extra.map(function(a){return '<label class="sc-perm-check is-text"><input type="checkbox"'+(have.indexOf(a)>=0?' checked':'')
+        +' onchange="scTplToggle(\''+m[0]+'\',\''+a+'\',this.checked)"> '+esc(a)+'</label>';}).join(''):'<span class="lp-dash">—</span>')+'</td></tr>';
+  }).join('')):'<div class="lp-logs-empty">Select a vertical to choose its permissions.</div>';
+  var body=section('Template','<div class="policy-form-grid">'
+      +field('Role','<input class="ep-form-input" id="tp-role" value="'+esc(d.role)+'" placeholder="e.g. Manager" oninput="tplDraft.role=this.value">',true)
+      +field('Vertical',csField('tp-vertical',VERTICALS,d.vertical,'Select vertical','scTplVertical'),true)
+    +'</div>')
+    +section('Permissions',matrix);
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scSaveTemplate()">'+(d.id?'Save Changes':'Create Template')+'</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell(d.id?'Edit Template':'Create Template',
+    d.id?d.role+' · '+d.vertical:'The permissions a role gets in a vertical',body,foot,true,'sc-tmpl-modal');
+}
+function scTplVertical(v){
+  tplDraft.role=((document.getElementById('tp-role')||{}).value||tplDraft.role);
+  tplDraft.vertical=v;
+  /* keep only the modules this vertical has */
+  var ok={};tplModules(v).forEach(function(m){ok[m[0]]=1;});
+  Object.keys(tplDraft.perms).forEach(function(k){if(!ok[k])delete tplDraft.perms[k];});
+  drawTemplateForm();
+}
+function scTplToggle(mod,act,on){
+  var a=tplDraft.perms[mod]||(tplDraft.perms[mod]=[]),i=a.indexOf(act);
+  if(on&&i<0)a.push(act);if(!on&&i>=0)a.splice(i,1);
+  if(!a.length)delete tplDraft.perms[mod];
+}
+function scSaveTemplate(){
+  var d=tplDraft,role=((document.getElementById('tp-role')||{}).value||'').trim(),vertical=csValue('tp-vertical')||d.vertical;
+  if(!role){scToast('Enter the role','error');return;}
+  if(!vertical){scToast('Select the vertical','error');return;}
+  if(!Object.keys(d.perms).length){scToast('Give the role at least one permission','error');return;}
+  var dup=TEMPLATES.some(function(t){return t.id!==d.id&&t.role.toLowerCase()===role.toLowerCase()&&t.vertical===vertical;});
+  if(dup){scToast('A '+role+' template already exists for '+vertical,'error');return;}
+  /* order each module's actions the way the module lists them */
+  var perms={};tplModules(vertical).forEach(function(m){var a=d.perms[m[0]];if(a&&a.length)perms[m[0]]=m[2].filter(function(x){return a.indexOf(x)>=0;});});
+  if(d.id){var t=tplById(d.id);t.role=role;t.vertical=vertical;t.perms=perms;scCloseModal();scRender();scToast(role+' template updated','success');return;}
+  TEMPLATES.push({id:TEMPLATES.reduce(function(m,x){return Math.max(m,x.id);},0)+1,role:role,vertical:vertical,perms:perms});
+  state.tplFilter={q:'',vertical:''};state.tplPage=Math.ceil(TEMPLATES.length/PAGE_SIZE);
+  scCloseModal();scRender();scToast(role+' template created','success',vertical+'.');
+}
+function scDeleteTemplate(id){
+  var t=tplById(id);if(!t)return;
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scConfirmDeleteTemplate('+id+')">Delete Template</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Delete Template',t.role+' · '+t.vertical,
+    '<p class="sc-confirm-text">Teams in <b>'+esc(t.vertical)+'</b> will no longer be able to give the <b>'+esc(t.role)+'</b> role. This cannot be undone.</p>',foot);
+}
+function scConfirmDeleteTemplate(id){
+  var i=TEMPLATES.findIndex(function(t){return t.id===id;});if(i<0)return;
+  var t=TEMPLATES.splice(i,1)[0];scCloseModal();scRender();scToast(t.role+' template deleted','info',t.vertical+'.');
+}
+
+/* ══ STORE & MANAGEMENT ════════════════════════════════════════════════════
+   Five listings - Retailers, Stores, Store Categories, QR Codes, Tags - on
+   one engine (GL). A page describes itself - its rows, columns, filters,
+   counts and form - and the engine draws the shared listing around it: the
+   filter bar, the counts, .lp-table with ten rows a page, the row menu
+   (Edit, Activate / Deactivate, anything the page adds) and the popup form. */
+var GL={};
+function glSrc(g){return typeof g.rows==='function'?g.rows():g.rows;}
+function glState(id){var g=GL[id];if(!state.gl)state.gl={};return state.gl[id]||(state.gl[id]={f:{},page:1});}
+function glRows(id){
+  var g=GL[id],st=glState(id),f=st.f;
+  return glSrc(g).filter(function(r){
+    for(var i=0;i<g.filters.length;i++){var fl=g.filters[i],v=f[fl.k];if(v&&(fl.match?!fl.match(r,v):r[fl.k]!==v))return false;}
+    if(f.q2&&g.search2&&!matchQ(f.q2,g.search2.fields.map(function(k){return r[k];})))return false;
+    return matchQ(f.q||'',g.search.fields.map(function(k){return r[k];}));
+  });
+}
+function glActive(id){var f=glState(id).f;return Object.keys(f).some(function(k){return f[k];});}
+function glPageHTML(id){
+  var g=GL[id],st=glState(id),f=st.f,all=glRows(id);
+  var pages=Math.max(1,Math.ceil(all.length/PAGE_SIZE));if(st.page>pages)st.page=pages;
+  var off=(st.page-1)*PAGE_SIZE;
+  var open=state.glOpen&&state.glOpen.id===id?state.glOpen.key:null;
+  var rows=pageSlice(all,st.page).map(function(r,n){
+    return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')"><td>'+(off+n+1)+'</td>'+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+c.cell(r)+'</td>';}).join('')
+      +'<td onclick="event.stopPropagation()"><div class="sc-gl-acts">'+(g.rowTools?g.rowTools(r):'')
+        +(g.del?'<button class="lp-action-btn sc-del-btn" type="button" title="Delete" aria-label="Delete '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlDelete(\''+id+'\','+r.key+')">'+ICO_TRASH+'</button>':'')
+        +glActionBtn(id,r)
+        +'<button class="lp-action-btn" type="button" title="View details" aria-label="View details of '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlOpen(\''+id+'\','+r.key+')">'+ICO.hamburger+'</button>'
+        +'</div></td></tr>';
+  }).join('')||emptyRow(g.cols.length+2,'No '+g.noun+' match','Change the search or filters, or Reset to see every '+g.one+'.');
+  var stats='<div class="listing-stats">'+g.stats(glSrc(g)).map(function(x){
+    return '<div class="listing-stat'+(x[2]?' '+x[2]:'')+'"><div class="listing-stat-count">'+x[1]+'</div><div class="listing-stat-label">'+esc(x[0])+'</div></div>';
+  }).join('')+'</div>';
+  var sync='scGlSync(\''+id+'\')';
+  return '<div class="listing-page">'
+    +'<div class="listing-top">'
+      +'<div class="lp-filter-bar" style="flex:1;min-width:0">'
+        +'<div class="lp-filter-bar-label">Select Filter</div>'
+        +'<div class="lp-filter-bar-row sc-filters">'
+          +'<input class="lp-search-input" id="gl-q" type="text" value="'+esc(f.q||'')+'" placeholder="'+esc(g.search.placeholder)+'" oninput="'+sync+'" onkeydown="if(event.key===\'Enter\')scGlSearch(\''+id+'\')">'
+          +(g.search2?'<input class="lp-search-input" id="gl-q2" type="text" value="'+esc(f.q2||'')+'" placeholder="'+esc(g.search2.placeholder)+'" oninput="'+sync+'" onkeydown="if(event.key===\'Enter\')scGlSearch(\''+id+'\')">':'')
+          +g.filters.map(function(fl){return csField('gl-f-'+fl.k,typeof fl.opts==='function'?fl.opts():fl.opts,f[fl.k]||'',fl.label,'scGlSyncHook');}).join('')
+          +'<button class="lp-pill-clear" id="gl-reset" onclick="scGlReset(\''+id+'\')"'+(glActive(id)?'':' hidden')+'>'+ICO.close+' Reset</button>'
+          +'<button class="lp-pill-search" onclick="scGlSearch(\''+id+'\')">Search</button>'
+          +(typeof g.tool==='function'?g.tool():g.tool||'')
+        +'</div>'
+      +'</div>'
+      +stats
+    +'</div>'
+    +'<div class="lp-split-wrap sc-gl-split"><div class="lp-split-main">'
+    +'<div class="lp-table-card"><table class="lp-table sc-gl-table sc-gl-'+id+'"><thead><tr><th>S.No</th>'
+      +g.cols.map(function(c){return '<th>'+esc(c.h)+'</th>';}).join('')+'<th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +paginationHTML(all.length,st.page,g.noun,'scGlPageFor')
+    +'</div></div>'
+    +'<div class="lp-split-sb" id="sc-gl-sb"><div class="lp-isb" id="sc-gl-isb"></div></div></div>'
+  +'</div>';
+}
+function scGlSyncHook(){scGlSync(state.page);}
+function scGlSync(id){
+  var b=document.getElementById('gl-reset');if(!b)return;
+  var typed=[].some.call(document.querySelectorAll('.sc-filters .lp-search-input'),function(i){return i.value.trim();});
+  var picked=document.querySelectorAll('.sc-filters .cs-trigger:not(.cs-placeholder)').length;
+  b.hidden=!(glActive(id)||typed||picked);
+}
+function scGlSearch(id){
+  var g=GL[id],f={q:((document.getElementById('gl-q')||{}).value||'').trim()};
+  if(g.search2)f.q2=((document.getElementById('gl-q2')||{}).value||'').trim();
+  g.filters.forEach(function(fl){f[fl.k]=csValue('gl-f-'+fl.k);});
+  var st=glState(id);st.f=f;st.page=1;scRender();
+}
+function scGlReset(id){var st=glState(id);st.f={};st.page=1;scRender();}
+function scGlPageFor(n){glState(state.page).page=n;scRender();}
+function glRow(id,key){return glSrc(GL[id]).filter(function(r){return r.key===key;})[0];}
+function scGlMenu(btn,id,key){
+  var g=GL[id],r=glRow(id,key),m=rowMenuEl();if(!r)return;
+  if(m.classList.contains('open')&&m.dataset.id===id+':'+key){scCloseRowMenu();return;}
+  var items=[];
+  if(g.form)items.push(['Edit '+g.one.replace(/^./,function(c){return c.toUpperCase();}),'scCloseRowMenu();scGlForm(\''+id+'\','+key+')']);
+  if(g.toggle){var on=r[g.toggle.k]===g.toggle.on;items.push([on?g.toggle.offLabel:g.toggle.onLabel,'scCloseRowMenu();scGlToggle(\''+id+'\','+key+')']);}
+  (g.menu?g.menu(r):[]).forEach(function(x){items.push(x);});
+  m.innerHTML='<div class="sc-act-head">'+esc(g.title(r))+'</div>'+items.map(function(x){
+    return '<div class="ct-act-item sc-act-avail" onclick="'+x[1]+'">'+esc(x[0])+'</div>';}).join('');
+  m.dataset.id=id+':'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
+  var rc=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
+  scPlaceMenu(m,{left:rc.right-w,right:rc.right,top:rc.top,bottom:rc.bottom,width:w});
+}
+/* the status as a switch: on is the toggle's "on" value */
+function glSwitch(id,r){
+  var t=GL[id].toggle,on=r[t.k]===t.on;
+  return '<button type="button" role="switch" aria-checked="'+on+'" class="sc-switch'+(on?' is-on':'')+'" title="'+(on?t.offLabel:t.onLabel)+'"'
+    +' onclick="event.stopPropagation();scGlStartLog(\''+id+'\','+r.key+',\''+esc(on?t.offLabel:t.onLabel).replace(/'/g,"\\'")+'\')"><span></span></button>';
+}
+function scGlDelete(id,key){
+  var g=GL[id],r=glRow(id,key);if(!r)return;
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scGlDeleteGo(\''+id+'\','+key+')">Delete</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Delete '+g.one,g.title(r),
+    '<p class="sc-confirm-text">Delete <b>'+esc(g.title(r))+'</b>? This cannot be undone.</p>',foot);
+}
+function scGlDeleteGo(id,key){
+  var g=GL[id],src=glSrc(g),i=src.findIndex(function(x){return x.key===key;});if(i<0)return;
+  var r=(g.source||src).splice(g.source?g.source.indexOf(src[i]):i,1)[0];
+  scCloseModal();scRender();scToast(g.title(r)+' deleted','info');
+}
+function scGlToggle(id,key){
+  var g=GL[id],r=glRow(id,key),t=g.toggle;if(!r)return;
+  r[t.k]=r[t.k]===t.on?t.off:t.on;glLog(id,key,'Marked '+r[t.k]);scRender();
+  scToast(g.title(r)+' '+(r[t.k]===t.on?t.onDone:t.offDone),r[t.k]===t.on?'success':'info');
+}
+/* the popup form: the page's fields, filled for an edit */
+function scGlForm(id,key){
+  if(typeof key==='number'){scGlEdit(id,key);return;}
+  var g=GL[id],r=typeof key==='number'?glRow(id,key):null,one=g.one.replace(/^./,function(c){return c.toUpperCase();});
+  var cells=g.form.map(function(fd){
+    var v=r?r[fd.k]:((g.prefill&&g.prefill[fd.k])||fd.def||'');
+    var ctl=fd.type==='textarea'?'<textarea class="ep-form-input sc-notice-desc" id="gf-'+fd.k+'" rows="4" placeholder="'+esc(fd.ph||'')+'">'+esc(v==null?'':v)+'</textarea>'
+      :fd.type==='select'?csField('gf-'+fd.k,typeof fd.opts==='function'?fd.opts():fd.opts,v,'Select '+fd.label.toLowerCase())
+      :'<input class="ep-form-input" id="gf-'+fd.k+'" type="'+(fd.type||'text')+'" value="'+esc(v==null?'':v)+'" placeholder="'+esc(fd.ph||'')+'">';
+    return field(fd.label,ctl,fd.req,fd.full);
+  }).join('');
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scGlSave(\''+id+'\','+(r?r.key:'null')+')">'+(r?'Save Changes':'Create '+one)+'</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell(r?'Edit '+one:'Create '+one,r?g.title(r)+' · Key '+r.key:g.sub,
+    section(one+' Details','<div class="policy-form-grid sc-gl-form'+(g.form.length>=5?' is-3col':'')+'">'+cells+'</div>'),foot,true);
+  var first=document.querySelector('#sc-modal-root .ep-form-input');if(first)first.focus();
+}
+function scGlSave(id,key){
+  var g=GL[id],vals={};
+  for(var i=0;i<g.form.length;i++){
+    var fd=g.form[i],v=fd.type==='select'?csValue('gf-'+fd.k):((document.getElementById('gf-'+fd.k)||{}).value||'').trim();
+    if(fd.req&&!v){scToast('Enter the '+fd.label.toLowerCase(),'error');return;}
+    if(fd.type==='email'&&v&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){scToast('Enter a valid email','error');return;}
+    vals[fd.k]=v;
+  }
+  if(key){var r=glRow(id,key);
+    var changed=g.form.filter(function(fd){return String(r[fd.k]==null?'':r[fd.k])!==String(vals[fd.k]);}).map(function(fd){return fd.label;});
+    Object.assign(r,vals);if(g.onSave)g.onSave(r);
+    glLog(id,key,changed.length?'Updated '+changed.join(', '):'Saved with no changes');
+    scCloseModal();scRender();scToast(g.title(r)+' updated','success');return;}
+  var src=g.source||g.rows,top=src.reduce(function(m,x){return Math.max(m,x.key);},0);
+  var row=Object.assign({key:top+1},g.defaults?g.defaults(top+1):{},vals);
+  if(g.onSave)g.onSave(row);
+  src.unshift(row);glState(id).f={};glState(id).page=1;glLog(id,row.key,'Created');
+  scCloseModal();scRender();scToast(g.title(row)+' created','success');
+}
+var activeBadge=function(v){return badge(v==='Active'||v==='Enable'||v==='Assigned'?'approved':v==='Pending'||v==='Unassigned'?'pending':v==='Deleted'?'closed':'unapproved',v);};
+function plain(v){return '<div class="lp-c-plain">'+esc(v)+'</div>';}
+function mainTxt(v){return '<div class="lp-c-main">'+esc(v)+'</div>';}
+function statusStats(rows,k,list){
+  return [['All',rows.length,'active']].concat(list.map(function(x){return [x[0],rows.filter(function(r){return r[k]===x[0];}).length,x[1]];}));
+}
+
+/* ── ALL RETAILERS ─────────────────────────────────────────────────────── */
+var POSITIONS=['Retailer','Community Manager','Community Agent','Platform Manager'];
+GL.retailers={one:'retailer',noun:'retailers',sub:'A retailer or admin on the platform',
+  rows:(function(){
+    var seed=[['Taste Food','tastefood@gmail.com','919875645621','Retailer'],['Suma Latha','sumalatha@gmail.com','916547889256','Retailer'],
+      ['Lara Admin','9879879875@gmail.com','+919879879875','Community Manager'],['Opendhi Agent','opendhiagentref@yopmail.com','919845102120','Community Agent'],
+      ['Opendhi Connect','opendhiconnect@yopmail.com','+917451202102','Community Agent'],['Idfc First Bank','idfcfirstbank12@gmail.com','+919554454151','Community Manager'],
+      ['Unique Restaurant','unique@gmail.com','919568745123','Retailer'],['Chennai Plat Test Plat','testchennaiplat@opendhi.com','+917766885567','Platform Manager'],
+      ['Peddamma Temple','peddamma@gmail.com','916548987456','Retailer'],['Ifc Bank','ifcbank@gmail.com','+918510254454','Community Manager'],
+      ['Ravi Kumar','ravikumar@retail.in','919000112233','Retailer'],['Anjali Stores','anjali.stores@gmail.com','919811223344','Retailer'],
+      ['Metro Agent Hub','metroagent@opendhi.com','+919733445566','Community Agent'],['Kavya Traders','kavyatraders@gmail.com','919622334455','Retailer']];
+    var rows=[];
+    for(var i=0;i<46;i++){var x=seed[i%seed.length],n=i<seed.length?'':' '+(Math.floor(i/seed.length)+1);
+      rows.push({key:3089-i-(i>4?3:0),name:x[0]+n,email:(n?n.trim()+'.':'')+x[1],mobile:x[2],position:x[3],type:i%3?'Business':'Individual',status:i%11===9?'Inactive':'Active'});}
+    return rows;
+  })(),
+  title:function(r){return r.name;},
+  search:{placeholder:'Search by name, email or mobile',fields:['name','email','mobile']},
+  filters:[{k:'position',label:'Select Admin Type',opts:POSITIONS},{k:'status',label:'Select Status',opts:['Active','Inactive']},
+    {k:'type',label:'Select Type',opts:['Individual','Business']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Full Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Email ID',cell:function(r){return plain(r.email);}},{h:'Mobile',cell:function(r){return plain(r.mobile);}},
+    {h:'Position',cell:function(r){return plain(r.position);}},{h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Full Name',req:true},{k:'email',label:'Email ID',type:'email',req:true},{k:'mobile',label:'Mobile',type:'tel',req:true},
+    {k:'position',label:'Position',type:'select',opts:POSITIONS,req:true},{k:'type',label:'Type',type:'select',opts:['Individual','Business'],req:true},
+    {k:'status',label:'Status',type:'select',opts:['Active','Inactive'],def:'Active',req:true}],
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'}
+};
+
+/* ── ALL STORES ────────────────────────────────────────────────────────── */
+var STATES_IN=['Telangana','Tamil Nadu','Karnataka','Maharashtra','Andhra Pradesh'];
+GL.stores={one:'store',noun:'stores',sub:'A store under a retailer',
+  rows:(function(){
+    var seed=[['Zing Grocery','Hyderabad','Telangana'],['C Mart','Hyderabad','Telangana'],['Suma Grocery','Warangal','Telangana'],
+      ['Chennai Fashion Store 2k26','Chennai','Tamil Nadu'],['comm store chennai2','Chennai','Tamil Nadu'],['ComM StorE Chennai','Chennai','Tamil Nadu'],
+      ['Mukesh Pharmacy','Bengaluru','Karnataka'],['USA Restaurant Store','Pune','Maharashtra'],['Belgian Taste Restaurant','Vijayawada','Andhra Pradesh'],
+      ['Fresh Basket','Hyderabad','Telangana'],['Style Hub','Bengaluru','Karnataka'],['Gadget Point','Mumbai','Maharashtra'],['Care Pharmacy','Chennai','Tamil Nadu']];
+    var rows=[],pct=[25,25,25,25,25,25,50,25,25,75,100,50,75];
+    for(var i=0;i<42;i++){var x=seed[i%seed.length],n=i<seed.length?'':' '+(Math.floor(i/seed.length)+1),pend=i===4||i===5||i%13===12;
+      rows.push({key:3136-i-(i>3?2:0),name:x[0]+n,city:x[1],state:x[2],country:'India',status:pend?'Pending':'Active',setting:pend?'Disable':'Enable',
+        retailer:i%3?'Business':'Individual',profile:pct[i%pct.length]});}
+    return rows;
+  })(),
+  title:function(r){return r.name;},
+  search:{placeholder:'Store name or ID',fields:['name','key']},
+  search2:{placeholder:'City',fields:['city']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Pending','Inactive']},{k:'setting',label:'Select Setting',opts:['Enable','Disable']},
+    {k:'retailer',label:'Retailer Type',opts:['Individual','Business']},{k:'state',label:'Select State',opts:STATES_IN},
+    {k:'country',label:'Select Country',opts:['India']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Pending','pending']]);},
+  cols:[{h:'Store ID',cell:function(r){return plain(r.key);}},
+    {h:'Store Name',cell:function(r){return '<div class="lp-c-main">'+esc(r.name)+'</div>'
+      +'<div class="sc-prof"><span class="sc-prof-track"><span class="sc-prof-fill" style="width:'+r.profile+'%"></span></span><span class="sc-prof-txt">'+r.profile+'% Completed</span></div>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}},{h:'Settings',cell:function(r){return activeBadge(r.setting);}},
+    {h:'Reports',cell:function(r){return '<div class="sc-rep-links">'
+      +'<button type="button" class="sc-link" onclick="scStoreReport(\'settlement\','+r.key+')">Settlement Report</button>'
+      +'<button type="button" class="sc-link" onclick="scStoreReport(\'sales\','+r.key+')">Sales Report</button>'
+      +'<button type="button" class="sc-link" onclick="scStoreReport(\'profit\','+r.key+')">Profit by Product</button></div>';}},
+    {h:'Activity',cell:function(r){return '<button class="btn-outline btn-sm sc-login-btn" type="button" onclick="scStoreLogin('+r.key+')">Login</button>';}}],
+  rowTools:function(r){return '<button class="lp-action-btn" type="button" title="Download store details" aria-label="Download '+esc(r.name)+'" onclick="scStoreDownload('+r.key+')">'+ICO_DOWNLOAD+'</button>';},
+  form:[{k:'name',label:'Store Name',req:true},{k:'city',label:'City',req:true},{k:'state',label:'State',type:'select',opts:STATES_IN,req:true},
+    {k:'retailer',label:'Retailer Type',type:'select',opts:['Individual','Business'],req:true},
+    {k:'status',label:'Status',type:'select',opts:['Active','Pending','Inactive'],def:'Pending',req:true},
+    {k:'setting',label:'Settings',type:'select',opts:['Enable','Disable'],def:'Disable',req:true}],
+  defaults:function(){return {country:'India',profile:25};},
+  toggle:{k:'setting',on:'Enable',off:'Disable',onLabel:'Enable Settings',offLabel:'Disable Settings',onDone:'settings enabled',offDone:'settings disabled'}
+};
+function scStoreReport(kind,key){
+  var r=glRow('stores',key);if(!r)return;
+  if(kind==='profit'){scToast('Profit by product · '+r.name,'info','The product profit report opens in Analytics.');return;}
+  state.dashTab=kind==='settlement'?'settlement':'sales';scGo('dashboard');
+  scToast((kind==='settlement'?'Settlement':'Sales')+' report','info','Showing '+r.name+'.');
+}
+function scStoreLogin(key){var r=glRow('stores',key);if(r)scToast('Opening '+r.name+' as its owner','info','Store login is not wired in this prototype.');}
+function scStoreDownload(key){
+  var r=glRow('stores',key);if(!r)return;
+  var q=function(v){return '"'+String(v).replace(/"/g,'""')+'"';};
+  var csv=[['Store ID','Store Name','City','State','Country','Status','Settings','Retailer Type','Profile'],
+    [r.key,r.name,r.city,r.state,r.country,r.status,r.setting,r.retailer,r.profile+'%']].map(function(l){return l.map(q).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='store-'+r.key+'.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast(r.name+' details downloaded','success');
+}
+
+/* ── STORE CATEGORIES ──────────────────────────────────────────────────── */
+GL.storecats={one:'category',noun:'categories',sub:'A main category stores are listed under',
+  rows:(function(){
+    var names=[['Others','Retail','Active'],['Rooms','Retail','Active'],['Service','Retail','Active'],['Health services','Retail','Inactive'],
+      ['Health services','Retail','Active'],['Fashion and Footwear','Retail','Active'],['Fashion & Footware','Retail','Deleted'],
+      ['Internal Service Provider','Retail','Active'],['Grocery Wholesale','Wholesale','Inactive'],['Business Partner - Supplier','Retail','Active'],
+      ['Jewellery','Retail','Active'],['Furniture','Retail','Active'],['Pet Supplies','Retail','Active'],['Events','Retail','Active'],
+      ['Education','Retail','Active'],['Fitness','Retail','Active'],['Salon & Spa','Retail','Active'],['Hardware','Wholesale','Active'],
+      ['Stationery','Retail','Active'],['Bakery','Retail','Active'],['Restaurants','Retail','Active'],['Electronics','Retail','Active'],
+      ['Pharmacy','Retail','Active'],['Grocery Retail','Retail','Active']];
+    return names.map(function(x,i){return {key:24-i,name:x[0],domain:x[1],status:x[2]};});
+  })(),
+  title:function(r){return r.name;},
+  search:{placeholder:'Search category',fields:['name']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive','Deleted']},{k:'domain',label:'Select Domain',opts:['Retail','Wholesale']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Key ID',cell:function(r){return plain(r.key);}},{h:'Main Store Category',cell:function(r){return mainTxt(r.name);}},
+    {h:'Domain',cell:function(r){return plain(r.domain);}},{h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Main Store Category',req:true,full:true},{k:'domain',label:'Domain',type:'select',opts:['Retail','Wholesale'],req:true},
+    {k:'status',label:'Status',type:'select',opts:['Active','Inactive'],def:'Active',req:true}],
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'}
+};
+
+/* ── ALL QR CODE ───────────────────────────────────────────────────────── */
+/* A QR-like mark drawn from the code's key: three finder squares and a
+   pattern the key decides, so every code looks its own. */
+function qrSvg(seed,px){
+  var n=21,cells='',x=seed*9301+49297;
+  var rnd=function(){x=(x*9301+49297)%233280;return x/233280;};
+  var finder=function(r,c){return (r<7&&c<7)||(r<7&&c>=n-7)||(r>=n-7&&c<7);};
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++){
+    var on;
+    if(finder(r,c)){var rr=r>=n-7?r-(n-7):r,cc=c>=n-7?c-(n-7):c;on=rr===0||rr===6||cc===0||cc===6||(rr>=2&&rr<=4&&cc>=2&&cc<=4);}
+    else on=rnd()>0.52;
+    if(on)cells+='<rect x="'+c+'" y="'+r+'" width="1" height="1"/>';
+  }
+  return '<svg class="sc-qr" viewBox="-1 -1 23 23" width="'+px+'" height="'+px+'" role="img" aria-label="QR code '+seed+'"><rect x="-1" y="-1" width="23" height="23" fill="#fff"/><g fill="#0f172a">'+cells+'</g></svg>';
+}
+GL.qrcodes={one:'QR code',noun:'QR codes',sub:'A QR code or barcode for a product or store',
+  rows:(function(){
+    var rows=[];
+    for(var i=0;i<48;i++){var store=i===4||i===6||i===8||i%7===3;
+      rows.push({key:65386-i,prefix:store?'Mass_Store_qrcode':'Barcode',type:store?'Store':'Product',mode:i%10===9?'Manual':'Auto',
+        status:i%8===7?'Unassigned':'Assigned',service:store?'Store Payments':'Product Billing',retailer:i%3?'Business':'Individual',
+        store:['Zing Grocery','C Mart','Suma Grocery','Fresh Basket','Style Hub'][i%5]});}
+    return rows;
+  })(),
+  title:function(r){return 'QR '+r.key;},
+  search:{placeholder:'Store name',fields:['store']},
+  filters:[{k:'status',label:'Select Status',opts:['Assigned','Unassigned']},{k:'type',label:'Select Type',opts:['Product','Store']},
+    {k:'mode',label:'Select Option',opts:['Auto','Manual']},{k:'service',label:'Select Services',opts:['Product Billing','Store Payments']},
+    {k:'retailer',label:'Retailer Type',opts:['Individual','Business']}],
+  stats:function(rows){return statusStats(rows,'status',[['Assigned','approved'],['Unassigned','pending']]);},
+  cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Prefix',cell:function(r){return mainTxt(r.prefix);}},
+    {h:'Type',cell:function(r){return plain(r.type);}},{h:'BarQue Type',cell:function(r){return plain(r.mode);}},
+    {h:'QR Code',cell:function(r){return '<button type="button" class="sc-qr-btn" title="View QR '+r.key+'" onclick="scQrView('+r.key+')">'+qrSvg(r.key,40)+'</button>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  tool:function(){return '<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scQrDownloadAll()">'+ICO_DOWNLOAD+' QR / Barcode</button>';},
+  form:[{k:'prefix',label:'Prefix',req:true,def:'Barcode'},{k:'type',label:'Type',type:'select',opts:['Product','Store'],req:true},
+    {k:'mode',label:'BarQue Type',type:'select',opts:['Auto','Manual'],def:'Auto',req:true},
+    {k:'service',label:'Service',type:'select',opts:['Product Billing','Store Payments'],req:true},
+    {k:'store',label:'Store Name',req:true}],
+  defaults:function(){return {status:'Unassigned',retailer:'Business'};},
+  toggle:{k:'status',on:'Assigned',off:'Unassigned',onLabel:'Assign',offLabel:'Unassign',onDone:'assigned',offDone:'unassigned'},
+  menu:function(r){return [['View QR Code','scCloseRowMenu();scQrView('+r.key+')']];}
+};
+function scQrView(key){
+  var r=glRow('qrcodes',key);if(!r)return;
+  document.getElementById('sc-modal-root').innerHTML=modalShell('QR Code '+r.key,r.prefix+' · '+r.type+' · '+r.store,
+    '<div class="sc-qr-big">'+qrSvg(r.key,220)+'</div>',
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button>'
+    +'<button class="btn-primary" onclick="scQrDownload('+key+')">'+ICO_DOWNLOAD+' Download SVG</button></div>');
+}
+function scQrDownload(key){
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([qrSvg(key,512).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" ')],{type:'image/svg+xml'}));
+  a.download='qr-'+key+'.svg';document.body.appendChild(a);a.click();a.remove();scToast('QR '+key+' downloaded','success');
+}
+function scQrDownloadAll(){
+  var rows=glRows('qrcodes');if(!rows.length){scToast('Nothing to download','info');return;}
+  var csv=[['Key','Prefix','Type','BarQue Type','Service','Store','Status']].concat(rows.map(function(r){return [r.key,r.prefix,r.type,r.mode,r.service,r.store,r.status];}))
+    .map(function(l){return l.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='qr-barcodes.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast('QR / barcode list downloaded','success',rows.length+' codes in the file.');
+}
+
+/* ── TAGS ──────────────────────────────────────────────────────────────── */
+GL.tags={one:'tag',noun:'tags',sub:'A tag shown on stores or communities',
+  rows:[{key:5,name:'Ticket Tags1',type:'Store',category:'Health services',status:'Active'},
+    {key:4,name:'Events Tag 3',type:'Community',category:'Events',status:'Active'},
+    {key:3,name:'Events Tag 2',type:'Community',category:'Events',status:'Active'},
+    {key:2,name:'Events Tag 1',type:'Community',category:'Events',status:'Active'},
+    {key:1,name:'Best Seller',type:'Store',category:'Grocery Retail',status:'Active'}],
+  title:function(r){return r.name;},
+  search:{placeholder:'Search tag',fields:['name','category']},
+  filters:[{k:'type',label:'Search Tag By',opts:['Store','Community']},{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Tag ID',cell:function(r){return plain(r.key);}},{h:'Tag Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Tag Type',cell:function(r){return plain(r.type);}},{h:'Community / Store Category',cell:function(r){return plain(r.category);}},
+    {h:'Tag Image',cell:function(r){return '<span class="sc-tag-img'+(r.type==='Community'?' is-comm':'')+'" title="'+esc(r.name)+'">'+(r.type==='Community'?ICO.users:ICO.tag)+'</span>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Tag Name',req:true},{k:'type',label:'Tag Type',type:'select',opts:['Store','Community'],req:true},
+    {k:'category',label:'Community / Store Category',type:'select',opts:['Grocery Retail','Health services','Events','Fashion and Footwear','Restaurants','Pharmacy'],req:true},
+    {k:'status',label:'Status',type:'select',opts:['Active','Inactive'],def:'Active',req:true}],
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'}
+};
+Object.assign(PAGE_ACTIONS,{
+  stores:['Create Store',function(){scGlForm('stores');}],storecats:['Create Category',function(){scGlForm('storecats');}],
+  qrcodes:['Create QR Code',function(){scGlForm('qrcodes');}],tags:['Create Tag',function(){scGlForm('tags');}]
+});
+
+/* ══ ORDERS AND BILLING ════════════════════════════════════════════════════
+   One set of orders (ORDERS) behind My Orders, Schedule Orders, Instant
+   Payment Orders and All Orders, so a step taken on one shows on the others;
+   refunds and returns are their own records. Order Billing starts an order. */
+var CUR_STORE={id:3126,name:'Mukesh Pharmacy'};
+var PLATFORMS=['Bhaiyaa','Paytm','Mystore'];
+var ORDER_TYPES=['Store Visit','Store Pickup','Delivery','Instant Payment'];
+var ORDERS=(function(){
+  var users=[['Rambabu Musunuru',46355,'9848012345','Hyderabad'],['Baiju Balakrishnan',46353,'9845098765','Kochi'],
+    ['Jai Bhagchandani',46352,'9820011223','Mumbai'],['Mukesh Kum',33161,'9900112233','Bengaluru'],['Hshs Hshs',45156,'8804354390','Bshs, Gege'],
+    ['Utkarsh Shukla',46351,'9711223344','Lucknow'],['Priya Nair',46340,'9895012345','Chennai'],['Arjun Rao',46333,'9866012345','Vijayawada']];
+  var stores=[[2176,'DHI Hyperlocal Pvt Ltd','Telangana'],[3041,'Slot Booking Test Store','Karnataka'],[3126,'Mukesh Pharmacy','Karnataka'],
+    [3136,'Zing Grocery','Telangana'],[3135,'C Mart','Telangana']];
+  var plan=[[0,0,'Store Visit',1000,'Completed'],[1,0,'Store Visit',1000,'Completed'],[2,0,'Store Visit',1000,'Completed'],
+    [3,1,'Delivery',25,'In Progress'],[3,1,'Store Visit',25,'Completed'],[4,2,'Instant Payment',1,'Refund'],[5,0,'Store Visit',1000,'Completed'],
+    [4,2,'Delivery',1,'Cancelled'],[4,2,'Instant Payment',1,'Refund'],[4,2,'Instant Payment',1,'Refund'],[4,2,'Instant Payment',1,'Pending'],
+    [6,3,'Store Pickup',480,'Pending'],[7,4,'Delivery',1260,'In Progress'],[6,2,'Store Pickup',340,'Pending'],[0,3,'Delivery',890,'Completed'],
+    [1,4,'Store Visit',150,'Completed'],[7,2,'Delivery',620,'Pending'],[2,3,'Store Visit',2140,'Completed'],[5,4,'Store Pickup',310,'Cancelled'],
+    [3,2,'Delivery',780,'In Progress'],[6,0,'Store Visit',1000,'Completed'],[0,2,'Store Pickup',260,'Pending'],[1,3,'Delivery',540,'Completed'],
+    [4,2,'Store Visit',95,'Completed']];
+  var rows=[],d=new Date(2026,9,12,14,51);
+  plan.forEach(function(x,i){
+    var u=users[x[0]],st=stores[x[1]],dt=new Date(d.getTime()-i*7.3*3600e3);
+    var pay=x[4]==='Refund'?'Refunded':x[4]==='Completed'?'Completed':x[4]==='Cancelled'?(i%2?'Completed':'Failed'):'Pending';
+    rows.push({key:28873-i,storeId:st[0],store:st[1],state:st[2],user:u[0],userId:u[1],phone:u[2],city:u[3],
+      platform:i%5===3?'Paytm':i%7===4?'Mystore':'Bhaiyaa',type:x[2],amount:x[3],status:x[4],payment:pay,created:dt,updated:new Date(dt.getTime()+15*60e3),
+      slot:(x[4]==='Pending'&&x[2]!=='Instant Payment')?{day:addD(DASH_TODAY,1+(i%3)),time:['10:00 – 11:00 AM','04:00 – 05:00 PM','06:30 – 07:30 PM'][i%3]}:null,
+      payId:x[2]==='Instant Payment'&&x[4]!=='Pending'?'pay_T'+(i*7919%999999).toString(36).toUpperCase()+'KeKTVHXW'.slice(i%4):''});
+  });
+  return rows;
+})();
+function fmtDT(d){var h=d.getHours(),m=('0'+d.getMinutes()).slice(-2);return fmtDate(d)+' · '+('0'+(h%12||12)).slice(-2)+':'+m+' '+(h<12?'AM':'PM');}
+function inr(n){return '₹'+fmtAmt(+n||0);}
+function platformChip(p){return '<span class="sc-plat sc-plat-'+p.toLowerCase()+'"><i></i>'+esc(p)+'</span>';}
+var orderTone=function(s){return badge(s==='Completed'||s==='Paid'||s==='Processed'||s==='Approved'||s==='Complete'?'approved'
+  :s==='Cancelled'||s==='Rejected'||s==='Failed'?'unapproved':s==='Refund'||s==='Refunded'?'closed':s==='In Progress'?'in-progress':'pending',s);};
+var REFUNDS=[];   // instant payment refunds, newest first
+var refundSeq=0;
+(function(){ORDERS.filter(function(o){return o.status==='Refund';}).forEach(function(o){
+  REFUNDS.push({key:++refundSeq,rid:'rfnd_'+('TloyMNPmC6YEcc'.slice(refundSeq%3)+refundSeq),so:o.key,amount:o.amount,refund:o.amount,status:'Processed',
+    created:new Date(o.updated.getTime()+12*60e3)});});})();
+
+/* the multi-line cells My Orders and Schedule Orders share */
+function orderUserCell(o){
+  return '<div class="sc-ord-lines"><span>'+ICO.user+esc(o.user)+'</span><span>'+ICO.phone+esc(o.phone)+'</span><span>'+ICO.pin+esc(o.city)+'</span></div>';
+}
+function orderTxnCell(o){
+  return '<div class="sc-ord-kv"><div><em>Sales Order ID</em><b>'+o.key+'</b></div><div><em>Order Amount</em><b>'+inr(o.amount)+'</b></div>'
+    +'<div><em>Platform</em>'+platformChip(o.platform)+'</div>'
+    +'<button type="button" class="sc-link" onclick="scOrderDetails('+o.key+')">Details</button></div>';
+}
+function orderTypeCell(o){
+  return '<div class="sc-ord-kv"><div><em>Order Type</em><b>'+esc(o.type)+'</b></div>'
+    +(o.slot?'<div><em>Scheduled For</em><span><b>'+esc(fmtDate(o.slot.day))+'</b><span class="lp-c-sub">'+esc(o.slot.time)+'</span></span></div>':'')
+    +'<button type="button" class="sc-link" onclick="scOrderWorkflow('+o.key+')">Workflow</button></div>';
+}
+function orderStatusCell(o){
+  return '<div class="sc-ord-kv"><div><em>Current Status</em>'+orderTone(o.status)+'</div>'
+    +'<div><em>Updated On</em><span class="sc-ord-dt">'+esc(fmtDT(o.updated))+'</span></div>'
+    +'<div><em>Payment</em>'+orderTone(o.payment)+'</div></div>';
+}
+/* the step the order is ready for, as the row's button */
+function orderStepBtn(o){
+  if(o.status==='Pending')return '<button class="btn-primary btn-sm sc-ord-step" type="button" onclick="scOrderStep('+o.key+',\'accept\')">Accept</button>';
+  if(o.status==='In Progress')return '<button class="btn-outline btn-sm sc-ord-step" type="button" onclick="scOrderStep('+o.key+',\'complete\')">Complete</button>';
+  return '';
+}
+function orderByKey(k){return ORDERS.filter(function(o){return o.key===k;})[0];}
+function scOrderStep(key,step){
+  var o=orderByKey(key);if(!o)return;
+  if(step==='accept'&&o.status==='Pending'){o.status='In Progress';scToast('Order '+key+' accepted','success');}
+  else if(step==='complete'&&o.status==='In Progress'){o.status='Completed';o.payment='Completed';scToast('Order '+key+' completed','success');}
+  else if(step==='reject'&&(o.status==='Pending'||o.status==='In Progress')){o.status='Cancelled';o.payment=o.payment==='Pending'?'Failed':o.payment;scToast('Order '+key+' rejected','info');}
+  else return;
+  o.updated=new Date();o.slot=o.status==='Pending'?o.slot:null;scCloseRowMenu();scRender();
+}
+function scOrderDetails(key){
+  var o=orderByKey(key);if(!o)return;
+  var g=function(c){return '<div class="lp-sb-detail-grid" style="margin-bottom:18px">'+c+'</div>';};
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Order '+o.key,o.store+' · '+o.type,
+    '<div style="padding:16px 0 4px">'+secHead('Order')+g(fieldCard(ICO.hash,'Sales Order ID',o.key)+fieldCard(ICO.check,'Status',orderTone(o.status))
+      +fieldCard(ICO.money,'Order Amount',inr(o.amount))+fieldCard(ICO.card,'Payment',orderTone(o.payment))
+      +fieldCard(ICO.basket,'Order Type',esc(o.type))+fieldCard(ICO.globe,'Platform',platformChip(o.platform))
+      +fieldCard(ICO.cal,'Created',esc(fmtDT(o.created)))+fieldCard(ICO.clock,'Updated',esc(fmtDT(o.updated))))
+    +secHead('Customer')+g(fieldCard(ICO.user,'Name',esc(o.user)+' <span class="lp-c-sub">#'+o.userId+'</span>')+fieldCard(ICO.phone,'Mobile',esc(o.phone))
+      +fieldCard(ICO.pin,'Location',esc(o.city))+fieldCard(ICO.store,'Store',esc(o.store)+' <span class="lp-c-sub">#'+o.storeId+'</span>'))+'</div>',
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>',true);
+}
+function scOrderWorkflow(key){
+  var o=orderByKey(key);if(!o)return;
+  var steps=[['Order Placed',o.created,o.user,'Placed on '+o.platform+' · '+o.type+'.','done']];
+  if(o.status==='Cancelled')steps.push(['Order Rejected',o.updated,o.store,'The store rejected the order.','done']);
+  else{
+    steps.push(['Order Accepted',o.status==='Pending'?null:new Date(o.created.getTime()+5*60e3),o.store,'',o.status==='Pending'?'current':'done']);
+    steps.push(['Order Completed',o.status==='Completed'||o.status==='Refund'?o.updated:null,o.store,'',o.status==='In Progress'?'current':o.status==='Pending'?'upcoming':'done']);
+    if(o.status==='Refund')steps.push(['Refund Processed',new Date(o.updated.getTime()+12*60e3),'System','Refunded to the original payment method.','done']);
+  }
+  var body='<div class="lp-wf-wrap" style="padding:16px 0 4px">'+steps.map(function(x,i){
+    return wfRow(x[0],{user:x[4]==='upcoming'?'Not started yet':x[2],date:x[1]?fmtDate(x[1]):'',time:x[1]?fmtDT(x[1]).split(' · ')[1]:''},x[3]?esc(x[3]):'','',i===steps.length-1,x[4]);
+  }).join('')+'</div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Workflow · Order '+o.key,o.store,body,
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button></div>');
+}
+var orderStats=function(rows){return [['All',rows.length,'active'],['Completed',rows.filter(function(o){return o.status==='Completed';}).length,'approved'],
+  ['Pending',rows.filter(function(o){return o.status==='Pending'||o.status==='In Progress';}).length,'pending']];};
+var orderMenu=function(o){
+  var m=[['View Details','scCloseRowMenu();scOrderDetails('+o.key+')'],['View Workflow','scCloseRowMenu();scOrderWorkflow('+o.key+')']];
+  if(o.status==='Pending')m.push(['Accept Order','scOrderStep('+o.key+',\'accept\')']);
+  if(o.status==='In Progress')m.push(['Complete Order','scOrderStep('+o.key+',\'complete\')']);
+  if(o.status==='Pending'||o.status==='In Progress')m.push(['Reject Order','scOrderStep('+o.key+',\'reject\')']);
+  return m;
+};
+var ORDER_CARD_COLS=[{h:'Created Time',cell:function(o){return '<div class="sc-ord-dt">'+ICO.cal+esc(fmtDT(o.created))+'</div>';}},
+  {h:'User',cell:orderUserCell},{h:'Transactional Details',cell:orderTxnCell},{h:'Order',cell:orderTypeCell},{h:'Status',cell:orderStatusCell}];
+
+/* ── MY ORDERS ─────────────────────────────────────────────────────────── */
+GL.myorders={one:'order',noun:'orders',rows:function(){return ORDERS.filter(function(o){return o.storeId===CUR_STORE.id&&o.type!=='Instant Payment';});},
+  title:function(o){return 'Order '+o.key;},
+  search:{placeholder:'Order ID',fields:['key']},
+  filters:[{k:'platform',label:'All Platforms',opts:PLATFORMS},{k:'status',label:'Select Status',opts:['Pending','In Progress','Completed','Cancelled']},
+    {k:'type',label:'Select Option',opts:['Store Visit','Store Pickup','Delivery']},{k:'payment',label:'Payment Status',opts:['Pending','Completed','Failed']}],
+  stats:orderStats,cols:ORDER_CARD_COLS,menu:orderMenu};
+
+/* ── SCHEDULE ORDERS ───────────────────────────────────────────────────── */
+GL.schedule={one:'scheduled order',noun:'scheduled orders',rows:function(){return ORDERS.filter(function(o){return !!o.slot;});},
+  title:function(o){return 'Order '+o.key;},
+  search:{placeholder:'Store name',fields:['store']},search2:{placeholder:'Order ID',fields:['key']},
+  filters:[{k:'status',label:'Select Status',opts:['Pending','In Progress']},{k:'type',label:'Select Option',opts:['Store Pickup','Delivery','Store Visit']}],
+  stats:function(rows){return [['Scheduled',rows.length,'active'],['Tomorrow',rows.filter(function(o){return +o.slot.day===+addD(DASH_TODAY,1);}).length,'pending']];},
+  cols:ORDER_CARD_COLS,menu:orderMenu};
+
+/* ── INSTANT PAYMENT ORDERS ────────────────────────────────────────────── */
+GL.ipay={one:'payment',noun:'instant payments',rows:function(){return ORDERS.filter(function(o){return o.type==='Instant Payment';});},
+  title:function(o){return 'Order '+o.key;},
+  search:{placeholder:'Order ID',fields:['key']},
+  filters:[{k:'status',label:'Select Status',opts:['Pending','Paid','Refund']},{k:'platform',label:'Select Option',opts:PLATFORMS}],
+  stats:function(rows){return [['All',rows.length,'active'],['Refunded',rows.filter(function(o){return o.status==='Refund';}).length,''],
+    ['Pending',rows.filter(function(o){return o.status==='Pending';}).length,'pending']];},
+  cols:[{h:'Order ID',cell:function(o){return plain(o.key+11);}},{h:'Sales Order ID',cell:function(o){return mainTxt(o.key);}},
+    {h:'Order Amount',cell:function(o){return plain(inr(o.amount));}},{h:'Order Type',cell:function(){return plain('Instant Payment');}},
+    {h:'Status',cell:function(o){return orderTone(o.status);}},{h:'Create Time',cell:function(o){return plain(fmtDT(o.created));}},
+    {h:'Activity',cell:function(o){return o.payId?'<span class="sc-mono">'+esc(o.payId)+'</span>':'<span class="lp-dash">—</span>';}}],
+  menu:function(o){
+    var m=[['View Details','scCloseRowMenu();scOrderDetails('+o.key+')']];
+    if(o.status==='Paid')m.push(['Refund Payment','scCloseRowMenu();scRefundPayment('+o.key+')']);
+    if(o.status==='Pending')m.push(['Mark as Paid','scCloseRowMenu();scMarkPaid('+o.key+')']);
+    return m;
+  }};
+function scMarkPaid(key){var o=orderByKey(key);if(!o)return;o.status='Paid';o.payment='Completed';o.payId='pay_T'+Date.now().toString(36).toUpperCase();o.updated=new Date();scRender();scToast('Payment received for '+key,'success');}
+function scRefundPayment(key){
+  var o=orderByKey(key);if(!o)return;
+  o.status='Refund';o.payment='Refunded';o.updated=new Date();
+  REFUNDS.unshift({key:++refundSeq,rid:'rfnd_'+Date.now().toString(36),so:o.key,amount:o.amount,refund:o.amount,status:'Processed',created:new Date()});
+  scRender();scToast('Refund processed for '+key,'success','It is listed under Instant Payment Refund.');
+}
+
+/* ── INSTANT PAYMENT REFUND ────────────────────────────────────────────── */
+GL.irefund={one:'refund',noun:'refunds',rows:function(){return REFUNDS;},
+  title:function(r){return r.rid;},
+  search:{placeholder:'Refund or sales order ID',fields:['rid','so']},
+  filters:[{k:'status',label:'Select Status',opts:['Processed','Pending','Failed']}],
+  stats:function(rows){return [['All',rows.length,'active'],['Processed',rows.filter(function(r){return r.status==='Processed';}).length,'approved']];},
+  cols:[{h:'Refund ID',cell:function(r){return '<span class="sc-mono">'+esc(r.rid)+'</span>';}},{h:'Sales Order ID',cell:function(r){return mainTxt(r.so);}},
+    {h:'Order Amount',cell:function(r){return plain(inr(r.amount));}},{h:'Refund Amount',cell:function(r){return plain(inr(r.refund));}},
+    {h:'Status',cell:function(r){return orderTone(r.status);}},{h:'Create Time',cell:function(r){return plain(fmtDT(r.created));}}],
+  menu:function(r){return [['View Order','scCloseRowMenu();scOrderDetails('+r.so+')']];}};
+
+/* ── RETURNS & CANCELLATION ────────────────────────────────────────────── */
+var RETURNS=[
+  {key:5108,so:28866,user:'Hshs Hshs',kind:'Cancellation',reason:'Ordered by mistake',amount:1,requested:new Date(2026,9,9,18,30),status:'Approved'},
+  {key:5107,so:28858,user:'Arjun Rao',kind:'Return',reason:'Damaged product',amount:620,requested:new Date(2026,9,8,11,12),status:'Requested'},
+  {key:5106,so:28855,user:'Utkarsh Shukla',kind:'Cancellation',reason:'Delivery delayed',amount:310,requested:new Date(2026,9,7,16,4),status:'Requested'},
+  {key:5105,so:28852,user:'Priya Nair',kind:'Return',reason:'Wrong item delivered',amount:340,requested:new Date(2026,9,6,9,48),status:'Refunded'},
+  {key:5104,so:28849,user:'Baiju Balakrishnan',kind:'Return',reason:'Quality not as expected',amount:540,requested:new Date(2026,9,5,13,20),status:'Rejected'},
+  {key:5103,so:28846,user:'Rambabu Musunuru',kind:'Cancellation',reason:'Found a better price',amount:260,requested:new Date(2026,9,4,19,2),status:'Approved'},
+  {key:5102,so:28844,user:'Jai Bhagchandani',kind:'Return',reason:'Expired product',amount:95,requested:new Date(2026,9,3,10,15),status:'Refunded'}];
+GL.returns={one:'request',noun:'requests',rows:function(){return RETURNS;},
+  title:function(r){return 'Request '+r.key;},
+  search:{placeholder:'Request or order ID, customer',fields:['key','so','user']},
+  filters:[{k:'kind',label:'Select Type',opts:['Return','Cancellation']},{k:'status',label:'Select Status',opts:['Requested','Approved','Rejected','Refunded']}],
+  stats:function(rows){return [['All',rows.length,'active'],['Requested',rows.filter(function(r){return r.status==='Requested';}).length,'pending'],
+    ['Refunded',rows.filter(function(r){return r.status==='Refunded';}).length,'approved']];},
+  cols:[{h:'Request ID',cell:function(r){return plain(r.key);}},{h:'Sales Order ID',cell:function(r){return mainTxt(r.so);}},
+    {h:'Customer',cell:function(r){return plain(r.user);}},{h:'Type',cell:function(r){return plain(r.kind);}},
+    {h:'Reason',cell:function(r){return '<div class="lp-c-plain sc-c-title" title="'+esc(r.reason)+'">'+esc(r.reason)+'</div>';}},
+    {h:'Amount',cell:function(r){return plain(inr(r.amount));}},{h:'Requested On',cell:function(r){return plain(fmtDT(r.requested));}},
+    {h:'Status',cell:function(r){return orderTone(r.status);}}],
+  menu:function(r){
+    var m=[['View Order','scCloseRowMenu();scOrderDetails('+r.so+')']];
+    if(r.status==='Requested')m.push(['Approve','scReturnStep('+r.key+',\'Approved\')'],['Reject','scReturnStep('+r.key+',\'Rejected\')']);
+    if(r.status==='Approved')m.push(['Mark Refunded','scReturnStep('+r.key+',\'Refunded\')']);
+    return m;
+  }};
+function scReturnStep(key,to){
+  var r=RETURNS.filter(function(x){return x.key===key;})[0];if(!r)return;
+  r.status=to;scCloseRowMenu();scRender();scToast(r.kind+' '+key+' '+to.toLowerCase(),to==='Rejected'?'info':'success');
+}
+
+/* ── DEALS (retail) ────────────────────────────────────────────────────── */
+var RETAIL_DEALS=(function(){
+  var rows=[],stores=['Mukesh Pharmacy (286)','Zing Grocery (312)','C Mart (298)','Fresh Basket (305)'];
+  var users=['Hshs Hshs','Priya Nair','Arjun Rao','Utkarsh Shukla','Rambabu Musunuru'];
+  for(var i=0;i<14;i++){var q=1+(i%4);
+    rows.push({key:i<5?[35838,35835,35833,35832,35831][i]:35830-i,user:users[i%users.length],store:i<5?stores[0]:stores[i%stores.length],
+      qty:q.toFixed(2)+'/'+(1+(i%3)),amount:i<5?1:(q*120+i*15),date:new Date(2026,9,9-Math.floor(i/3),18-i%5,28-i*3),
+      process:i%3?'Direct Sale':'Retailer Sales Process',status:i%6===5?'Pending':i%9===8?'Cancelled':'Complete'});}
+  return rows;
+})();
+GL.retaildeals={one:'deal',noun:'deals',rows:function(){return RETAIL_DEALS;},
+  title:function(r){return 'Deal '+r.key;},
+  search:{placeholder:'Store name',fields:['store']},
+  filters:[{k:'process',label:'Retailer Sales Process',opts:['Retailer Sales Process','Direct Sale']},{k:'status',label:'Deal Status',opts:['Complete','Pending','Cancelled']}],
+  stats:function(rows){return [['All',rows.length,'active'],['Complete',rows.filter(function(r){return r.status==='Complete';}).length,'approved'],
+    ['Pending',rows.filter(function(r){return r.status==='Pending';}).length,'pending']];},
+  cols:[{h:'Deal ID',cell:function(r){return plain(r.key);}},{h:'User',cell:function(r){return mainTxt(r.user);}},
+    {h:'Store Name',cell:function(r){return plain(r.store);}},{h:'Quantity / Product',cell:function(r){return plain(r.qty);}},
+    {h:'Deal Amount',cell:function(r){return plain(inr(r.amount));}},{h:'Deal Date',cell:function(r){return plain(fmtDT(r.date));}},
+    {h:'Deal Status',cell:function(r){return orderTone(r.status);}}],
+  toggle:null,menu:function(r){
+    var m=[];if(r.status==='Pending')m.push(['Mark Complete','scDealStatus('+r.key+',\'Complete\')'],['Cancel Deal','scDealStatus('+r.key+',\'Cancelled\')']);
+    if(!m.length)m.push(['No actions for this deal','scCloseRowMenu()']);
+    return m;
+  }};
+function scDealStatus(key,to){var r=RETAIL_DEALS.filter(function(x){return x.key===key;})[0];if(!r)return;r.status=to;scCloseRowMenu();scRender();scToast('Deal '+key+' '+(to==='Complete'?'completed':'cancelled'),to==='Complete'?'success':'info');}
+
+/* ── ALL ORDERS ────────────────────────────────────────────────────────── */
+GL.allorders={one:'order',noun:'orders',rows:function(){return ORDERS;},
+  title:function(o){return 'Order '+o.key;},
+  search:{placeholder:'Store, user or order ID',fields:['store','user','key','storeId']},
+  filters:[{k:'platform',label:'All Platforms',opts:PLATFORMS},{k:'status',label:'Select Status',opts:['Pending','In Progress','Completed','Cancelled','Refund','Paid']},
+    {k:'payment',label:'Payment Status',opts:['Pending','Completed','Failed','Refunded']},{k:'type',label:'Order Type',opts:ORDER_TYPES},
+    {k:'state',label:'Select State',opts:STATES_IN}],
+  stats:orderStats,
+  cols:[{h:'Store',cell:function(o){return '<div class="lp-c-main sc-c-vendor" title="'+esc(o.store)+'">'+esc(o.store)+'</div><div class="lp-c-sub">#'+o.storeId+'</div>';}},
+    {h:'Sales Order ID',cell:function(o){return plain(o.key);}},
+    {h:'Created',cell:function(o){return '<div class="lp-c-plain">'+esc(fmtDate(o.created))+'</div><div class="lp-c-sub">'+esc(fmtDT(o.created).split(' · ')[1])+'</div>';}},
+    {h:'User',cell:function(o){return '<div class="lp-c-plain">'+esc(o.user)+'</div><div class="lp-c-sub">#'+o.userId+'</div>';}},
+    {h:'Platform',cell:function(o){return platformChip(o.platform);}},{h:'Order Type',cell:function(o){return plain(o.type);}},
+    {h:'Amount',cell:function(o){return plain(inr(o.amount));}},{h:'Order Status',cell:function(o){return orderTone(o.status);}}],
+  menu:orderMenu};
+Object.assign(PAGE_ACTIONS,{myorders:['New Bill',function(){scGo('billing');}]});
+
+/* ── ORDER BILLING ─────────────────────────────────────────────────────── */
+/* Start a bill: who the customer is and how the order is fulfilled. Delivery
+   asks for the address too. Submit starts the order (My Orders); Skip starts
+   it as a walk-in without customer details. */
+var BILL_OPTS=[['Store Visit','Customer is at the counter',ICO.store],['Store Pickup','Customer collects it later',ICO.basket],['Delivery','Sent to the customer\'s address',ICO.truck]];
+function billingPageHTML(){
+  var b=state.bill||(state.bill={option:'Store Visit'});
+  var opts='<div class="sc-bill-opts" role="radiogroup" aria-label="Select option">'+BILL_OPTS.map(function(o){
+    var on=b.option===o[0];
+    return '<button type="button" role="radio" aria-checked="'+on+'" class="sc-bill-opt'+(on?' is-on':'')+'" onclick="scBillOption(\''+o[0]+'\')">'
+      +'<span class="sc-bill-opt-ico">'+o[2]+'</span><span class="sc-bill-opt-txt"><b>'+esc(o[0])+'</b><em>'+esc(o[1])+'</em></span></button>';
+  }).join('')+'</div>';
+  var v=function(k){return esc(b[k]||'');};
+  var addr=b.option==='Delivery'?section('Delivery Address','<div class="policy-form-grid">'
+      +field('Address','<input class="ep-form-input" id="bl-addr" value="'+v('addr')+'" placeholder="House, street, area">',true,true)
+      +field('City','<input class="ep-form-input" id="bl-city" value="'+v('city')+'" placeholder="City">',true)
+      +field('PIN Code','<input class="ep-form-input" id="bl-pin" value="'+v('pin')+'" inputmode="numeric" maxlength="6" placeholder="6-digit PIN">',true)
+    +'</div>'):'';
+  return '<div class="listing-page"><div class="sc-bill-card">'
+    +'<div class="sc-bill-head"><span class="sc-bill-head-ico">'+ICO.barcode+'</span><div><div class="sc-bill-title">New Bill</div>'
+      +'<div class="sc-bill-sub">'+esc(CUR_STORE.name)+' · Start an order for a customer</div></div></div>'
+    +section('Customer Details','<div class="policy-form-grid sc-bill-grid">'
+      +field('Mobile Number','<div class="sc-bill-mobile">'+csField('bl-code',['+91','+971','+1','+44'],b.code||'+91','Code')
+        +'<input class="ep-form-input" id="bl-mobile" value="'+v('mobile')+'" inputmode="numeric" maxlength="10" placeholder="Enter number"></div>',true)
+      +field('First Name','<input class="ep-form-input" id="bl-first" value="'+v('first')+'" placeholder="Enter first name">',true)
+      +field('Last Name','<input class="ep-form-input" id="bl-last" value="'+v('last')+'" placeholder="Enter last name">')
+      +field('Email Address','<input class="ep-form-input" id="bl-email" type="email" value="'+v('email')+'" placeholder="Enter email address">')
+    +'</div>')
+    +section('Select Option',opts)
+    +addr
+    +'<div class="sc-bill-foot"><button class="btn-outline" type="button" onclick="scBillSubmit(true)">Skip</button>'
+      +'<button class="btn-primary" type="button" onclick="scBillSubmit(false)">Submit</button></div>'
+  +'</div></div>';
+}
+function billRead(){
+  var b=state.bill,g=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  b.code=csValue('bl-code')||b.code||'+91';b.mobile=g('bl-mobile');b.first=g('bl-first');b.last=g('bl-last');b.email=g('bl-email');
+  if(document.getElementById('bl-addr')){b.addr=g('bl-addr');b.city=g('bl-city');b.pin=g('bl-pin');}
+  return b;
+}
+function scBillOption(o){billRead();state.bill.option=o;scRender();}
+function scBillSubmit(skip){
+  var b=billRead();
+  if(!skip){
+    if(!/^\d{10}$/.test(b.mobile)){scToast('Enter a 10-digit mobile number','error');return;}
+    if(!b.first){scToast('Enter the first name','error');return;}
+    if(b.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email)){scToast('Enter a valid email address','error');return;}
+  }
+  if(b.option==='Delivery'&&(!b.addr||!b.city||!/^\d{6}$/.test(b.pin||''))){scToast('Enter the delivery address, city and 6-digit PIN','error');return;}
+  var key=ORDERS.reduce(function(m,o){return Math.max(m,o.key);},0)+1,now=new Date();
+  ORDERS.unshift({key:key,storeId:CUR_STORE.id,store:CUR_STORE.name,state:'Karnataka',user:skip?'Walk-in Customer':(b.first+' '+b.last).trim(),userId:46400+key%100,
+    phone:skip?'—':b.code+' '+b.mobile,city:b.option==='Delivery'?b.city:'In store',platform:'Mystore',type:b.option,amount:0,status:'In Progress',payment:'Pending',
+    created:now,updated:now,slot:null,payId:''});
+  state.bill={option:'Store Visit'};
+  scGo('myorders');
+  scToast('Order '+key+' started','success',(skip?'Walk-in · ':'')+b.option+'. Add items to the bill to set its amount.');
+}
+
+/* ══ PRODUCT & INVENTORY ═══════════════════════════════════════════════════
+   The catalogue (PRODUCTS) behind All Products / Services and the store's
+   Product List; Custom Menu, Brands, Tax and HSN/SAC as listings; Bulk
+   Upload as a two-step page - images, then the catalogue sheet. */
+var PRODUCTS=(function(){
+  var seed=[['Paracetamol Medicine','Product','Services','Deep Cleaning','',3126,'Mukesh Pharmacy'],
+    ['Dolo 650 Tablet','Product','Health & Wellness','Medicines','Fever & Pain',3126,'Mukesh Pharmacy'],
+    ['Crocin Advance','Product','Health & Wellness','Medicines','Fever & Pain',3126,'Mukesh Pharmacy'],
+    ['Vicks VapoRub 50ml','Product','Health & Wellness','Medicated Care','Cold & Cough',3126,'Mukesh Pharmacy'],
+    ['Home Sanitisation','Service','Services','Deep Cleaning','Home',3126,'Mukesh Pharmacy'],
+    ['Amul Butter 500g','Product','Bakery, Cakes & Dairy','Dairy','Butter',3136,'Zing Grocery'],
+    ['Tata Salt 1kg','Product','Grocery & Staples','Salt & Sugar','Salt',3136,'Zing Grocery'],
+    ['Aashirvaad Atta 5kg','Product','Grocery & Staples','Atta & Flours','Wheat Atta',3135,'C Mart'],
+    ['Fortune Sunflower Oil 1L','Product','Grocery & Staples','Edible Oils','Sunflower Oil',3135,'C Mart'],
+    ['AC Service','Service','Services','Appliance Repair','Air Conditioner',2176,'DHI Hyperlocal Pvt Ltd'],
+    ['Lakme Moisturiser','Product','BPC','Skin Care','Moisturisers',3134,'Suma Grocery'],
+    ['Haircut & Styling','Service','Services','Salon','Men',2176,'DHI Hyperlocal Pvt Ltd'],
+    ['Philips LED Bulb 9W','Product','Home And Kitchen','Lighting','LED Bulbs',3134,'Suma Grocery'],
+    ['Boat Earbuds','Product','Electronics','Audio Accessories','Earbuds',3131,'Chennai Fashion Store 2k26']];
+  var rows=[];
+  for(var i=0;i<32;i++){var x=seed[i%seed.length],n=i<seed.length?'':' ('+(Math.floor(i/seed.length)+1)+')';
+    rows.push({key:76294-i*3,name:x[0]+n,itemType:x[1],main:x[2],child:x[3],grand:x[4],storeId:x[5],store:x[6],status:i%9===8?'Inactive':'Active'});}
+  return rows;
+})();
+var MAIN_CATS=['Health & Wellness','Grocery & Staples','Bakery, Cakes & Dairy','BPC','Home And Kitchen','Electronics','Services'];
+function productTile(r){
+  var hue={Product:'',Service:' is-svc'}[r.itemType]||'';
+  return '<span class="sc-prod-img'+hue+'" title="'+esc(r.name)+'">'+(r.itemType==='Service'?ICO.sliders:ICO.cube)+'</span>';
+}
+var productStats=function(rows){return [['All',rows.length,'active'],['Products',rows.filter(function(r){return r.itemType==='Product';}).length,''],
+  ['Services',rows.filter(function(r){return r.itemType==='Service';}).length,'']];};
+var productToggle={k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'};
+GL.allproducts={one:'product',noun:'products',rows:function(){return PRODUCTS;},source:PRODUCTS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search products',fields:['name','key']},search2:{placeholder:'Store name',fields:['store']},
+  filters:[{k:'status',label:'All Status',opts:['Active','Inactive']},{k:'itemType',label:'All Item Types',opts:['Product','Service']},
+    {k:'main',label:'All Categories',opts:MAIN_CATS}],
+  stats:productStats,
+  cols:[{h:'Product ID',cell:function(r){return plain(r.key);}},{h:'Image',cell:productTile},{h:'Product Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Item Type',cell:function(r){return badge(r.itemType==='Product'?'approved':'in-progress',r.itemType);}},
+    {h:'Main Category',cell:function(r){return plain(r.main);}},{h:'Store ID',cell:function(r){return plain(r.storeId);}},
+    {h:'Store Name',cell:function(r){return plain(r.store);}},{h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  toggle:productToggle};
+GL.productlist={one:'product',noun:'products',rows:function(){return PRODUCTS.filter(function(r){return r.storeId===CUR_STORE.id;});},source:PRODUCTS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search products',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'main',label:'Main Category',opts:MAIN_CATS}],
+  stats:productStats,
+  cols:[{h:'Product ID',cell:function(r){return plain(r.key);}},{h:'Picture',cell:productTile},{h:'Product Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Main Category',cell:function(r){return plain(r.main);}},{h:'Child Category',cell:function(r){return plain(r.child||'—');}},
+    {h:'Grand Child Category',cell:function(r){return r.grand?plain(r.grand):'<span class="lp-dash">—</span>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Product Name',req:true,full:true},{k:'itemType',label:'Item Type',type:'select',opts:['Product','Service'],req:true},
+    {k:'main',label:'Main Category',type:'select',opts:MAIN_CATS,req:true},{k:'child',label:'Child Category',req:true},
+    {k:'grand',label:'Grand Child Category'},{k:'status',label:'Status',type:'select',opts:['Active','Inactive'],def:'Active',req:true}],
+  defaults:function(){return {storeId:CUR_STORE.id,store:CUR_STORE.name};},
+  toggle:productToggle,del:true};
+
+/* ── CUSTOM MENU ───────────────────────────────────────────────────────── */
+var CUSTOM_MENUS=[['Breakfast Specials',12,'Zing Grocery'],['Daily Essentials',24,'Zing Grocery'],['Fever & Cold Care',9,'Mukesh Pharmacy'],
+  ['Baby Care',14,'Mukesh Pharmacy'],['Festive Offers',18,'C Mart'],['Healthy Snacks',11,'C Mart'],['Home Cleaning',7,'DHI Hyperlocal Pvt Ltd'],
+  ['Summer Coolers',10,'Suma Grocery']].map(function(x,i){return {key:808-i,name:x[0],items:x[1],store:x[2],order:i+1,status:i===6?'Inactive':'Active'};});
+GL.custommenu={one:'menu',noun:'menus',rows:CUSTOM_MENUS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search menu',fields:['name','store']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Menu ID',cell:function(r){return plain(r.key);}},{h:'Menu Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Store',cell:function(r){return plain(r.store);}},{h:'Items',cell:function(r){return plain(r.items+' items');}},
+    {h:'Display Order',cell:function(r){return plain(r.order);}},{h:'Status',cell:function(r){return glSwitch('custommenu',r);}}],
+  form:[{k:'name',label:'Menu Name',req:true},{k:'store',label:'Store',type:'select',opts:['Zing Grocery','C Mart','Suma Grocery','Mukesh Pharmacy','DHI Hyperlocal Pvt Ltd'],req:true},
+    {k:'items',label:'Items',type:'number',req:true,def:'0'},{k:'order',label:'Display Order',type:'number',req:true,def:'1'}],
+  defaults:function(){return {status:'Active'};},
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Show menu',offLabel:'Hide menu',onDone:'shown',offDone:'hidden'},del:true};
+
+/* ── BRANDS ────────────────────────────────────────────────────────────── */
+var BRANDS=[['Cipla Ltd','Health & Wellness','Medicines'],['Strava Healthcare Private Limited','Health & Wellness','Medicines'],
+  ['Lakme','BPC','Skin Care - Lotions, Moisturisers, And Creams'],['Dot & Key','BPC','Body Care - Moisturizers'],['Heritage','Bakery, Cakes & Dairy','Dairy'],
+  ['Supreme','Electronics','Audio Accessories'],['Tugain','Health & Wellness','Medicated Hair Care'],['PCM','Health & Wellness','Pain Relief'],
+  ['Philips','Home And Kitchen','Party And Festive Needs'],['Shakti','Home And Kitchen','Pooja Needs'],['Amul','Bakery, Cakes & Dairy','Dairy'],
+  ['Tata Consumer','Grocery & Staples','Salt & Sugar'],['Aashirvaad','Grocery & Staples','Atta & Flours'],['Fortune','Grocery & Staples','Edible Oils'],
+  ['boAt','Electronics','Audio Accessories'],['Dabur','Health & Wellness','Ayurveda'],['Himalaya','BPC','Face Care'],['Prestige','Home And Kitchen','Cookware']]
+  .map(function(x,i){return {key:i+1,name:x[0],main:x[1],sub:x[2],status:i===16?'Inactive':'Active'};});
+GL.brands={one:'brand',noun:'brands',rows:BRANDS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search brand',fields:['name','main','sub']},
+  filters:[{k:'main',label:'Search By Category',opts:MAIN_CATS},{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Brand Name',cell:function(r){return mainTxt(r.name);}},{h:'Main Category',cell:function(r){return plain(r.main);}},
+    {h:'Sub Category',cell:function(r){return '<div class="lp-c-plain sc-c-title" title="'+esc(r.sub)+'">'+esc(r.sub)+'</div>';}},
+    {h:'Status',cell:function(r){return glSwitch('brands',r);}}],
+  form:[{k:'name',label:'Brand Name',req:true,full:true},{k:'main',label:'Main Category',type:'select',opts:MAIN_CATS,req:true},
+    {k:'sub',label:'Sub Category',req:true}],
+  defaults:function(){return {status:'Active'};},
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'},del:true};
+
+/* ── TAX ───────────────────────────────────────────────────────────────── */
+var TAXES=[['test tax',9,'pardeep singh','Active'],['GST',5,'sunil srivastava','Active'],['GST',18,'shrinivas sadalawar','Active'],['GST',0,'sunil srivastava','Active'],
+  ['CGST0%',0,'sunil srivastava','Inactive'],['tax',0,'sunil srivastava','Inactive'],['cgst',9,'sunil srivastava','Inactive'],['Opps sgst',9,'sunil srivastava','Inactive'],
+  ['GST Test',5,'shrinivas sadalawar','Inactive'],['tax gov',10,'sunil srivastava','Inactive'],['GST',12,'pardeep singh','Active'],['GST',28,'shrinivas sadalawar','Active'],
+  ['IGST',18,'pardeep singh','Active'],['SGST',9,'sunil srivastava','Active'],['CGST',9,'sunil srivastava','Active'],['Cess',1,'pardeep singh','Inactive'],
+  ['GST',3,'shrinivas sadalawar','Active'],['Luxury Tax',28,'pardeep singh','Inactive']]
+  .map(function(x,i){return {key:i+1,name:x[0],pct:x[1],retailer:x[2],status:x[3]};});
+GL.tax={one:'tax',noun:'taxes',rows:TAXES,
+  title:function(r){return r.name+' '+r.pct+'%';},
+  search:{placeholder:'Search tax or retailer',fields:['name','retailer']},
+  filters:[{k:'status',label:'Status',opts:['Active','Inactive']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);},
+  cols:[{h:'Name',cell:function(r){return mainTxt(r.name);}},{h:'Percentage',cell:function(r){return plain((+r.pct).toFixed(2)+' %');}},
+    {h:'Retailer',cell:function(r){return plain(r.retailer);}},{h:'Status',cell:function(r){return glSwitch('tax',r);}}],
+  form:[{k:'name',label:'Tax Name',req:true},{k:'pct',label:'Percentage',type:'number',req:true,ph:'e.g. 18'},
+    {k:'retailer',label:'Retailer',type:'select',opts:['pardeep singh','sunil srivastava','shrinivas sadalawar'],req:true}],
+  defaults:function(){return {status:'Active'};},
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'},del:true};
+
+/* ── HSN / SAC MASTER ──────────────────────────────────────────────────── */
+var HSNS=[['08045025','HSN','Fresh Langda Mangoes',0],['08045027','HSN','Fresh Totapuri Mangoes',0],['08045023','HSN','Fresh Chausa Mangoes',0],
+  ['08109060','HSN','Fresh Litchis',0],['08045026','HSN','Fresh Kesar Mangoes',0],['08045028','HSN','Fresh Mallika Mangoes',0],['08045024','HSN','Fresh Dasheri Mangoes',0],
+  ['08094010','HSN','Fresh Plums',0],['08109010','HSN','Fresh Pomegranates',0],['08071900','HSN','Fresh Muskmelons',0],['04051000','HSN','Butter',12],
+  ['25010010','HSN','Common Salt',0],['11010000','HSN','Wheat Flour (Atta)',0],['15121110','HSN','Sunflower Oil',5],['30049099','HSN','Medicaments (Tablets)',12],
+  ['33049910','HSN','Face Creams & Moisturisers',18],['85183000','HSN','Headphones & Earphones',18],['85395000','HSN','LED Lamps',12],
+  ['998533','SAC','Cleaning Services',18],['998729','SAC','Repair of Household Appliances',18],['999721','SAC','Hairdressing & Barbers',18],['996331','SAC','Restaurant Services',5]]
+  .map(function(x,i){return {key:i+1,code:x[0],type:x[1],desc:x[2],cgst:x[3]/2,sgst:x[3]/2,igst:x[3],status:'Active'};});
+GL.hsn={one:'HSN/SAC code',noun:'codes',rows:HSNS,
+  title:function(r){return r.code+' · '+r.desc;},
+  search:{placeholder:'Search HSN code / description',fields:['code','desc']},
+  filters:[{k:'status',label:'Status',opts:['Active','Inactive']},{k:'type',label:'Type',opts:['HSN','SAC']}],
+  stats:function(rows){return [['All',rows.length,'active'],['HSN',rows.filter(function(r){return r.type==='HSN';}).length,''],['SAC',rows.filter(function(r){return r.type==='SAC';}).length,'']];},
+  cols:[{h:'HSN/SAC Code',cell:function(r){return '<span class="sc-mono">'+esc(r.code)+'</span>';}},{h:'Type',cell:function(r){return plain(r.type);}},
+    {h:'Description',cell:function(r){return mainTxt(r.desc);}},{h:'CGST %',cell:function(r){return plain((+r.cgst).toFixed(2));}},
+    {h:'SGST %',cell:function(r){return plain((+r.sgst).toFixed(2));}},{h:'IGST %',cell:function(r){return plain((+r.igst).toFixed(2));}},
+    {h:'Status',cell:function(r){return glSwitch('hsn',r);}}],
+  form:[{k:'code',label:'HSN/SAC Code',req:true},{k:'type',label:'Type',type:'select',opts:['HSN','SAC'],req:true},
+    {k:'desc',label:'Description',req:true,full:true},{k:'cgst',label:'CGST %',type:'number',req:true,def:'0'},{k:'sgst',label:'SGST %',type:'number',req:true,def:'0'},
+    {k:'igst',label:'IGST %',type:'number',req:true,def:'0'}],
+  defaults:function(){return {status:'Active'};},
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'},del:true};
+Object.assign(PAGE_ACTIONS,{
+  productlist:['Create Product',function(){scGlForm('productlist');}],custommenu:['Create Menu',function(){scGlForm('custommenu');}],
+  brands:['Create Brand',function(){scGlForm('brands');}],tax:['Create Tax',function(){scGlForm('tax');}],hsn:['Create HSN/SAC',function(){scGlForm('hsn');}]
+});
+
+/* ── BULK UPLOAD ───────────────────────────────────────────────────────── */
+/* Two steps: the product images (20 KB - 175 KB each, named as in the
+   sheet), then the catalogue sheet in the sample's format. Submit queues the
+   products; the sample catalogue downloads as a CSV with the right headers. */
+var BULK={step:1,images:[],sheet:null};
+var BULK_COLS=['Product Name','Item Type','Main Category','Child Category','Grand Child Category','HSN/SAC Code','Tax %','MRP','Selling Price','Stock','Image Name'];
+function bulkUploadHTML(){
+  var B=BULK,steps=[['Upload Images',ICO.cube],['Upload Catalogue',ICO.doc]];
+  var stepper='<div class="sc-bulk-steps">'+steps.map(function(x,i){
+    var n=i+1,cls=B.step>n?' is-done':B.step===n?' is-now':'';
+    return (i?'<span class="sc-bulk-line'+(B.step>1?' is-done':'')+'"></span>':'')
+      +'<div class="sc-bulk-step'+cls+'"><span class="sc-bulk-dot">'+(B.step>n?ICO.check:n)+'</span><span>'+esc(x[0])+'</span></div>';
+  }).join('')+'</div>';
+  var zone=function(kind){
+    var multi=kind==='img',acc=kind==='img'?'image/png,image/jpeg,image/webp':'.xlsx,.xls,.csv';
+    var dz=' onclick="document.getElementById(\'sc-bulk-'+kind+'\').click()" ondragover="event.preventDefault();this.classList.add(\'is-over\')"'
+      +' ondragleave="this.classList.remove(\'is-over\')" ondrop="event.preventDefault();this.classList.remove(\'is-over\');scBulkFiles(\''+kind+'\',event.dataTransfer.files)"';
+    return '<input type="file" id="sc-bulk-'+kind+'" '+(multi?'multiple ':'')+'accept="'+acc+'" hidden onchange="scBulkFiles(\''+kind+'\',this.files);this.value=\'\'">'
+      +'<div class="att-zone att-zone-lg"'+dz+'><span class="att-zone-ico">'+ATT_ICO.upload+'</span>'
+      +'<div class="att-zone-title">'+(kind==='img'?'Drop product images here, or click to browse':'Drop the catalogue sheet here, or click to browse')+'</div>'
+      +'<div class="att-zone-hint">'+(kind==='img'?'PNG, JPG or WEBP · 20 KB to 175 KB each':'Excel or CSV in the sample format · up to 20 products a sheet')+'</div></div>';
+  };
+  var imgs=B.images.length?'<div class="sc-bulk-grid">'+B.images.map(function(f,i){
+      return '<div class="sc-bulk-img"><img src="'+f.url+'" alt="'+esc(f.name)+'"><div class="sc-bulk-img-meta"><b title="'+esc(f.name)+'">'+esc(f.name)+'</b><span>'+esc(attSize(f.size))+'</span></div>'
+        +'<button type="button" class="sc-bulk-x" title="Remove" aria-label="Remove '+esc(f.name)+'" onclick="scBulkRemove('+i+')">'+ICO.close+'</button></div>';
+    }).join('')+'</div>':'<div class="lp-logs-empty">No images yet.</div>';
+  var body=B.step===1
+    ?'<div class="sc-bulk-cols"><div>'+secHead('Upload Images')+zone('img')+'</div>'
+      +'<div>'+secHead('Uploaded Images','<span class="sc-act-count">'+B.images.length+(B.images.length===1?' image':' images')+'</span>')+imgs+'</div></div>'
+      +'<div class="sc-bill-foot"><button class="btn-primary" type="button" onclick="scBulkNext()"'+(B.images.length?'':' disabled')+'>Next: Upload Catalogue</button></div>'
+    :'<div class="sc-bulk-cols"><div>'+secHead('Upload Catalogue')+zone('sheet')+'</div>'
+      +'<div>'+secHead('Catalogue')+(B.sheet?'<div class="sc-draft-file"><span class="att-kind">'+esc(attKind(B.sheet.name))+'</span><b>'+esc(B.sheet.name)+'</b><span>'+esc(attSize(B.sheet.size))+'</span>'
+        +'<button type="button" class="sc-bulk-x is-inline" title="Remove" onclick="BULK.sheet=null;scRender()">'+ICO.close+'</button></div>'
+        +'<p class="sc-bulk-note">'+B.images.length+(B.images.length===1?' image':' images')+' ready to match by name.</p>'
+        :'<div class="lp-logs-empty">No catalogue yet.</div>')+'</div></div>'
+      +'<div class="sc-bill-foot"><button class="btn-outline" type="button" onclick="BULK.step=1;scRender()">Back</button>'
+        +'<button class="btn-primary" type="button" onclick="scBulkSubmit()"'+(B.sheet?'':' disabled')+'>Upload Products</button></div>';
+  return '<div class="listing-page"><div class="sc-bill-card sc-bulk-card">'
+    +'<div class="sc-bulk-top"><div><div class="sc-bill-title">Uploading instructions</div><ol class="sc-bulk-rules">'
+      +'<li>Upload the product images first, each with a unique name.</li>'
+      +'<li>Use the same names in the catalogue sheet\'s <b>Image Name</b> column.</li>'
+      +'<li>Keep the sheet exactly in the sample catalogue\'s format.</li>'
+      +'<li>Each sheet can hold up to 20 products.</li>'
+      +'<li>Each image must be between 20 KB and 175 KB.</li></ol></div>'
+      +'<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scBulkSample()">'+ICO_DOWNLOAD+' Sample Catalogue</button></div>'
+    +stepper+body
+  +'</div></div>';
+}
+function scBulkFiles(kind,list){
+  var files=Array.prototype.slice.call(list||[]);
+  if(kind==='sheet'){
+    var f=files[0];if(!f)return;
+    if(!/\.(xlsx|xls|csv)$/i.test(f.name)){scToast('Upload an Excel or CSV file','error');return;}
+    BULK.sheet={name:f.name,size:f.size};scRender();return;
+  }
+  var bad=[],dup=0;
+  files.forEach(function(f){
+    if(!/^image\//.test(f.type)){bad.push(f.name+' is not an image');return;}
+    if(f.size<20*1024||f.size>175*1024){bad.push(f.name+' is '+attSize(f.size));return;}
+    if(BULK.images.some(function(x){return x.name===f.name;})){dup++;return;}
+    BULK.images.push({name:f.name,size:f.size,url:URL.createObjectURL(f)});
+  });
+  scRender();
+  if(bad.length)scToast(bad.length+(bad.length===1?' file was':' files were')+' not added','error',bad.slice(0,2).join(' · ')+'. Images must be 20 KB to 175 KB.');
+  if(dup)scToast(dup+' already added','info','Image names must be unique.');
+}
+function scBulkRemove(i){var f=BULK.images.splice(i,1)[0];if(f)URL.revokeObjectURL(f.url);scRender();}
+function scBulkNext(){if(!BULK.images.length)return;BULK.step=2;scRender();}
+function scBulkSubmit(){
+  if(!BULK.sheet)return;
+  var n=BULK.images.length,name=BULK.sheet.name;
+  BULK.images.forEach(function(f){URL.revokeObjectURL(f.url);});
+  BULK={step:1,images:[],sheet:null};scRender();
+  scToast('Catalogue uploaded','success',name+' with '+n+(n===1?' image':' images')+' is queued. Products appear in the Product List once processed.');
+}
+function scBulkSample(){
+  var csv=[BULK_COLS,['Dolo 650 Tablet','Product','Health & Wellness','Medicines','Fever & Pain','30049099','12','35','32','100','dolo-650.jpg']]
+    .map(function(l){return l.map(function(v){return '"'+v+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='sample-catalogue.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast('Sample catalogue downloaded','success');
+}
+
+/* ══ BUYERS ════════════════════════════════════════════════════════════════
+   All Buyers, Live Buyers (API access), and credit: customers on a band,
+   bands with their limits. Credit customers are picked from the buyers; a
+   band's "Customers Assigned" is counted from the customers. */
+var BUYERS=(function(){
+  var seed=[['Rambabu','Musunuru','musunururambabu@gmail.com'],['Baiju','Balakrishnan','baijubalakrishnan@gmail.com'],['Jai','Bhagchandani',''],
+    ['Utkarsh','Shukla',''],['Pavan','Pavan',''],['Sanket','Ingole',''],['Venugopal','E',''],['Jibardhan','Bhoi',''],['Mavalya','','mavalyau@gmail.com'],
+    ['Manasa','','manasa@gmail.com'],['Priya','Nair','priya.nair@gmail.com'],['Arjun','Rao','arjunrao@yahoo.com'],['Hshs','Hshs',''],['Mukesh','Kum','mukeshk@gmail.com'],
+    ['Deepa','Menon','deepa.menon@gmail.com'],['Karthik','Reddy','']];
+  var keys=[46355,46353,46352,46351,46348,46347,46346,46344,46343,46342];
+  var rows=[];
+  for(var i=0;i<38;i++){var x=seed[i%seed.length],n=i<seed.length?'':' '+(Math.floor(i/seed.length)+1);
+    rows.push({key:keys[i]||46341-i,first:x[0]+n,last:x[1],email:x[2],mobile:'9'+String(800000000+i*7919731%199999999).slice(0,9),
+      joined:fmtDate(addD(DASH_TODAY,-i*3))});}
+  return rows;
+})();
+function buyerName(b){return (b.first+' '+b.last).trim();}
+GL.allbuyers={one:'buyer',noun:'buyers',rows:BUYERS,
+  title:function(b){return buyerName(b);},
+  search:{placeholder:'Search name, email or mobile',fields:['first','last','email','mobile','key']},
+  filters:[{k:'hasEmail',label:'Filter By',opts:['With Email','Without Email'],match:function(b,v){return v==='With Email'?!!b.email:!b.email;}}],
+  stats:function(rows){return [['All',rows.length,'active'],['With Email',rows.filter(function(b){return b.email;}).length,''],
+    ['On Credit',rows.filter(function(b){return CREDIT_CUSTOMERS.some(function(c){return c.buyer===b.key;});}).length,'approved']];},
+  cols:[{h:'Key',cell:function(b){return plain(b.key);}},{h:'First Name',cell:function(b){return mainTxt(b.first);}},
+    {h:'Last Name',cell:function(b){return b.last?plain(b.last):'<span class="lp-dash">—</span>';}},
+    {h:'Email',cell:function(b){return b.email?'<div class="lp-c-plain sc-c-vendor" title="'+esc(b.email)+'">'+esc(b.email)+'</div>':'<span class="lp-dash">—</span>';}},
+    {h:'Mobile',cell:function(b){return plain(b.mobile);}},{h:'Joined',cell:function(b){return plain(b.joined);}}],
+  tool:function(){return '<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scExportBuyers()">'+ICO_DOWNLOAD+' Export</button>';},
+  menu:function(b){
+    var on=CREDIT_CUSTOMERS.some(function(c){return c.buyer===b.key;});
+    return [['View Orders','scCloseRowMenu();scBuyerOrders('+b.key+')'],
+      [on?'Open Credit Account':'Add to Credit','scCloseRowMenu();scBuyerCredit('+b.key+')']];
+  }};
+function scExportBuyers(){
+  var rows=glRows('allbuyers');if(!rows.length){scToast('Nothing to export','info');return;}
+  var csv=[['Key','First Name','Last Name','Email','Mobile','Joined']].concat(rows.map(function(b){return [b.key,b.first,b.last,b.email,b.mobile,b.joined];}))
+    .map(function(l){return l.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='buyers.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast('Buyers exported','success',rows.length+' buyers in the file.');
+}
+function scBuyerOrders(key){
+  var b=BUYERS.filter(function(x){return x.key===key;})[0];if(!b)return;
+  glState('allorders').f={q:b.first};glState('allorders').page=1;scGo('allorders');
+}
+function scBuyerCredit(key){
+  var c=CREDIT_CUSTOMERS.filter(function(x){return x.buyer===key;})[0];
+  if(c){glState('creditcustomers').f={q:String(c.key)};scGo('creditcustomers');return;}
+  var b=BUYERS.filter(function(x){return x.key===key;})[0];if(!b)return;
+  scGo('creditcustomers');GL.creditcustomers.prefill={buyerName:buyerName(b)};scGlForm('creditcustomers');GL.creditcustomers.prefill=null;
+}
+
+/* ── LIVE BUYERS (API access) ──────────────────────────────────────────── */
+var LIVE_BUYERS=(function(){
+  var seed=[['Antar Seller','antar@seller.com','MzA5MGFkb','4810f6a3f'],['Taste Food','tastefood@gmail.com','MzA4OWFkb','bcf07ccce'],
+    ['Taste Food','tastefood@gmail.com','MzA4OWFkb','44726f032'],['Suma Latha','sumalatha@gmail.com','MzA4OGFkb','08f67ea44'],
+    ['Suma Latha','sumalatha@gmail.com','MzA4OGFkb','73689b4e7'],['Antar Singh','antelectronics@ant.com','YWRtaW4xM','03ae8c468'],
+    ['Antar Singh','antelectronics@ant.com','YWRtaW44N','134c8b5b1'],['Lara Admin','9879879875@gmail.com','YWRtaW4xM','8b0e69169'],
+    ['Opendhi Agent','opendhiagentref@yopmail.com','MzA4NmFkb','807c3d7c8'],['Opendhi Agent','opendhiagentref@yopmail.com','MzA4NmFkb','f9f3a365c'],
+    ['Priya Nair','priya.nair@gmail.com','YnV5ZXIxM','a1c99e2d0'],['Arjun Rao','arjunrao@yahoo.com','YnV5ZXI0N','5be17f6aa']];
+  var keys=[42013,42012,42011,42009,42008,42006,42005,42001,41998,41997];
+  return seed.concat(seed.slice(0,8)).map(function(x,i){
+    return {key:keys[i]||41996-i,name:x[0],email:x[1],type:i>=10&&i<12?'buyer':'admin',akey:x[2]+'kZWZhdWx0',aval:x[3]+'9b2c4e7a1d',status:i%13===12?'Revoked':'Active'};});
+})();
+function masked(v){return '<span class="sc-mono sc-masked" title="Hidden">'+esc(v.slice(0,9))+'…</span>';}
+GL.livebuyers={one:'live buyer',noun:'live buyers',rows:LIVE_BUYERS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search name or email',fields:['name','email','key']},
+  filters:[{k:'type',label:'User Type',opts:['admin','buyer']},{k:'status',label:'Select Status',opts:['Active','Revoked']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Revoked','']]);},
+  cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Email',cell:function(r){return '<div class="lp-c-plain sc-c-vendor" title="'+esc(r.email)+'">'+esc(r.email)+'</div>';}},
+    {h:'Type',cell:function(r){return plain(r.type);}},
+    {h:'Access Key',cell:function(r){return '<span class="sc-secret">'+masked(r.akey)+'<button type="button" class="sc-copy" title="Copy access key" aria-label="Copy access key" onclick="scCopySecret('+r.key+',\'akey\')">'+ICO.copy+'</button></span>';}},
+    {h:'Access Value',cell:function(r){return '<span class="sc-secret">'+masked(r.aval)+'<button type="button" class="sc-copy" title="Copy access value" aria-label="Copy access value" onclick="scCopySecret('+r.key+',\'aval\')">'+ICO.copy+'</button></span>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status==='Active'?'Active':'Inactive').replace('>Inactive<','>Revoked<');}}],
+  toggle:{k:'status',on:'Active',off:'Revoked',onLabel:'Restore Access',offLabel:'Revoke Access',onDone:'access restored',offDone:'access revoked'},
+  menu:function(r){return [['Regenerate Keys','scCloseRowMenu();scRegenKeys('+r.key+')']];}};
+function scCopySecret(key,field){
+  var r=glRow('livebuyers',key);if(!r)return;
+  var done=function(){scToast((field==='akey'?'Access key':'Access value')+' copied','success');};
+  try{navigator.clipboard.writeText(r[field]).then(done,function(){scToast('Copy is blocked in this browser','error');});}catch(e){scToast('Copy is blocked in this browser','error');}
+}
+function scRegenKeys(key){
+  var r=glRow('livebuyers',key);if(!r)return;
+  var rnd=function(n){var c='abcdef0123456789',o='';for(var i=0;i<n;i++)o+=c[Math.floor(Math.random()*16)];return o;};
+  r.akey=btoa(r.name.slice(0,4)+rnd(4)).replace(/=/g,'')+'kZWZhdWx0';r.aval=rnd(18);r.status='Active';scRender();
+  scToast('Keys regenerated for '+r.name,'success','The old keys stop working now.');
+}
+
+/* ── CREDIT BANDS & CUSTOMERS ──────────────────────────────────────────── */
+var CREDIT_BANDS=[{key:4,name:'Platinum',limit:50000,days:45,created:'02 Oct 2026'},{key:3,name:'Gold',limit:25000,days:30,created:'18 Sep 2026'},
+  {key:2,name:'Silver',limit:10000,days:15,created:'05 Sep 2026'},{key:1,name:'Starter',limit:3000,days:7,created:'21 Aug 2026'}];
+function bandBy(name){return CREDIT_BANDS.filter(function(b){return b.name===name;})[0];}
+var CREDIT_CUSTOMERS=[[46355,'Gold',18200,'Active'],[46353,'Silver',9400,'Active'],[46343,'Starter',1200,'Active'],[46342,'Platinum',12500,'Active'],
+  [46339,'Silver',10000,'Blocked'],[46337,'Starter',600,'Active'],[46333,'Gold',4100,'Active']].map(function(x,i){
+  var b=BUYERS.filter(function(y){return y.key===x[0];})[0]||BUYERS[i];
+  return {key:9001+i,buyer:b.key,buyerName:buyerName(b),mobile:b.mobile,band:x[1],used:x[2],status:x[3]};});
+GL.creditcustomers={one:'credit customer',noun:'credit customers',rows:CREDIT_CUSTOMERS,
+  title:function(c){return c.buyerName;},
+  search:{placeholder:'Search customer or mobile',fields:['buyerName','mobile','key']},
+  filters:[{k:'band',label:'Credit Band',opts:function(){return CREDIT_BANDS.map(function(b){return b.name;});}},{k:'status',label:'Select Status',opts:['Active','Blocked']}],
+  stats:function(rows){var out=rows.reduce(function(t,c){return t+c.used;},0);
+    return [['Customers',rows.length,'active'],['Outstanding','₹'+Math.round(out).toLocaleString('en-IN'),'pending'],['Blocked',rows.filter(function(c){return c.status==='Blocked';}).length,'']];},
+  cols:[{h:'Account',cell:function(c){return plain(c.key);}},{h:'Customer',cell:function(c){return '<div class="lp-c-main">'+esc(c.buyerName)+'</div><div class="lp-c-sub">Buyer #'+c.buyer+'</div>';}},
+    {h:'Mobile',cell:function(c){return plain(c.mobile);}},{h:'Credit Band',cell:function(c){return '<span class="sc-band sc-band-'+c.band.toLowerCase()+'">'+esc(c.band)+'</span>';}},
+    {h:'Credit Used',cell:function(c){var b=bandBy(c.band),lim=b?b.limit:0,pct=lim?Math.min(100,c.used/lim*100):0;
+      return '<div class="sc-credit"><div class="sc-credit-top"><b>'+inr(c.used)+'</b><span>of '+inr(lim)+'</span></div>'
+        +'<span class="sc-credit-track"><span class="sc-credit-fill'+(pct>=90?' is-high':'')+'" style="width:'+pct.toFixed(1)+'%"></span></span>'
+        +'<div class="lp-c-sub">'+inr(Math.max(0,lim-c.used))+' available</div></div>';}},
+    {h:'Status',cell:function(c){return badge(c.status==='Active'?'approved':'unapproved',c.status);}}],
+  form:[{k:'buyerName',label:'Customer',type:'select',req:true,full:true,opts:function(){
+      return BUYERS.filter(function(b){return !CREDIT_CUSTOMERS.some(function(c){return c.buyer===b.key;});}).map(buyerName);}},
+    {k:'band',label:'Credit Band',type:'select',req:true,opts:function(){return CREDIT_BANDS.map(function(b){return b.name;});}},
+    {k:'status',label:'Status',type:'select',opts:['Active','Blocked'],def:'Active',req:true}],
+  defaults:function(){return {used:0};},
+  onSave:function(c){var b=BUYERS.filter(function(x){return buyerName(x)===c.buyerName;})[0];if(b){c.buyer=b.key;c.mobile=b.mobile;}},
+  toggle:{k:'status',on:'Active',off:'Blocked',onLabel:'Unblock Credit',offLabel:'Block Credit',onDone:'credit unblocked',offDone:'credit blocked'}};
+GL.creditbands={one:'credit band',noun:'credit bands',rows:CREDIT_BANDS,
+  title:function(b){return b.name;},
+  search:{placeholder:'Search band',fields:['name','key']},
+  filters:[{k:'size',label:'Filter By',opts:['Up to ₹10,000','Above ₹10,000'],match:function(b,v){return v==='Up to ₹10,000'?b.limit<=10000:b.limit>10000;}}],
+  stats:function(rows){return [['Bands',rows.length,'active'],['Customers',CREDIT_CUSTOMERS.length,'approved']];},
+  cols:[{h:'Credit Band ID',cell:function(b){return plain(b.key);}},{h:'Credit Band Name',cell:function(b){return '<span class="sc-band sc-band-'+b.name.toLowerCase()+'">'+esc(b.name)+'</span>';}},
+    {h:'Credit Limit',cell:function(b){return plain(inr(b.limit));}},{h:'Credit Period',cell:function(b){return plain(b.days+' days');}},
+    {h:'Customers Assigned',cell:function(b){var n=CREDIT_CUSTOMERS.filter(function(c){return c.band===b.name;}).length;
+      return n?'<button type="button" class="sc-link" onclick="glState(\'creditcustomers\').f={band:\''+esc(b.name)+'\'};scGo(\'creditcustomers\')">'+n+(n===1?' customer':' customers')+'</button>':'<span class="lp-dash">None</span>';}},
+    {h:'Created Date',cell:function(b){return plain(b.created);}}],
+  form:[{k:'name',label:'Credit Band Name',req:true},{k:'limit',label:'Credit Limit (₹)',type:'number',req:true},{k:'days',label:'Credit Period (days)',type:'number',req:true,def:'15'}],
+  defaults:function(){return {created:stamp().date};},
+  onSave:function(b){b.limit=+b.limit||0;b.days=+b.days||0;},
+  del:true};
+Object.assign(PAGE_ACTIONS,{creditcustomers:['Add Credit Customer',function(){scGlForm('creditcustomers');}],creditbands:['Create Credit Band',function(){scGlForm('creditbands');}]});
+
+/* ══ CATEGORY ══════════════════════════════════════════════════════════════
+   Three linked levels: Main → Sub → Grand Sub. A sub picks its main from
+   the Main Category list, a grand sub picks both; clicking a main or sub on
+   a lower level opens that level filtered to it. */
+var STORE_CATS=['Grocery Retail','Grocery Wholesale','Health Services','Service','Amenities','Supplier','Internal','Tickets','Rooms'];
+var MAIN_CATEGORIES=[[491,'Dairy & Bakery','Grocery Retail','Retailer'],[490,'Snacks & Packaged Foods','Grocery Retail','Retailer'],
+  [489,'Staples & Grains','Grocery Retail','Retailer'],[488,'Rental','Service','Retailer'],[487,'Amenities','Amenities','Amenities'],
+  [486,'Health Services','Health Services','Retailer'],[485,'Grocery','Grocery Wholesale','Retailer'],[484,'Beverages','Grocery Retail','Retailer'],
+  [483,'Personal Care','Grocery Retail','Retailer'],[482,'Household Supplies','Grocery Retail','Retailer'],[481,'Home Services','Service','Retailer'],
+  [480,'Event Tickets','Tickets','Amenities'],[479,'Stay','Rooms','Amenities'],[478,'Office Supplies','Supplier','Retailer']]
+  .map(function(x){return {key:x[0],name:x[1],storeCat:x[2],type:x[3],status:'Active'};});
+function mainNames(){return MAIN_CATEGORIES.map(function(m){return m.name;});}
+var SUB_CATEGORIES=[[1500,'Dairy & Bakery','Curd & Yogurt',1146],[1499,'Dairy & Bakery','Milk',1145],[1498,'Snacks & Packaged Foods','Chips & Namkeen',1144],
+  [1497,'Snacks & Packaged Foods','Biscuits & Cookies',1143],[1496,'Staples & Grains','Atta & Flour',1142],[1495,'Staples & Grains','Rice & Rice Products',1141],
+  [1494,'Rental','Scooty',26],[1493,'Rental','Bikes',24],[1492,'Rental','Cars',23],[1491,'Amenities','Swimming Pool',3],[1490,'Health Services','Pharmacy',14],
+  [1489,'Health Services','Inpatient Admission',681],[1488,'Health Services','Consultation',680],[1487,'Grocery','Organic Fruits',1],
+  [1486,'Health Services','Alternative Medicine',678],[1485,'Beverages','Tea & Coffee',1140],[1484,'Personal Care','Hair Care',1139]]
+  .map(function(x){var m=MAIN_CATEGORIES.filter(function(y){return y.name===x[1];})[0];
+    return {key:x[0],main:x[1],name:x[2],seq:x[3],storeCat:m?m.storeCat:'',type:m?m.type:'Retailer',status:'Active'};});
+function subNames(){return SUB_CATEGORIES.map(function(m){return m.name;});}
+var GRAND_CATEGORIES=[[1574,'Pharmacy','Pharmacy',14,'Active'],[1573,'Inpatient Admission','Inpatient',681,'Active'],[1572,'Consultation','General Test',680,'Inactive'],
+  [1571,'Organic Fruits','Mix Fruits',1,'Active'],[1570,'Consultation','Gynecology And Pediatric',677,'Active'],[1569,'Alternative Medicine','Homeopathy',678,'Inactive'],
+  [1568,'Alternative Medicine','Ayurveda',676,'Active'],[1567,'Consultation','Psychology',675,'Active'],[1566,'Consultation','Dental',674,'Active'],
+  [1565,'Milk','Toned Milk',1,'Active'],[1564,'Milk','Full Cream Milk',2,'Active'],[1563,'Chips & Namkeen','Potato Chips',1,'Active'],
+  [1562,'Atta & Flour','Whole Wheat Atta',1,'Active'],[1561,'Tea & Coffee','Green Tea',3,'Active']]
+  .map(function(x){var sc=SUB_CATEGORIES.filter(function(y){return y.name===x[1];})[0];
+    return {key:x[0],sub:x[1],name:x[2],seq:x[3],status:x[4],main:sc?sc.main:'',storeCat:sc?sc.storeCat:'',type:sc?sc.type:'Retailer'};});
+function catJump(page,k,v){
+  return '<button type="button" class="sc-link" title="Open '+esc(v)+'" onclick="glState(\''+page+'\').f={'+k+':\''+esc(v).replace(/'/g,"\\'")+'\'};glState(\''+page+'\').page=1;scGo(\''+page+'\')">'+esc(v)+'</button>';
+}
+var catToggle={k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'};
+var catStats=function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);};
+GL.maincats={one:'main category',noun:'main categories',rows:MAIN_CATEGORIES,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search category',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'type',label:'Select Type',opts:['Retailer','Amenities']},
+    {k:'storeCat',label:'Select Store Category',opts:STORE_CATS}],
+  stats:catStats,
+  cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Main Category Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Store Category',cell:function(r){return plain(r.storeCat);}},{h:'Type',cell:function(r){return plain(r.type);}},
+    {h:'Sub Categories',cell:function(r){var n=SUB_CATEGORIES.filter(function(s){return s.main===r.name;}).length;
+      return n?'<button type="button" class="sc-link" onclick="glState(\'subcats\').f={main:\''+esc(r.name).replace(/'/g,"\\'")+'\'};scGo(\'subcats\')">'+n+' sub</button>':'<span class="lp-dash">None</span>';}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Main Category Name',req:true,full:true},{k:'storeCat',label:'Store Category',type:'select',opts:STORE_CATS,req:true},
+    {k:'type',label:'Type',type:'select',opts:['Retailer','Amenities'],req:true}],
+  defaults:function(){return {status:'Active'};},toggle:catToggle};
+GL.subcats={one:'sub category',noun:'sub categories',rows:SUB_CATEGORIES,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search sub category',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'type',label:'Select Type',opts:['Retailer','Amenities']},
+    {k:'storeCat',label:'Store Category',opts:STORE_CATS},{k:'main',label:'Main Category',opts:mainNames}],
+  stats:catStats,
+  cols:[{h:'Primary Key',cell:function(r){return plain(r.key);}},{h:'Store Category',cell:function(r){return plain(r.storeCat);}},
+    {h:'Main Category',cell:function(r){return catJump('maincats','q',r.main);}},{h:'Sub Category Name',cell:function(r){return mainTxt(r.name);}},
+    {h:'Sequence',cell:function(r){return plain(r.seq);}},{h:'Category Type',cell:function(r){return plain(r.type);}},
+    {h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Sub Category Name',req:true},{k:'main',label:'Main Category',type:'select',opts:mainNames,req:true},
+    {k:'seq',label:'Sequence',type:'number',req:true,def:'1'}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(r){var m=MAIN_CATEGORIES.filter(function(y){return y.name===r.main;})[0];if(m){r.storeCat=m.storeCat;r.type=m.type;}},
+  toggle:catToggle};
+GL.grandcats={one:'grand sub category',noun:'grand sub categories',rows:GRAND_CATEGORIES,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search grand sub category',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'type',label:'Select Type',opts:['Retailer','Amenities']},
+    {k:'storeCat',label:'Store Category',opts:STORE_CATS},{k:'main',label:'Main Category',opts:mainNames},{k:'sub',label:'Sub Category',opts:subNames}],
+  stats:catStats,
+  cols:[{h:'Primary Key',cell:function(r){return plain(r.key);}},{h:'Store Category',cell:function(r){return plain(r.storeCat);}},
+    {h:'Main Category',cell:function(r){return catJump('maincats','q',r.main);}},{h:'Sub Category',cell:function(r){return catJump('subcats','q',r.sub);}},
+    {h:'Grand Sub Category',cell:function(r){return mainTxt(r.name);}},{h:'Sequence',cell:function(r){return plain(r.seq);}},
+    {h:'Category Type',cell:function(r){return plain(r.type);}},{h:'Status',cell:function(r){return activeBadge(r.status);}}],
+  form:[{k:'name',label:'Grand Sub Category Name',req:true,full:true},{k:'sub',label:'Sub Category',type:'select',opts:subNames,req:true},
+    {k:'seq',label:'Sequence',type:'number',req:true,def:'1'}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(r){var sc=SUB_CATEGORIES.filter(function(y){return y.name===r.sub;})[0];if(sc){r.main=sc.main;r.storeCat=sc.storeCat;r.type=sc.type;}},
+  toggle:catToggle,del:true};
+Object.assign(PAGE_ACTIONS,{maincats:['Create Main Category',function(){scGlForm('maincats');}],subcats:['Create Sub Category',function(){scGlForm('subcats');}],
+  grandcats:['Create Grand Sub Category',function(){scGlForm('grandcats');}]});
+
+/* ══ COMMUNITY ═════════════════════════════════════════════════════════════
+   Communities and everything that lives in one: platforms, amenities,
+   members, residents, daily help, notices, blocks and flats, customer bands,
+   e-wallets, partners, cafeterias and visitor logs. Every page that names a
+   community picks it from the All Community list, and the name links back
+   to it. Blocks own their flats: a block's Total Flats is counted from the
+   flats, and creating a block adds its flats. */
+var COMM_CATS=['Commercials','Residential','Referral Program','Accommodation','Gated Community'];
+var COMM_REG=['Open','Approval Required','Invite Only'];
+var COMMUNITIES=[[3133,'Oct Chennai Commercial','Commercials',2],[3132,'Chennai Commercial','Commercials',2],[3128,'Lara Locals','Commercials',5],
+  [3127,'OpenDhi Connect And Earn','Referral Program',5],[3122,'IDFC First Bank','Commercials',7],[3117,'RBL Bank','Commercials',7],
+  [3102,'bhai community','Residential',13],[3101,'tamil community','Accommodation',13],[3098,'Freedom Park','Gated Community',20],
+  [3095,'My Home Bhooja','Gated Community',24],[3091,'Green Meadows','Residential',30],[3088,'Blue house community','Residential',35],
+  [3084,'Chennai Community','Residential',41],[3079,'Antar chennai residential comm','Residential',47],[3075,'Galaxy Community','Gated Community',52],
+  [3071,'test community qr code','Commercials',58],[3066,'Hyper community','Commercials',63],[3060,'The Skyview','Gated Community',70],
+  [3054,'Booja Residency','Residential',78],[3049,'AAA Partner Hub','Referral Program',86],[3043,'Sunrise Towers','Gated Community',95],
+  [3038,'Lakeview Stay','Accommodation',104]]
+  .map(function(x,i){return {key:x[0],name:x[1],cat:x[2],reg:COMM_REG[i%3],created:fmtDate(addD(DASH_TODAY,-x[3])),status:i===15?'Inactive':'Active'};});
+function commNames(){return COMMUNITIES.map(function(c){return c.name;});}
+function commLink(name){return name?catJump('communities','q',name):'<span class="lp-dash">Not Assigned</span>';}
+/* a person's picture: their initials on a tint picked from the name */
+function ava(name){
+  var s=String(name||'?'),h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%997;
+  var ini=s.split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  return '<span class="sc-ava sc-ava-'+(h%6)+'" aria-hidden="true">'+esc(ini||'?')+'</span>';
+}
+function personCell(name,email){return '<div class="sc-person">'+ava(name)+'<div class="sc-person-txt"><div class="lp-c-main">'+esc(name)+'</div>'+(email?'<div class="lp-c-sub" title="'+esc(email)+'">'+esc(email)+'</div>':'')+'</div></div>';}
+function mailCell(v){return v?'<div class="lp-c-plain sc-c-vendor" title="'+esc(v)+'">'+esc(v)+'</div>':'<span class="lp-dash">—</span>';}
+var onOff={k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'};
+var onOffStats=function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);};
+
+/* ── ALL COMMUNITY ─────────────────────────────────────────────────────── */
+GL.communities={one:'community',noun:'communities',rows:COMMUNITIES,
+  title:function(c){return c.name;},
+  search:{placeholder:'Search community',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'cat',label:'Community Category',opts:COMM_CATS},
+    {k:'reg',label:'Customer Registration Type',opts:COMM_REG}],
+  stats:onOffStats,
+  cols:[{h:'Community Id',cell:function(c){return plain(c.key);}},{h:'Community Name',cell:function(c){return mainTxt(c.name);}},
+    {h:'Category Name',cell:function(c){return plain(c.cat);}},{h:'Registration',cell:function(c){return plain(c.reg);}},
+    {h:'Residents',cell:function(c){var n=RESIDENTS.filter(function(r){return r.comm===c.name;}).length;
+      return n?catJump('residents','comm',c.name).replace('>'+esc(c.name)+'<','>'+n+(n===1?' resident':' residents')+'<'):'<span class="lp-dash">None</span>';}},
+    {h:'Create Date',cell:function(c){return plain(c.created);}},{h:'Status',cell:function(c){return activeBadge(c.status);}}],
+  rowTools:function(c){return '<button class="lp-action-btn" type="button" title="Download community details" aria-label="Download '+esc(c.name)+'" onclick="scCommDownload('+c.key+')">'+ICO_DOWNLOAD+'</button>';},
+  form:[{k:'name',label:'Community Name',req:true,full:true},{k:'cat',label:'Community Category',type:'select',opts:COMM_CATS,req:true},
+    {k:'reg',label:'Customer Registration Type',type:'select',opts:COMM_REG,req:true,def:'Open'}],
+  defaults:function(){return {created:fmtDate(DASH_TODAY),status:'Active'};},
+  toggle:onOff};
+function scCommDownload(key){
+  var c=glRow('communities',key);if(!c)return;
+  var rows=[['Community Id',c.key],['Community Name',c.name],['Category',c.cat],['Registration',c.reg],['Created',c.created],['Status',c.status],
+    ['Residents',RESIDENTS.filter(function(r){return r.comm===c.name;}).length],['Blocks',BLOCKS.filter(function(b){return b.comm===c.name;}).length]];
+  var csv=rows.map(function(l){return l.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='community-'+c.key+'.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast(c.name+' downloaded','success');
+}
+
+/* ── ALL PLATFORM ──────────────────────────────────────────────────────── */
+var PLATFORM_TYPES=['Partner Management','Community Management','Retail Network'];
+var PLATFORM_LIST=[{key:3120,name:'Chennai Platform Test',type:'Partner Management',created:'07 Oct 2026',status:'Active'},
+  {key:3104,name:'Hyderabad Residents Network',type:'Community Management',created:'21 Sep 2026',status:'Active'},
+  {key:3093,name:'Bengaluru Retail Grid',type:'Retail Network',created:'02 Sep 2026',status:'Active'},
+  {key:3081,name:'Pune Partner Pilot',type:'Partner Management',created:'14 Aug 2026',status:'Inactive'}];
+GL.platforms={one:'platform',noun:'platforms',rows:PLATFORM_LIST,
+  title:function(p){return p.name;},
+  search:{placeholder:'Search platform',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'type',label:'Select Type',opts:PLATFORM_TYPES}],
+  stats:onOffStats,
+  cols:[{h:'Platform Id',cell:function(p){return plain(p.key);}},{h:'Platform Name',cell:function(p){return mainTxt(p.name);}},
+    {h:'Platform Type',cell:function(p){return plain(p.type);}},{h:'Create Date',cell:function(p){return plain(p.created);}},
+    {h:'Status',cell:function(p){return activeBadge(p.status);}}],
+  form:[{k:'name',label:'Platform Name',req:true,full:true},{k:'type',label:'Platform Type',type:'select',opts:PLATFORM_TYPES,req:true}],
+  defaults:function(){return {created:fmtDate(DASH_TODAY),status:'Active'};},
+  toggle:onOff};
+
+/* ── AMENITIES ─────────────────────────────────────────────────────────── */
+var AMENITY_KINDS=['Spa','Gym','Pool','Clubhouse','Other'];
+var AMENITIES=[[75181,'testdelete','Antar chennai residential comm',999,'Other'],[75028,'Annual Membership spa','My Home Bhooja',7000,'Spa'],
+  [75027,'Quarterly Membership spa','My Home Bhooja',3500,'Spa'],[75026,'Monthly Membership spa','My Home Bhooja',1200,'Spa'],
+  [75025,'Annual Membership','My Home Bhooja',6000,'Gym'],[75024,'Quarterly Membership','My Home Bhooja',3000,'Gym'],
+  [75023,'Swimming Pool Pass','Freedom Park',0,'Pool'],[75022,'Clubhouse Booking','Green Meadows',1500,'Clubhouse']]
+  .map(function(x){return {key:x[0],name:x[1],comm:x[2],fee:x[3],kind:x[4],status:'Active'};});
+var AMENITY_ICO={Spa:ICO.sparkle,Gym:ICO.dumbbell,Pool:ICO.wave,Clubhouse:ICO.building,Other:ICO.store};
+GL.amenities={one:'amenity',noun:'amenities',rows:AMENITIES,
+  title:function(a){return a.name;},
+  search:{placeholder:'Search amenity',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},
+    {k:'paid',label:'Filter By',opts:['Paid','Free'],match:function(a,v){return v==='Paid'?a.fee>0:!a.fee;}},
+    {k:'comm',label:'Select Community',opts:commNames}],
+  stats:onOffStats,
+  cols:[{h:'Service ID',cell:function(a){return plain(a.key);}},
+    {h:'Image',cell:function(a){return '<span class="sc-thumb sc-thumb-'+a.kind.toLowerCase()+'" title="'+esc(a.kind)+'">'+(AMENITY_ICO[a.kind]||ICO.store)+'</span>';}},
+    {h:'Amenities Name',cell:function(a){return mainTxt(a.name);}},{h:'Community',cell:function(a){return commLink(a.comm);}},
+    {h:'Registration Fee',cell:function(a){return a.fee?plain('INR '+(+a.fee).toLocaleString('en-IN')):badge('approved','Free');}},
+    {h:'Status',cell:function(a){return activeBadge(a.status);}}],
+  form:[{k:'name',label:'Amenity Name',req:true,full:true},{k:'comm',label:'Community',type:'select',opts:commNames,req:true},
+    {k:'kind',label:'Amenity Type',type:'select',opts:AMENITY_KINDS,req:true,def:'Other'},{k:'fee',label:'Registration Fee (INR)',type:'number',req:true,def:'0'}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(a){a.fee=+a.fee||0;},
+  toggle:onOff};
+
+/* ── ALL COMMUNITY MEMBERS ─────────────────────────────────────────────── */
+var DESIGNATIONS=['Community Manager','Community Agent','Core Team L1','Core Team L2','Security Head'];
+var CMEMBERS=(function(){
+  var seed=[['Lara Locals','Lara Admin','9879879875@gmail.com','+919879879875',0],['OpenDhi Connect And Earn','Opendhi Agent','opendhiagentref@yopmail.com','919845102120',1],
+    ['OpenDhi Connect And Earn','Opendhi Connect','opendhiconnect@yopmail.com','+917451202102',1],['IDFC First Bank','Idfc First Bank','idfcfirstbank12@gmail.com','+919554454151',0],
+    ['RBL Bank','Ifc Bank','ifcbank@gmail.com','+918510254454',0],['Freedom Park','Meghana M','meghana@gmail.com','+919802347656',2],
+    ['Green Meadows','Ravi Teja','raviteja@gmail.com','+919845612378',3],['My Home Bhooja','Sunil Srivastava','sunil.s@gmail.com','+919900112233',0],
+    ['Blue house community','Pardeep Singh','pardeep@gmail.com','+919811002244',4],['Galaxy Community','Testing Dhi','testing@gmail.com','+918219174693',1],
+    ['Chennai Community','Shrinivas Sadalawar','shrinivas@opendhi.com','+919766554433',2],['The Skyview','Shaun Jacob','shaun.jacob@gmail.com','+919822334455',3]];
+  var keys=[3087,3086,3085,3081,3075,3061,3058,3052,3047,3050,3039,3031];
+  return seed.map(function(x,i){return {key:keys[i],comm:x[0],name:x[1],email:x[2],mobile:x[3],desig:DESIGNATIONS[x[4]],kyc:i===5||i===7?'Yes':'No',status:i===9?'Inactive':'Active'};});
+})();
+GL.cmembers={one:'member',noun:'members',rows:CMEMBERS,
+  title:function(m){return m.name;},
+  search:{placeholder:'Search name, email or mobile',fields:['name','email','mobile','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'desig',label:'Select Designation',opts:DESIGNATIONS},
+    {k:'kyc',label:'KYC Verified',opts:['Yes','No']}],
+  stats:function(rows){return [['All',rows.length,'active'],['KYC Verified',rows.filter(function(m){return m.kyc==='Yes';}).length,'approved'],
+    ['KYC Pending',rows.filter(function(m){return m.kyc!=='Yes';}).length,'pending']];},
+  cols:[{h:'Member Id',cell:function(m){return plain(m.key);}},{h:'Community Name',cell:function(m){return commLink(m.comm);}},
+    {h:'Member',cell:function(m){return personCell(m.name,m.email);}},{h:'Mobile Number',cell:function(m){return plain(m.mobile);}},
+    {h:'Designation',cell:function(m){return plain(m.desig);}},
+    {h:'KYC Verified',cell:function(m){return badge(m.kyc==='Yes'?'approved':'unapproved',m.kyc);}},
+    {h:'Status',cell:function(m){return activeBadge(m.status);}}],
+  form:[{k:'name',label:'Member Name',req:true},{k:'comm',label:'Community',type:'select',opts:commNames,req:true},
+    {k:'email',label:'Member Email',type:'email',req:true},{k:'mobile',label:'Mobile Number',req:true},
+    {k:'desig',label:'Designation',type:'select',opts:DESIGNATIONS,req:true}],
+  defaults:function(){return {kyc:'No',status:'Active'};},
+  toggle:onOff,
+  menu:function(m){return [[m.kyc==='Yes'?'Mark KYC Pending':'Mark KYC Verified','scCloseRowMenu();scMemberKyc('+m.key+')']];}};
+function scMemberKyc(key){
+  var m=glRow('cmembers',key);if(!m)return;m.kyc=m.kyc==='Yes'?'No':'Yes';scRender();
+  scToast(m.name+(m.kyc==='Yes'?' KYC verified':' KYC marked pending'),m.kyc==='Yes'?'success':'info');
+}
+
+/* ── ALL RESIDENTS ─────────────────────────────────────────────────────── */
+var OCCUPANCY=['Moving In','Currently Residing','Moving Out','Moved Out'];
+var RESIDENTS=(function(){
+  var seed=[['MAVALYA','Freedom Park','mavalyau@gmail.com','60 B','+91 9807064533','Owner','Inactive',0],
+    ['Manasa','Freedom Park','manasa@gmail.com','85 A','+91 9390576452','Tenant','Active',1],
+    ['Samala chiranjeevi','bhai community','samalachiranjeevi0@gmail.com','2003 bhai','+91 7097664736','Owner','Active',1],
+    ['Tenant Test Agreement','Antar chennai residential comm','','6 A','+91 5673510668','Owner','Active',1],
+    ['vsfsbvsv','Antar chennai residential comm','dfbvrsgsrvs342@opendhi.com','7 A','+91 7688536867','Tenant','Pending',1],
+    ['Priya Nair','Green Meadows','priya.nair@gmail.com','Meadows B-104','+91 9845011223','Owner','Active',1],
+    ['Arjun Rao','Blue house community','arjunrao@yahoo.com','AA-12','+91 9900887766','Tenant','Active',2],
+    ['Deepa Menon','My Home Bhooja','deepa.menon@gmail.com','Tower 2-808','+91 9123456780','Owner','Active',1],
+    ['Karthik Reddy','Chennai Community','','A-15','+91 9988776655','Tenant','Active',0],
+    ['Uppu Mavalya','Freedom Park','uppu.m@gmail.com','B-21','+91 9876501234','Owner','Active',1],
+    ['Charitha Ramireddy','Freedom Park','charitha@gmail.com','A-44','+91 9012345678','Tenant','Active',3],
+    ['Thulasi Annapureddy','My Home Bhooja','thulasi@gmail.com','Tower 1-302','+91 9345678901','Owner','Active',1]];
+  var keys=[46343,46342,46311,46337,46336,46330,46327,46322,46318,46315,46310,46305];
+  return seed.map(function(x,i){return {key:keys[i],name:x[0],comm:x[1],email:x[2],prop:x[3],mobile:x[4],pos:x[5],status:x[6],occ:OCCUPANCY[x[7]]};});
+})();
+GL.residents={one:'resident',noun:'residents',rows:RESIDENTS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search name, email or flat',fields:['name','email','prop','mobile','key']},
+  filters:[{k:'pos',label:'Select Resident type',opts:['Owner','Tenant']},{k:'status',label:'Select Status',opts:['Active','Inactive','Pending']},
+    {k:'comm',label:'Select Community',opts:commNames}],
+  stats:function(rows){return [['All',rows.length,'active'],['Owners',rows.filter(function(r){return r.pos==='Owner';}).length,''],
+    ['Tenants',rows.filter(function(r){return r.pos==='Tenant';}).length,''],['Pending',rows.filter(function(r){return r.status==='Pending';}).length,'pending']];},
+  cols:[{h:'Key',cell:function(r){return plain(r.key);}},
+    {h:'Resident',cell:function(r){return personCell(r.name,r.email);}},
+    {h:'Community',cell:function(r){return commLink(r.comm);}},
+    {h:'Property',cell:function(r){return '<div class="lp-c-plain">'+esc(r.prop)+'</div><div class="lp-c-sub">'+esc(r.pos)+'</div>';}},{h:'Mobile',cell:function(r){return plain(r.mobile);}},{h:'Status',cell:function(r){return activeBadge(r.status);}},
+    {h:'Occupancy Status',cell:function(r){return '<span class="sc-occ sc-occ-'+r.occ.toLowerCase().replace(/\s+/g,'-')+'">'+esc(r.occ)+'</span>';}}],
+  form:[{k:'name',label:'Full Name',req:true},{k:'comm',label:'Community',type:'select',opts:commNames,req:true},
+    {k:'email',label:'Email Id',type:'email'},{k:'mobile',label:'Mobile',req:true,ph:'+91 '},
+    {k:'prop',label:'Property',req:true,ph:'Flat or house number'},{k:'pos',label:'Position',type:'select',opts:['Owner','Tenant'],req:true},
+    {k:'occ',label:'Occupancy Status',type:'select',opts:OCCUPANCY,req:true,def:'Moving In'}],
+  defaults:function(){return {status:'Pending'};},
+  menu:function(r){
+    var out=[];
+    if(r.status==='Pending')out.push(['Approve Resident','scCloseRowMenu();scResidentSet('+r.key+',\'status\',\'Active\')']);
+    else out.push([r.status==='Active'?'Deactivate':'Activate','scCloseRowMenu();scResidentSet('+r.key+',\'status\',\''+(r.status==='Active'?'Inactive':'Active')+'\')']);
+    var i=OCCUPANCY.indexOf(r.occ);
+    if(i<OCCUPANCY.length-1)out.push(['Mark '+OCCUPANCY[i+1],'scCloseRowMenu();scResidentSet('+r.key+',\'occ\',\''+OCCUPANCY[i+1]+'\')']);
+    return out;
+  }};
+function scResidentSet(key,k,v){
+  var r=glRow('residents',key);if(!r)return;r[k]=v;scRender();
+  scToast(r.name+(k==='occ'?' is now '+v.toLowerCase():v==='Active'?' activated':' deactivated'),v==='Inactive'||v==='Moved Out'?'info':'success');
+}
+
+/* ── DAILY HELP ────────────────────────────────────────────────────────── */
+var HELP_ROLES=['Driver','Gardener','Cook','Maid','Security','Nanny'];
+var DAILY_HELP=[[59,'Freedom Park','Akhil','akhil.7986054123@dailyhelp.local','+917986054123','Driver'],
+  [58,'Freedom Park','Ramya','ramya.9807625431@dailyhelp.local','+919807625431','Gardener'],
+  [57,'Freedom Park','Harshitha C','harshithachilukuri2103@gmail.com','+916301000702','Cook'],
+  [56,'Freedom Park','Vishwa','','+919068547231','Gardener'],[55,'My Home Bhooja','Meghana K','meghana.9807654321@dailyhelp.local','+919807654321','Gardener'],
+  [54,'Green Meadows','Ygi Test','','+913256668965','Driver'],[53,'Green Meadows','Lakshmi Devi','lakshmi.9845123456@dailyhelp.local','+919845123456','Maid'],
+  [52,'Blue house community','Ramesh B','','+919900445566','Security'],[51,'My Home Bhooja','Sarita','sarita.9811223344@dailyhelp.local','+919811223344','Nanny'],
+  [50,'Chennai Community','Murugan','','+919444556677','Driver'],[49,'Freedom Park','Kavitha','kavitha.9123498765@dailyhelp.local','+919123498765','Cook'],
+  [48,'bhai community','Raju','','+919876012345','Gardener']]
+  .map(function(x,i){return {key:x[0],comm:x[1],name:x[2],email:x[3],mobile:x[4],desig:x[5],status:i===7?'Inactive':'Active'};});
+GL.dailyhelp={one:'daily help',noun:'daily help',rows:DAILY_HELP,
+  title:function(m){return m.name;},
+  search:{placeholder:'Search name or mobile',fields:['name','email','mobile','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'desig',label:'Select Designation',opts:HELP_ROLES},
+    {k:'comm',label:'All Communities',opts:commNames}],
+  stats:onOffStats,
+  cols:[{h:'Member Id',cell:function(m){return plain(m.key);}},{h:'Community Name',cell:function(m){return commLink(m.comm);}},
+    {h:'Member',cell:function(m){return personCell(m.name,m.email);}},{h:'Mobile Number',cell:function(m){return plain(m.mobile);}},
+    {h:'Designation',cell:function(m){return plain(m.desig);}},{h:'Status',cell:function(m){return activeBadge(m.status);}}],
+  form:[{k:'name',label:'Member Name',req:true},{k:'comm',label:'Community',type:'select',opts:commNames,req:true},
+    {k:'mobile',label:'Mobile Number',req:true},{k:'desig',label:'Designation',type:'select',opts:HELP_ROLES,req:true},
+    {k:'email',label:'Member Email',type:'email',full:true}],
+  defaults:function(){return {status:'Active'};},
+  toggle:onOff};
+
+/* ── NOTICE BOARD ──────────────────────────────────────────────────────── */
+var NOTICE_CATS=['Alert','Maintenance','Events','General'];
+var NOTICE_GROUPS=['Community','Owners','Tenants'];
+var NOTICES=[[8,'September 28, 2026','11:57 AM','Regarding to Maintaince','none','Community','Announcement','Maintenance',true,'Freedom Park'],
+  [7,'September 28, 2026','11:52 AM','Dasara Events','none','Community','Announcement','Events',true,'Freedom Park'],
+  [6,'September 9, 2026','1:28 PM','Maintenance Due - Flat: A-8','photo','Flat - 8','Notice','Maintenance',true,'Green Meadows'],
+  [5,'September 7, 2026','11:14 AM','High Alert','photo','Community','Announcement','Alert',false,'My Home Bhooja'],
+  [4,'September 7, 2026','10:47 AM','test','pdf','Community','Notice','General',false,'Green Meadows'],
+  [3,'September 7, 2026','10:43 AM','meadows notice new','pdf','Community','Notice','Alert',false,'Green Meadows'],
+  [2,'September 7, 2026','10:42 AM','meadows notice two','pdf','Flat - 20','Announcement','Events',false,'Green Meadows'],
+  [1,'September 6, 2026','6:05 PM','Welcome to the community app','none','Community','Announcement','General',false,'Freedom Park']]
+  .map(function(x){return {key:x[0],date:x[1],time:x[2],title:x[3],img:x[4],group:x[5],type:x[6],cat:x[7],edited:x[8],comm:x[9],status:'Active',
+    desc:'Dear residents, please take note of this '+x[6].toLowerCase()+'.'};});
+var NOTICE_IMG={none:ICO.noimg,photo:ICO.image,pdf:ICO.pdf};
+GL.notices={one:'notice',noun:'notices',rows:NOTICES,
+  title:function(n){return n.title;},
+  search:{placeholder:'Search by title',fields:['title','key']},
+  filters:[{k:'comm',label:'All Communities',opts:commNames},{k:'cat',label:'Category',opts:NOTICE_CATS},{k:'type',label:'Type',opts:['Announcement','Notice']}],
+  stats:function(rows){return [['All',rows.length,'active'],['Alerts',rows.filter(function(n){return n.cat==='Alert';}).length,'unapproved'],['Edited',rows.filter(function(n){return n.edited;}).length,'']];},
+  cols:[{h:'Created Time',cell:function(n){return '<div class="sc-when"><span>'+ICO.cal+esc(n.date)+'</span><span>'+ICO.clock+esc(n.time)+'</span></div>';}},
+    {h:'Post ID',cell:function(n){return plain(n.key);}},
+    {h:'Title',cell:function(n){return '<div class="lp-c-main">'+esc(n.title)+'</div>'+(n.edited?'<span class="sc-edited">Edited</span>':'');}},
+    {h:'Image',cell:function(n){return '<span class="sc-thumb sc-thumb-'+n.img+'" title="'+(n.img==='none'?'No image':n.img==='pdf'?'PDF attached':'Image attached')+'">'+NOTICE_IMG[n.img]+'</span>';}},
+    {h:'Target Group',cell:function(n){return '<div class="lp-c-plain">'+esc(n.group)+'</div><div class="lp-c-sub">'+esc(n.type)+'</div>';}},
+    {h:'Category',cell:function(n){return '<span class="sc-ncat sc-ncat-'+n.cat.toLowerCase()+'">'+esc(n.cat==='Alert'?'Alerts':n.cat)+'</span>';}},
+    {h:'Status',cell:function(n){return activeBadge(n.status);}}],
+  form:[{k:'title',label:'Title',req:true,full:true},{k:'type',label:'Post Type',type:'select',opts:['Announcement','Notice'],req:true},
+    {k:'group',label:'Target Group',type:'select',opts:NOTICE_GROUPS,req:true},{k:'cat',label:'Category',type:'select',opts:NOTICE_CATS,req:true},
+    {k:'desc',label:'Description',type:'textarea',req:true,full:true}],
+  onSave:function(n){n.edited=true;},
+  toggle:onOff,del:true};
+/* Add Notice is a page of its own, as in the system */
+function addNoticeHTML(){
+  return '<div class="listing-page"><div class="sc-bill-card sc-notice-card">'
+    +secHead('Notice Details')
+    +'<div class="policy-form-grid sc-notice-grid">'
+      +field('Community',csField('nt-comm',commNames(),'','Select community'),true)
+      +field('Post Type',csField('nt-type',['Announcement','Notice'],'','Select type'),true)
+      +field('Target Group',csField('nt-group',NOTICE_GROUPS,'','Select group'),true)
+      +field('Title','<input class="ep-form-input" id="nt-title" type="text" maxlength="80" placeholder="Enter title">',true)
+      +field('Notice Image','<input class="ep-form-input sc-file-input" id="nt-img" type="file" accept="image/*,.pdf">')
+      +field('Category',csField('nt-cat',NOTICE_CATS,'','Select category'),true)
+      +field('Description','<textarea class="ep-form-input sc-notice-desc" id="nt-desc" rows="5" placeholder="Enter description"></textarea>',true,true)
+    +'</div>'
+    +'<div class="sc-bill-foot"><button class="btn-outline" type="button" onclick="scGo(\'notices\')">Cancel</button>'
+      +'<button class="btn-primary" type="button" onclick="scSaveNotice()">Save</button></div>'
+  +'</div></div>';
+}
+function scSaveNotice(){
+  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  var n={comm:csValue('nt-comm'),type:csValue('nt-type'),group:csValue('nt-group'),title:v('nt-title'),cat:csValue('nt-cat'),desc:v('nt-desc')};
+  var need=[['comm','community'],['type','post type'],['group','target group'],['title','title'],['cat','category'],['desc','description']];
+  for(var i=0;i<need.length;i++)if(!n[need[i][0]]){scToast('Enter the '+need[i][1],'error');return;}
+  var file=(document.getElementById('nt-img')||{}).files,f=file&&file[0];
+  var d=new Date(),M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  n.key=NOTICES.reduce(function(m,x){return Math.max(m,x.key);},0)+1;
+  n.date=M[DASH_TODAY.getMonth()]+' '+DASH_TODAY.getDate()+', '+DASH_TODAY.getFullYear();
+  n.time=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  n.img=!f?'none':/pdf$/i.test(f.name)?'pdf':'photo';n.edited=false;n.status='Active';
+  NOTICES.unshift(n);glState('notices').f={};glState('notices').page=1;
+  scGo('notices');scToast('Notice posted','success',n.title+' · '+n.comm+'.');
+}
+
+/* ── PROPERTIES: BLOCKS & FLATS ────────────────────────────────────────── */
+var BLOCKS=[[1951,'bhai community','bhai',20],[1930,'Chennai Community','A',20],[1894,'Blue house community','BB',35],[1843,'Blue house community','AA',50],
+  [1667,'Freedom Park','B',75],[1666,'Freedom Park','A',100],[1365,'Green Meadows','Meadows Block B',100],[1364,'Green Meadows','Meadows Block A',200],
+  [1290,'My Home Bhooja','Tower 1',120],[1289,'My Home Bhooja','Tower 2',120],[1201,'Antar chennai residential comm','A',40],[1180,'The Skyview','Sky A',60],
+  [1102,'Galaxy Community','G1',45]]
+  .map(function(x){return {key:x[0],comm:x[1],name:x[2],total:x[3],status:'Active'};});
+var FLATS=[];
+/* a block's flats, numbered 1…n - only the missing ones are added */
+function fillFlats(b){
+  var have=FLATS.filter(function(f){return f.block===b.key;}).length;
+  var top=FLATS.reduce(function(m,f){return Math.max(m,f.key);},1000);
+  for(var i=have+1;i<=b.total;i++)FLATS.unshift({key:++top,block:b.key,comm:b.comm,blockName:b.name,num:(b.name.length<=3?b.name+'-':'')+(100+i),blockKey:blockLabel(b),status:'Active'});
+}
+BLOCKS.slice().reverse().forEach(fillFlats);
+function blockLabel(b){return b.comm+' · '+b.name;}
+GL.blocks={one:'block',noun:'blocks',rows:BLOCKS,
+  title:function(b){return b.name+' ('+b.comm+')';},
+  search:{placeholder:'Search block or community',fields:['name','comm','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'comm',label:'Filter By',opts:commNames}],
+  stats:function(rows){return [['Blocks',rows.length,'active'],['Flats',FLATS.length,'approved']];},
+  cols:[{h:'Block Id',cell:function(b){return plain(b.key);}},{h:'Community Name',cell:function(b){return commLink(b.comm);}},
+    {h:'Block / Tower Name',cell:function(b){return mainTxt(b.name);}},
+    {h:'Total Flats',cell:function(b){var n=FLATS.filter(function(f){return f.block===b.key;}).length;
+      return n?'<button type="button" class="sc-link" onclick="glState(\'flats\').f={block:\''+esc(blockLabel(b)).replace(/'/g,"\\'")+'\'};glState(\'flats\').page=1;scGo(\'flats\')">'+n+(n===1?' flat':' flats')+'</button>':'<span class="lp-dash">None</span>';}},
+    {h:'Status',cell:function(b){return activeBadge(b.status);}}],
+  form:[{k:'name',label:'Block / Tower Name',req:true},{k:'comm',label:'Community',type:'select',opts:commNames,req:true},
+    {k:'total',label:'Total Flats',type:'number',req:true,def:'10'}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(b){b.total=Math.max(0,Math.min(500,+b.total||0));FLATS.forEach(function(f){if(f.block===b.key){f.comm=b.comm;f.blockName=b.name;f.blockKey=blockLabel(b);}});fillFlats(b);},
+  toggle:onOff};
+GL.flats={one:'flat',noun:'flats',rows:FLATS,
+  title:function(f){return f.num+' · '+f.blockName;},
+  search:{placeholder:'Search flat number',fields:['num','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'comm',label:'Filter By',opts:commNames},
+    {k:'block',label:'Block',opts:function(){return BLOCKS.map(blockLabel);},match:function(f,v){return blockLabel({comm:f.comm,name:f.blockName})===v;}}],
+  stats:onOffStats,
+  cols:[{h:'Flat Id',cell:function(f){return plain(f.key);}},{h:'Community Name',cell:function(f){return commLink(f.comm);}},
+    {h:'Block / Tower Name',cell:function(f){return catJump('blocks','q',f.blockName);}},{h:'Flat Number',cell:function(f){return mainTxt(f.num);}},
+    {h:'Status',cell:function(f){return activeBadge(f.status);}}],
+  form:[{k:'num',label:'Flat Number',req:true},{k:'blockKey',label:'Block',type:'select',opts:function(){return BLOCKS.map(blockLabel);},req:true}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(f){var b=BLOCKS.filter(function(x){return blockLabel(x)===f.blockKey;})[0];if(b){f.block=b.key;f.comm=b.comm;f.blockName=b.name;}},
+  toggle:onOff};
+
+/* ── CUSTOMER BANDS & E-WALLETS ────────────────────────────────────────── */
+var CUSTOMER_BANDS=[[106,'OpenDhi Connect And Earn',1,'Opendhi Agent','2026-10-09'],[105,'Rbl bank visitors band',2,'System','2026-10-09'],
+  [104,'Booja band',1,'Sunil Srivastava','2026-06-24'],[103,'THE Skyview Band',2,'Sunil Srivastava','2026-06-24'],
+  [102,'Antarbandtestchennai',1,'Shrinivas Sadalawar','2026-06-03'],[101,'Chennai community test visitors band',4,'System','2026-06-03'],
+  [100,'My Home Bhooja',1,'Pardeep Singh','2026-05-05'],[99,'Hyper community visitors band',4,'System','2026-05-04'],
+  [98,'Silver Band',6,'Shaun Jacob','2026-04-18'],[97,'group community visitors band',3,'System','2026-04-02'],
+  [96,'Hungry Panda 4K',2,'Shaun Jacob','2026-03-21'],[95,'Dhi 6',1,'Shrinivas Sadalawar','2026-03-02']]
+  .map(function(x){return {key:x[0],name:x[1],assigned:x[2],by:x[3],created:x[4],status:'Active'};});
+function custBandNames(){return CUSTOMER_BANDS.map(function(b){return b.name;});}
+GL.custbands={one:'customer band',noun:'customer bands',rows:CUSTOMER_BANDS,
+  title:function(b){return b.name;},
+  search:{placeholder:'Search band',fields:['name','by','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},
+    {k:'src',label:'Filter By',opts:['Created by System','Created by People'],match:function(b,v){return v==='Created by System'?b.by==='System':b.by!=='System';}}],
+  stats:function(rows){return [['Bands',rows.length,'active'],['Customers',rows.reduce(function(t,b){return t+b.assigned;},0),'approved'],
+    ['With E-Wallet',rows.filter(function(b){return EWALLETS.some(function(w){return w.band===b.name;});}).length,'']];},
+  cols:[{h:'Key Id',cell:function(b){return plain(b.key);}},{h:'Band Name',cell:function(b){return mainTxt(b.name);}},
+    {h:'Customers Assigned',cell:function(b){return plain(b.assigned);}},{h:'Created By',cell:function(b){return plain(b.by);}},
+    {h:'Created On',cell:function(b){return plain(b.created);}},{h:'Status',cell:function(b){return activeBadge(b.status);}}],
+  form:[{k:'name',label:'Band Name',req:true,full:true}],
+  defaults:function(){var d=DASH_TODAY;return {assigned:0,by:state.role,created:d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2),status:'Active'};},
+  toggle:onOff,del:true};
+var EWALLETS=[[18,'Loyality Points',1,'ABC','Inactive'],[17,'Bhaiyaa Points',150,'group community visitors band','Active'],
+  [16,'Unique ewallet',1000,'Booja band','Active'],[15,'Dhi P',180,'Dhi 6','Active'],[14,'Test Wallet',500,'Silver Band','Active'],
+  [13,'Hungry Panda 4k',4000,'Hungry Panda 4K','Active'],[12,'Dhi 6',5000,'Dhi 6','Active'],[11,'Seerapu sriniva',200,'THE Skyview Band','Active'],
+  [10,'Skyview Rewards',750,'THE Skyview Band','Active'],[9,'Meadows Points',300,'Chennai community test visitors band','Active']]
+  .map(function(x){return {key:x[0],name:x[1],coins:x[2],band:x[3],status:x[4]};});
+GL.ewallets={one:'e-wallet',noun:'e-wallets',rows:EWALLETS,
+  title:function(w){return w.name;},
+  search:{placeholder:'Search wallet',fields:['name','band','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'band',label:'Filter By',opts:custBandNames}],
+  stats:function(rows){return [['All',rows.length,'active'],['Active',rows.filter(function(w){return w.status==='Active';}).length,'approved'],
+    ['Total Coins',rows.reduce(function(t,w){return t+w.coins;},0).toLocaleString('en-IN'),'']];},
+  cols:[{h:'Key Id',cell:function(w){return plain(w.key);}},{h:'Wallet Name',cell:function(w){return mainTxt(w.name);}},
+    {h:'Total Coins',cell:function(w){return '<span class="sc-coin-amt">'+ICO.coins+(+w.coins).toLocaleString('en-IN')+'</span>';}},
+    {h:'Customer Band',cell:function(w){return CUSTOMER_BANDS.some(function(b){return b.name===w.band;})?catJump('custbands','q',w.band):plain(w.band);}},
+    {h:'Status',cell:function(w){return activeBadge(w.status);}}],
+  form:[{k:'name',label:'Wallet Name',req:true,full:true},{k:'coins',label:'Total Coins',type:'number',req:true,def:'100'},
+    {k:'band',label:'Customer Band',type:'select',opts:custBandNames,req:true}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(w){w.coins=Math.max(0,+w.coins||0);},
+  toggle:onOff};
+
+/* ── ALL PARTNERS ──────────────────────────────────────────────────────── */
+var PARTNERS=[[3086,'31273086','OpenDhi Connect And Earn','Opendhi Agent','Opendhiagentref@yopmail.com','919845102120','Active'],
+  [3085,'31273085','OpenDhi Connect And Earn','Opendhi Connect','Opendhiconnect@yopmail.com','+917451202102','Active'],
+  [3052,'3052','','Agent Est','Neokredagent@yopmail.com','917656454534','Active'],[3050,'23973050','Galaxy Community','Testing Dhi','Testing@gmail.com','+918219174693','Active'],
+  [2945,'2945','','Test Agent','Testagent@gmail.com','+919065872341','Pending'],[2842,'29412842','AAA Partner Hub','Sai Arjun','Aaa123@gmail.com','+919333975557','Active'],
+  [2811,'28112811','Hyper community','Nikhil Varma','nikhil.v@gmail.com','+919701234567','Active'],[2790,'2790','','Swathi K','swathi.k@gmail.com','+919845098765','Pending'],
+  [2764,'27642764','The Skyview','Rohit Jain','rohit.jain@gmail.com','+919811556677','Inactive'],[2731,'27312731','Lara Locals','Anil Kumar','anil.kumar@gmail.com','+919900776655','Active']]
+  .map(function(x){return {key:x[0],ref:x[1],comm:x[2],name:x[3],email:x[4],mobile:x[5],desig:'Community Agent',status:x[6]};});
+GL.partners={one:'partner',noun:'partners',rows:PARTNERS,
+  title:function(p){return p.name;},
+  search:{placeholder:'Search name, email or referral ID',fields:['name','email','ref','mobile','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Pending','Inactive']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Pending','pending']]);},
+  cols:[{h:'Member Id',cell:function(p){return plain(p.key);}},{h:'Referral ID',cell:function(p){return '<span class="sc-mono">'+esc(p.ref)+'</span>';}},
+    {h:'Community Name',cell:function(p){return commLink(p.comm);}},
+    {h:'Member',cell:function(p){return personCell(p.name,p.email);}},{h:'Mobile Number',cell:function(p){return plain(p.mobile);}},
+    {h:'Designation',cell:function(p){return plain(p.desig);}},{h:'Status',cell:function(p){return activeBadge(p.status);}}],
+  menu:function(p){
+    if(p.status==='Pending')return [['Approve Partner','scCloseRowMenu();scPartnerSet('+p.key+',\'Active\')'],['Reject Partner','scCloseRowMenu();scPartnerSet('+p.key+',\'Inactive\')']];
+    return [[p.status==='Active'?'Deactivate':'Activate','scCloseRowMenu();scPartnerSet('+p.key+',\''+(p.status==='Active'?'Inactive':'Active')+'\')']];
+  }};
+function scPartnerSet(key,v){
+  var p=glRow('partners',key);if(!p)return;var was=p.status;p.status=v;scRender();
+  scToast(p.name+(was==='Pending'?(v==='Active'?' approved':' rejected'):v==='Active'?' activated':' deactivated'),v==='Active'?'success':'info');
+}
+
+/* ── CAFETERIA ─────────────────────────────────────────────────────────── */
+var CAFETERIAS=[[29,'test prod','Shrinivas Sadalawar','2025-09-08 02:09:12'],[28,'Sarath maal','Shaun Jacob','2025-06-26 04:11:19'],
+  [27,'Kamineni','Shrinivas Sadalawar','2025-06-12 07:23:33'],[26,'MART','Shaun Jacob','2025-03-07 12:57:44'],[25,'Cafe','Shrinivas Sadalawar','2025-02-20 05:22:22'],
+  [24,'Food court','Shrinivas Sadalawar','2024-11-08 06:29:14'],[23,'Services','Shaun Jacob','2024-08-23 11:25:34'],[22,'Beauty and wellness','Shaun Jacob','2024-07-24 05:48:27'],
+  [21,'Juice Corner','Shaun Jacob','2024-06-11 09:14:02'],[20,'Bakery','Shrinivas Sadalawar','2024-05-02 08:40:51'],[19,'Snack Bar','Shaun Jacob','2024-03-19 03:12:45']]
+  .map(function(x){return {key:x[0],name:x[1],by:x[2],created:x[3],status:'Active'};});
+GL.cafeteria={one:'cafeteria',noun:'cafeterias',rows:CAFETERIAS,
+  title:function(c){return c.name;},
+  search:{placeholder:'Search cafeteria',fields:['name','by','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:onOffStats,
+  cols:[{h:'Key Id',cell:function(c){return plain(c.key);}},{h:'Name',cell:function(c){return mainTxt(c.name);}},
+    {h:'Created By',cell:function(c){return plain(c.by);}},{h:'Created On',cell:function(c){return plain(c.created);}},
+    {h:'Status',cell:function(c){return activeBadge(c.status);}}],
+  form:[{k:'name',label:'Cafeteria Name',req:true,full:true}],
+  defaults:function(){var d=new Date(),p=function(n){return ('0'+n).slice(-2);};
+    return {by:state.role,created:DASH_TODAY.getFullYear()+'-'+p(DASH_TODAY.getMonth()+1)+'-'+p(DASH_TODAY.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()),status:'Active'};},
+  toggle:onOff,del:true};
+
+/* ── VISITOR LOGS ──────────────────────────────────────────────────────── */
+var VISITOR_LOGS=(function(){
+  var seed=[[46319,'Mohan Kumar','test community qr code','13 Oct 2026, 01:15 PM',''],[43885,'Uppu Mavalya','IDFC First Bank','12 Oct 2026, 01:53 PM',''],
+    [42324,'Gopal Dev-testing','IDFC First Bank','09 Oct 2026, 11:50 AM',''],[45774,'Thulasi Annapureddy','My Home Bhooja','09 Oct 2026, 10:57 AM',''],
+    [45774,'Thulasi Annapureddy','IDFC First Bank','09 Oct 2026, 10:54 AM','09 Oct 2026, 10:57 AM'],[41421,'Charitha Ramireddy','My Home Bhooja','05 Oct 2026, 12:10 PM',''],
+    [41421,'Charitha Ramireddy','Freedom Park','05 Oct 2026, 12:09 PM','05 Oct 2026, 12:10 PM'],[44234,'Praveen Sai Velagapudi','Blue house community','05 Oct 2026, 12:02 PM',''],
+    [44102,'Sneha Reddy','Green Meadows','04 Oct 2026, 06:40 PM','04 Oct 2026, 07:25 PM'],[43990,'Vikram Singh','Freedom Park','04 Oct 2026, 04:18 PM','04 Oct 2026, 05:02 PM'],
+    [43871,'Anusha P','My Home Bhooja','03 Oct 2026, 11:05 AM','03 Oct 2026, 12:30 PM'],[43760,'Rahul Mehta','Chennai Community','02 Oct 2026, 09:45 AM','']];
+  return seed.map(function(x,i){return {key:i+1,user:x[0],name:x[1],comm:x[2],inAt:x[3],outAt:x[4]};});
+})();
+GL.visitorlogs={one:'visit',noun:'visits',rows:VISITOR_LOGS,
+  title:function(v){return v.name+' · '+v.comm;},
+  search:{placeholder:'Search visitor or user ID',fields:['name','user']},
+  filters:[{k:'state',label:'Select Status',opts:['In Progress','Completed'],match:function(v,s){return s==='Completed'?!!v.outAt:!v.outAt;}},
+    {k:'comm',label:'Search By Community',opts:commNames}],
+  stats:function(rows){return [['All',rows.length,'active'],['In Progress',rows.filter(function(v){return !v.outAt;}).length,'pending'],
+    ['Completed',rows.filter(function(v){return v.outAt;}).length,'approved']];},
+  cols:[{h:'User Id',cell:function(v){return plain(v.user);}},{h:'User',cell:function(v){return mainTxt(v.name);}},
+    {h:'Community Name',cell:function(v){return commLink(v.comm);}},{h:'Check In Time',cell:function(v){return plain(v.inAt);}},
+    {h:'Check Out Time',cell:function(v){return v.outAt?plain(v.outAt):'<span class="lp-dash">--</span>';}},
+    {h:'Status',cell:function(v){return v.outAt?badge('approved','Completed'):badge('pending','In Progress');}}],
+  menu:function(v){
+    var out=v.outAt?[]:[['Check Out Now','scCloseRowMenu();scVisitOut('+v.key+')']];
+    out.push(['All Visits by '+v.name.split(' ')[0],'scCloseRowMenu();glState(\'visitorlogs\').f={q:\''+v.user+'\'};glState(\'visitorlogs\').page=1;scRender()']);
+    return out;
+  }};
+function scVisitOut(key){
+  var v=glRow('visitorlogs',key);if(!v)return;
+  var d=new Date();v.outAt=fmtDate(DASH_TODAY)+', '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});scRender();
+  scToast(v.name+' checked out','success',v.comm+'.');
+}
+
+Object.assign(PAGE_ACTIONS,{
+  communities:['Create Community',function(){scGlForm('communities');}],platforms:['Create Platform',function(){scGlForm('platforms');}],
+  amenities:['Create Amenity',function(){scGlForm('amenities');}],cmembers:['Add Member',function(){scGlForm('cmembers');}],
+  residents:['Add Resident',function(){scGlForm('residents');}],dailyhelp:['Add Daily Help',function(){scGlForm('dailyhelp');}],
+  notices:['Add Notice',function(){scGo('addnotice');}],addnotice:['All Notices',function(){scGo('notices');},ICO.list],
+  blocks:['Create Block',function(){scGlForm('blocks');}],flats:['Create Flat',function(){scGlForm('flats');}],
+  custbands:['Create Band',function(){scGlForm('custbands');}],ewallets:['Create E-Wallet',function(){scGlForm('ewallets');}],
+  cafeteria:['Create Cafeteria',function(){scGlForm('cafeteria');}]});
+
+/* ══ STAFF, PRICING & REPORTS ══════════════════════════════════════════════
+   Manage Staff and Roles; Pricing & Discounts (discounts, the scans that
+   redeemed them, notification rules); Reports & Analytics, read from the
+   same orders and products the other pages show. Every report exports the
+   rows it is showing. */
+/* a listing's visible rows as a CSV - the columns as shown, without markup */
+function scExportGL(id,file){
+  var g=GL[id],rows=glRows(id);if(!rows.length){scToast('Nothing to export','info');return;}
+  var tmp=document.createElement('div'),txt=function(h){tmp.innerHTML=h;return tmp.textContent.replace(/\s+/g,' ').trim();};
+  var csv=[g.cols.map(function(c){return c.h;})].concat(rows.map(function(r){return g.cols.map(function(c){return txt(c.cell(r));});}))
+    .map(function(l){return l.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=file+'.csv';
+  document.body.appendChild(a);a.click();a.remove();scToast('Report exported','success',rows.length+(rows.length===1?' row':' rows')+' in the file.');
+}
+function exportTool(id,file){return function(){return '<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scExportGL(\''+id+'\',\''+file+'\')">'+ICO_DOWNLOAD+' Export</button>';};}
+function isoDay(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function isoToDate(s){var p=String(s||'').split('-');return p.length===3?new Date(+p[0],+p[1]-1,+p[2]):null;}
+
+/* ── MANAGE STAFF AND ROLES ────────────────────────────────────────────── */
+var STAFF_ROLES=['Store Manager','Cashier','Inventory Manager','Delivery Executive','Accountant'];
+var STAFF=[[2214,'Ramesh Gowda','ramesh.gowda@mukeshpharmacy.in','+919845123001','Store Manager'],
+  [2213,'Anita Shetty','anita.shetty@mukeshpharmacy.in','+919845123002','Cashier'],[2211,'Vinay Kumar','vinay.k@mukeshpharmacy.in','+919845123003','Inventory Manager'],
+  [2209,'Suresh B','suresh.b@mukeshpharmacy.in','+919845123004','Delivery Executive'],[2206,'Kavya Rao','kavya.rao@mukeshpharmacy.in','+919845123005','Accountant'],
+  [2204,'Mohammed Irfan','irfan@mukeshpharmacy.in','+919845123006','Delivery Executive'],[2201,'Lakshmi N','lakshmi.n@mukeshpharmacy.in','+919845123007','Cashier']]
+  .map(function(x,i){return {key:x[0],name:x[1],email:x[2],mobile:x[3],desig:x[4],status:i===6?'Inactive':'Active'};});
+GL.staff={one:'staff member',noun:'staff members',rows:STAFF,
+  title:function(m){return m.name;},
+  search:{placeholder:'Search member',fields:['name','email','mobile','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'desig',label:'Select Designation',opts:STAFF_ROLES}],
+  stats:onOffStats,
+  cols:[{h:'Member Id',cell:function(m){return plain(m.key);}},{h:'Member',cell:function(m){return personCell(m.name,m.email);}},
+    {h:'Mobile Number',cell:function(m){return plain(m.mobile);}},{h:'Designation',cell:function(m){return plain(m.desig);}},
+    {h:'Status',cell:function(m){return activeBadge(m.status);}}],
+  form:[{k:'name',label:'Member Name',req:true},{k:'desig',label:'Designation',type:'select',opts:STAFF_ROLES,req:true},
+    {k:'email',label:'Member Email',type:'email',req:true},{k:'mobile',label:'Mobile Number',req:true,ph:'+91'}],
+  defaults:function(){return {status:'Active'};},
+  toggle:onOff};
+
+/* ── DISCOUNTS ─────────────────────────────────────────────────────────── */
+var DISCOUNTS=[[512,'Diwali Dhamaka','Percentage',15,'2026-11-05','Grocery Retail'],[511,'Health Week','Flat',100,'2026-10-20','Health Services'],
+  [509,'First Order','Flat',50,'2026-12-31','Grocery Retail'],[507,'Weekend Saver','Percentage',10,'2026-10-19','Grocery Wholesale'],
+  [504,'Monsoon Care','Percentage',20,'2026-09-30','Health Services'],[502,'Service Starter','Flat',200,'2026-11-30','Service'],
+  [498,'Pool Pass Offer','Percentage',25,'2026-08-31','Amenities']]
+  .map(function(x,i){return {key:x[0],name:x[1],kind:x[2],amount:x[3],valid:x[4],segment:x[5],status:i===3?'Inactive':'Active'};});
+function discExpired(d){var v=isoToDate(d.valid);return v&&v<DASH_TODAY;}
+function discState(d){return discExpired(d)?'Expired':d.status;}
+function discAmt(d){return d.kind==='Percentage'?d.amount+'% off':inr(d.amount)+' off';}
+GL.discounts={one:'discount',noun:'discounts',rows:DISCOUNTS,
+  title:function(d){return d.name;},
+  search:{placeholder:'Enter discount name',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive','Expired'],match:function(d,v){return discState(d)===v;}},
+    {k:'segment',label:'Select Segment',opts:STORE_CATS}],
+  stats:function(rows){return [['All',rows.length,'active'],['Live',rows.filter(function(d){return discState(d)==='Active';}).length,'approved'],
+    ['Expired',rows.filter(discExpired).length,'unapproved']];},
+  cols:[{h:'Discount ID',cell:function(d){return plain(d.key);}},{h:'Discount Name',cell:function(d){return mainTxt(d.name);}},
+    {h:'Discount Amount',cell:function(d){return '<span class="sc-disc">'+esc(discAmt(d))+'</span>';}},
+    {h:'Valid Till',cell:function(d){var v=isoToDate(d.valid);return plain(v?fmtDate(v):'—');}},
+    {h:'Store Segment',cell:function(d){return plain(d.segment);}},
+    {h:'Redeemed',cell:function(d){var n=DISC_TXNS.filter(function(t){return t.disc===d.key;}).length;
+      return n?'<button type="button" class="sc-link" onclick="glState(\'discounttxns\').f={q:\''+d.key+'\'};glState(\'discounttxns\').page=1;scGo(\'discounttxns\')">'+n+(n===1?' scan':' scans')+'</button>':'<span class="lp-dash">None</span>';}},
+    {h:'Status',cell:function(d){var s=discState(d);return s==='Expired'?badge('closed','Expired'):activeBadge(s);}}],
+  form:[{k:'name',label:'Discount Name',req:true,full:true},{k:'kind',label:'Discount Type',type:'select',opts:['Flat','Percentage'],req:true,def:'Flat'},
+    {k:'amount',label:'Discount Amount',type:'number',req:true,ph:'₹ or %'},{k:'valid',label:'Valid Till',type:'date',req:true},
+    {k:'segment',label:'Store Segment',type:'select',opts:STORE_CATS,req:true}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(d){d.amount=Math.max(0,+d.amount||0);if(d.kind==='Percentage')d.amount=Math.min(100,d.amount);},
+  toggle:onOff};
+
+/* ── DISCOUNT TRANSACTIONS ─────────────────────────────────────────────── */
+var DISC_TXNS=[['Rambabu Musunuru','Zing Grocery',512,'13 Oct 2026, 06:12 PM','Redeemed'],['Priya Nair','Mukesh Pharmacy',511,'13 Oct 2026, 11:40 AM','Redeemed'],
+  ['Arjun Rao','C Mart',509,'12 Oct 2026, 07:55 PM','Redeemed'],['Baiju Balakrishnan','Mukesh Pharmacy',511,'12 Oct 2026, 10:05 AM','Reversed'],
+  ['Utkarsh Shukla','Zing Grocery',512,'11 Oct 2026, 05:31 PM','Redeemed'],['Jai Bhagchandani','Fresh Basket',509,'10 Oct 2026, 01:18 PM','Redeemed'],
+  ['Mukesh Kum','Care Pharmacy',511,'09 Oct 2026, 09:47 AM','Pending'],['Deepa Menon','DHI Hyperlocal Pvt Ltd',502,'08 Oct 2026, 04:22 PM','Redeemed'],
+  ['Karthik Reddy','C Mart',507,'05 Oct 2026, 12:09 PM','Redeemed']]
+  .map(function(x,i){return {key:i+1,user:x[0],store:x[1],disc:x[2],scanned:x[3],status:x[4]};});
+GL.discounttxns={one:'transaction',noun:'transactions',rows:DISC_TXNS,
+  title:function(t){return t.user+' · '+t.store;},
+  search:{placeholder:'Search user, store or discount ID',fields:['user','store','disc']},
+  filters:[{k:'status',label:'Select Status',opts:['Redeemed','Pending','Reversed']}],
+  stats:function(rows){return statusStats(rows,'status',[['Redeemed','approved'],['Pending','pending']]);},
+  cols:[{h:'User',cell:function(t){return mainTxt(t.user);}},{h:'Store Name',cell:function(t){return plain(t.store);}},
+    {h:'Discount ID',cell:function(t){var d=DISCOUNTS.filter(function(x){return x.key===t.disc;})[0];
+      return '<div class="lp-c-plain">'+t.disc+'</div>'+(d?'<div class="lp-c-sub">'+esc(d.name)+' · '+esc(discAmt(d))+'</div>':'');}},
+    {h:'Scan Date',cell:function(t){return plain(t.scanned);}},
+    {h:'Status',cell:function(t){return badge(t.status==='Redeemed'?'approved':t.status==='Pending'?'pending':'unapproved',t.status);}}],
+  menu:function(t){
+    if(t.status==='Pending')return [['Confirm Redemption','scCloseRowMenu();scTxnSet('+t.key+',\'Redeemed\')'],['Reverse','scCloseRowMenu();scTxnSet('+t.key+',\'Reversed\')']];
+    if(t.status==='Redeemed')return [['Reverse','scCloseRowMenu();scTxnSet('+t.key+',\'Reversed\')']];
+    return [['Open Discount','scCloseRowMenu();glState(\'discounts\').f={q:\''+t.disc+'\'};scGo(\'discounts\')']];
+  }};
+function scTxnSet(key,v){
+  var t=glRow('discounttxns',key);if(!t)return;t.status=v;scRender();
+  scToast('Discount '+(v==='Redeemed'?'redemption confirmed':'reversed')+' for '+t.user,v==='Redeemed'?'success':'info');
+}
+
+/* ── NOTIFICATION EVENTS ───────────────────────────────────────────────── */
+var NOTIF_EVENTS=['test email','Order Placed','Order Delivered','Payment Failed','Low Stock','Welcome Signup','Discount Expiring'];
+var NOTIF_SCHED=['one time','daily','weekly','monthly'];
+var NOTIF_RULES=[[6,'testemail_1755093468','test email','one time',2,'2025-08-13 19:27:49','Active'],
+  [5,'order_placed_sms','Order Placed','one time',1240,'2026-09-02 10:14:05','Active'],[4,'low_stock_alert','Low Stock','daily',6,'2026-08-21 08:00:00','Active'],
+  [3,'weekly_offers_push','Discount Expiring','weekly',860,'2026-07-30 18:45:12','Inactive'],[2,'payment_failed_retry','Payment Failed','one time',37,'2026-06-11 12:02:44','Active']]
+  .map(function(x){return {key:x[0],rule:x[1],event:x[2],sched:x[3],target:x[4],created:x[5],status:x[6]};});
+GL.notifevents={one:'notification rule',noun:'notification rules',rows:NOTIF_RULES,
+  title:function(n){return n.rule;},
+  search:{placeholder:'Search rule or event',fields:['rule','event']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'sched',label:'Schedule Type',opts:NOTIF_SCHED}],
+  stats:onOffStats,
+  cols:[{h:'Rule Name',cell:function(n){return '<span class="sc-mono">'+esc(n.rule)+'</span>';}},{h:'Event Name',cell:function(n){return mainTxt(n.event);}},
+    {h:'Schedule Type',cell:function(n){return plain(n.sched);}},{h:'Target Count',cell:function(n){return plain((+n.target).toLocaleString('en-IN'));}},
+    {h:'Created At',cell:function(n){return plain(n.created);}},{h:'Status',cell:function(n){return glSwitch('notifevents',n);}}],
+  form:[{k:'event',label:'Event Name',type:'select',opts:NOTIF_EVENTS,req:true},{k:'sched',label:'Schedule Type',type:'select',opts:NOTIF_SCHED,req:true,def:'one time'},
+    {k:'target',label:'Target Count',type:'number',req:true,def:'1'}],
+  defaults:function(){var d=new Date(),p=function(n){return ('0'+n).slice(-2);};
+    return {created:isoDay(DASH_TODAY)+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()),status:'Active'};},
+  onSave:function(n){n.target=Math.max(0,+n.target||0);if(!n.rule)n.rule=n.event.toLowerCase().replace(/[^a-z0-9]+/g,'_')+'_'+Math.floor(Date.now()/1000);},
+  toggle:onOff,del:true};
+
+/* ── REPORTS: SETTLEMENT ───────────────────────────────────────────────── */
+var SETTLE_PERIODS=['01 – 07 Oct 2026','24 – 30 Sep 2026','17 – 23 Sep 2026'];
+var SETTLE_REPORT=(function(){
+  var stores=['Mukesh Pharmacy','Zing Grocery','C Mart','DHI Hyperlocal Pvt Ltd','Slot Booking Test Store'],rows=[],k=8840;
+  SETTLE_PERIODS.forEach(function(per,pi){stores.forEach(function(st,si){
+    var orders=6+((si*7+pi*5)%19),gross=orders*(180+((si*131+pi*53)%420));
+    rows.push({key:k--,store:st,period:per,orders:orders,gross:gross,comm:Math.round(gross*.05),net:gross-Math.round(gross*.05),
+      settled:pi===0&&si%2===0?'':fmtDate(addD(DASH_TODAY,-(pi*7+3))),status:pi===0&&si%2===0?'Pending':'Settled'});
+  });});
+  return rows;
+})();
+GL.settlement={one:'settlement',noun:'settlements',rows:SETTLE_REPORT,
+  title:function(s){return s.store+' · '+s.period;},
+  search:{placeholder:'Search store or settlement ID',fields:['store','key']},
+  filters:[{k:'period',label:'Select Period',opts:SETTLE_PERIODS},{k:'status',label:'Select Status',opts:['Settled','Pending']}],
+  stats:function(rows){var sum=function(l,k){return l.reduce(function(t,r){return t+r[k];},0);},pend=rows.filter(function(s){return s.status==='Pending';});
+    return [['Net Payable',inr(sum(rows,'net')),'active'],['Pending',inr(sum(pend,'net')),'pending'],['Commission',inr(sum(rows,'comm')),'']];},
+  cols:[{h:'Settlement ID',cell:function(s){return plain(s.key);}},{h:'Store',cell:function(s){return mainTxt(s.store);}},
+    {h:'Period',cell:function(s){return plain(s.period);}},{h:'Orders',cell:function(s){return plain(s.orders);}},
+    {h:'Gross Sales',cell:function(s){return '<div class="lp-c-plain">'+inr(s.gross)+'</div><div class="lp-c-sub">'+inr(s.comm)+' commission</div>';}},
+    {h:'Net Payable',cell:function(s){return '<div class="lp-c-main">'+inr(s.net)+'</div>';}},
+    {h:'Settled On',cell:function(s){return s.settled?plain(s.settled):'<span class="lp-dash">—</span>';}},
+    {h:'Status',cell:function(s){return badge(s.status==='Settled'?'approved':'pending',s.status);}}],
+  tool:exportTool('settlement','settlement-report'),
+  menu:function(s){return s.status==='Pending'?[['Mark as Settled','scCloseRowMenu();scSettle('+s.key+')']]:[['Show This Store','scCloseRowMenu();glState(\'settlement\').f={q:\''+esc(s.store).replace(/'/g,"\\'")+'\'};scRender()']];}};
+function scSettle(key){
+  var s=glRow('settlement',key);if(!s)return;s.status='Settled';s.settled=fmtDate(DASH_TODAY);scRender();
+  scToast(s.store+' settled','success',inr(s.net)+' for '+s.period+'.');
+}
+
+/* ── REPORTS: SALES BY PRODUCTS ────────────────────────────────────────── */
+var SALES_BY_PRODUCT=PRODUCTS.slice(0,14).map(function(p,i){
+  var price=[25,32,45,180,1499,285,28,265,175,799,349,299,99,1299][i],units=p.itemType==='Service'?4+i%5:18+((i*37)%140);
+  return {key:p.key,name:p.name,itemType:p.itemType,main:p.main,store:p.store,units:units,price:price,gross:units*price,orders:Math.max(1,Math.round(units*.6))};
+});
+GL.salesproducts={one:'product',noun:'products',rows:SALES_BY_PRODUCT,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search product',fields:['name','key']},
+  filters:[{k:'store',label:'Select Store',opts:function(){return SALES_BY_PRODUCT.map(function(r){return r.store;}).filter(function(v,i,a){return a.indexOf(v)===i;});}},
+    {k:'main',label:'Select Category',opts:MAIN_CATS},{k:'itemType',label:'Item Type',opts:['Product','Service']}],
+  stats:function(rows){return [['Units Sold',rows.reduce(function(t,r){return t+r.units;},0).toLocaleString('en-IN'),'active'],
+    ['Gross Sales',inr(rows.reduce(function(t,r){return t+r.gross;},0)),'approved']];},
+  cols:[{h:'Product ID',cell:function(r){return plain(r.key);}},{h:'Product / Service',cell:function(r){return '<div class="lp-c-main">'+esc(r.name)+'</div><div class="lp-c-sub">'+esc(r.itemType)+'</div>';}},
+    {h:'Category',cell:function(r){return plain(r.main);}},{h:'Store',cell:function(r){return plain(r.store);}},
+    {h:'Units Sold',cell:function(r){return '<div class="lp-c-plain">'+r.units+'</div><div class="lp-c-sub">'+r.orders+' orders</div>';}},{h:'Unit Price',cell:function(r){return plain(inr(r.price));}},
+    {h:'Gross Sales',cell:function(r){var top=Math.max.apply(null,SALES_BY_PRODUCT.map(function(x){return x.gross;}));
+      return '<div class="sc-salebar"><b>'+inr(r.gross)+'</b><span class="sc-credit-track"><span class="sc-credit-fill" style="width:'+(r.gross/top*100).toFixed(1)+'%"></span></span></div>';}}],
+  tool:exportTool('salesproducts','sales-by-products'),
+  menu:function(r){return [['Open Product','scCloseRowMenu();glState(\'allproducts\').f={q:\''+r.key+'\'};glState(\'allproducts\').page=1;scGo(\'allproducts\')']];}};
+
+/* ── REPORTS: SALES ORDERS (the same orders All Orders shows) ──────────── */
+GL.salesorders={one:'order',noun:'orders',rows:ORDERS,
+  title:function(o){return 'Order #'+o.key;},
+  search:{placeholder:'Search order ID or buyer',fields:['key','user','store']},
+  filters:[{k:'status',label:'Select Status',opts:['Pending','In Progress','Completed','Cancelled','Refund']},
+    {k:'store',label:'Select Store',opts:function(){return ORDERS.map(function(o){return o.store;}).filter(function(v,i,a){return a.indexOf(v)===i;});}},
+    {k:'type',label:'Order Type',opts:ORDER_TYPES}],
+  stats:function(rows){var done=rows.filter(function(o){return o.status==='Completed';});
+    return [['Orders',rows.length,'active'],['Completed Sales',inr(done.reduce(function(t,o){return t+o.amount;},0)),'approved'],
+      ['Refunded',rows.filter(function(o){return o.status==='Refund';}).length,'unapproved']];},
+  cols:[{h:'Order ID',cell:function(o){return plain(o.key);}},{h:'Date',cell:function(o){return plain(fmtDT(o.created));}},
+    {h:'Buyer',cell:function(o){return '<div class="lp-c-main">'+esc(o.user)+'</div><div class="lp-c-sub">'+esc(o.phone)+'</div>';}},
+    {h:'Store',cell:function(o){return '<div class="lp-c-plain">'+esc(o.store)+'</div><div class="lp-c-sub">'+esc(o.type)+'</div>';}},
+    {h:'Platform',cell:function(o){return platformChip(o.platform);}},{h:'Amount',cell:function(o){return '<div class="lp-c-main">'+inr(o.amount)+'</div>';}},
+    {h:'Status',cell:function(o){return orderTone(o.status);}}],
+  tool:exportTool('salesorders','sales-orders-report'),
+  menu:function(o){return [['Open in All Orders','scCloseRowMenu();glState(\'allorders\').f={q:\''+o.key+'\'};glState(\'allorders\').page=1;scGo(\'allorders\')']];}};
+
+/* ── REPORTS: CATALOG REJECTS ──────────────────────────────────────────── */
+var REJECT_REASONS=['Image below 20 KB','Missing HSN code','Duplicate product name','Price missing','Category not mapped','Image name not in sheet'];
+var CATALOG_REJECTS=[['Himalaya Neem Face Wash','Mukesh Pharmacy',0,'Rejected'],['Dettol Soap 125g','Mukesh Pharmacy',1,'Rejected'],
+  ['Amul Butter 500g','Zing Grocery',2,'Resubmitted'],['Saffola Gold 1L','C Mart',3,'Rejected'],['Mi Power Bank','Chennai Fashion Store 2k26',4,'Approved'],
+  ['Colgate MaxFresh','Suma Grocery',5,'Rejected'],['Real Juice 1L','Zing Grocery',1,'Resubmitted'],['Pest Control','DHI Hyperlocal Pvt Ltd',4,'Rejected']]
+  .map(function(x,i){return {key:9301-i,name:x[0],store:x[1],reason:REJECT_REASONS[x[2]],sheet:'catalogue_'+isoDay(addD(DASH_TODAY,-i*2)).replace(/-/g,'')+'.xlsx',
+    rejected:fmtDate(addD(DASH_TODAY,-i*2)),status:x[3]};});
+GL.catalogreject={one:'rejected item',noun:'rejected items',rows:CATALOG_REJECTS,
+  title:function(r){return r.name;},
+  search:{placeholder:'Search product or sheet',fields:['name','sheet','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Rejected','Resubmitted','Approved']},{k:'reason',label:'Reject Reason',opts:REJECT_REASONS}],
+  stats:function(rows){return statusStats(rows,'status',[['Rejected','unapproved'],['Resubmitted','pending']]);},
+  cols:[{h:'Reject ID',cell:function(r){return plain(r.key);}},{h:'Product Name',cell:function(r){return '<div class="lp-c-main">'+esc(r.name)+'</div><div class="lp-c-sub">'+esc(r.sheet)+'</div>';}},
+    {h:'Store',cell:function(r){return plain(r.store);}},
+    {h:'Reason',cell:function(r){return '<span class="sc-reason">'+esc(r.reason)+'</span>';}},{h:'Rejected On',cell:function(r){return plain(r.rejected);}},
+    {h:'Status',cell:function(r){return badge(r.status==='Approved'?'approved':r.status==='Resubmitted'?'pending':'unapproved',r.status);}}],
+  tool:exportTool('catalogreject','catalog-reject-report'),
+  menu:function(r){
+    if(r.status==='Rejected')return [['Mark Resubmitted','scCloseRowMenu();scRejectSet('+r.key+',\'Resubmitted\')'],['Go to Bulk Upload','scCloseRowMenu();scGo(\'bulkupload\')']];
+    if(r.status==='Resubmitted')return [['Approve','scCloseRowMenu();scRejectSet('+r.key+',\'Approved\')'],['Reject Again','scCloseRowMenu();scRejectSet('+r.key+',\'Rejected\')']];
+    return [['Reopen','scCloseRowMenu();scRejectSet('+r.key+',\'Rejected\')']];
+  }};
+function scRejectSet(key,v){
+  var r=glRow('catalogreject',key);if(!r)return;r.status=v;if(v==='Rejected')r.rejected=fmtDate(DASH_TODAY);scRender();
+  scToast(r.name+' '+v.toLowerCase(),v==='Approved'?'success':'info');
+}
+
+Object.assign(PAGE_ACTIONS,{staff:['Add Staff',function(){scGlForm('staff');}],discounts:['Create Discount',function(){scGlForm('discounts');}],
+  notifevents:['Create Notification',function(){scGlForm('notifevents');}]});
+
+/* ══ LISTING DETAIL PANEL ══════════════════════════════════════════════════
+   Every listing on the engine opens the same side panel Deals uses: a row
+   click or the View details button (the standard action icon) slides it in.
+   Tabs: Details (the record as field cards, with its actions), the page's
+   own related tabs (a community's residents, a block's flats, a buyer's
+   orders...), and Activity - what has happened to the record. Expand lifts
+   it into the large window, as on Deals. */
+function navIcon(page){
+  var hit=null;
+  SC_NAV.forEach(function(it){
+    if(it.id===page)hit=it.icon;
+    (it.children||[]).forEach(function(c){if(c.id===page)hit=c.icon;(c.children||[]).forEach(function(x){if(x.id===page)hit=x.icon;});});
+  });
+  return hit||ICO.doc;
+}
+/* a field's icon, read from its label */
+function fieldIco(h){
+  var t=h.toLowerCase();
+  return /status|kyc|verified|setting/.test(t)?ICO.check:/date|created|joined|valid|on$|time|period|scan/.test(t)?ICO.cal
+    :/email/.test(t)?ICO.doc:/mobile|phone/.test(t)?ICO.phone:/amount|price|fee|sales|payable|limit|credit|coins|commission|total|₹/.test(t)?ICO.money
+    :/community|store|retailer|block|platform/.test(t)?ICO.store:/category|segment|type|band|designation|position/.test(t)?ICO.tag
+    :/name|member|buyer|user|customer|resident|staff|partner/.test(t)?ICO.user:/id$|key|no\.?$|sequence/.test(t)?ICO.hash:ICO.doc;
+}
+function glLog(id,key,text,comment){
+  var r=glRow(id,key);if(!r)return;var t=stamp();
+  (r._log||(r._log=[])).unshift({text:text,comment:comment||'',who:who(),role:state.role,date:t.date,time:t.time.slice(0,5)});
+}
+function glOneCap(g){return g.one.replace(/^./,function(c){return c.toUpperCase();});}
+function glStatusOf(r){return r.status||r.state||'';}
+function scGlOpen(id,key){
+  var o=state.glOpen;
+  if(o&&o.id===id&&o.key===key){scGlClose();return;}
+  var switching=!!(o&&o.id===id);
+  state.glEdit=null;
+  state.glOpen={id:id,key:key,tab:switching?o.tab:'details'};
+  var sb=document.getElementById('sc-gl-sb');if(!sb)return;
+  if(switching)refreshPanel('sc-gl-isb',glPanelHTML(id),true);
+  else{sb.classList.remove('sc-still');sb.classList.add('open');fillPanel('sc-gl-isb',glPanelHTML(id));}
+  markSelectedRow(String(key));
+}
+function scGlClose(){
+  state.glOpen=null;state.glLogAdd=null;state.glEdit=null;if(state.expanded){state.expanded=false;applyExpanded();}
+  var sb=document.getElementById('sc-gl-sb');if(sb)sb.classList.remove('open');
+  markSelectedRow(null);
+}
+function scGlTab(tab){if(!state.glOpen)return;state.glOpen.tab=tab;refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id),true);}
+function glPanelHTML(id){
+  var g=GL[id],o=state.glOpen,r=o&&glRow(id,o.key);if(!r)return '';
+  var tabs=[{id:'details',label:'Details'}].concat((g.tabs||[]).map(function(t){return {id:t.id,label:typeof t.label==='function'?t.label(r):t.label};}))
+    .concat([{id:'logs',label:'Logs'}]);
+  if(!tabs.some(function(t){return t.id===o.tab;}))o.tab='details';
+  var body=o.tab==='details'?glDetailsHTML(id,r):o.tab==='logs'?glLogsHTML(id,r)
+    :g.tabs.filter(function(t){return t.id===o.tab;})[0].html(r);
+  return glExpHead(id,r)+tabBarHTML(tabs,o.tab,'scGlTab','scGlClose','sc-gl-tabs')+'<div class="lp-isb-body">'+body+'</div>';
+}
+function glExpHead(id,r){
+  var g=GL[id],st=glStatusOf(r);
+  return '<div class="sc-exp-head"><div class="sc-exp-ico">'+navIcon(id)+'</div>'
+    +'<div class="sc-exp-text"><div class="sc-exp-title"><span>'+esc(g.title(r))+'</span>'+(st?activeBadge(st):'')+'</div>'
+      +'<div class="sc-exp-meta">'+esc(glOneCap(g))+'<span class="hd-sb-dot">•</span>Key '+esc(r.key)+'</div></div>'
+    +'<div class="sc-exp-actions">'
+      +'<button class="sc-exp-btn" type="button" title="Collapse" aria-label="Collapse" onclick="scCollapsePanel()">'+ICO_COLLAPSE+'</button>'
+      +'<button class="lp-isb-close" type="button" title="Close" aria-label="Close" onclick="scGlClose()">'+ICO.close+'</button>'
+    +'</div></div>';
+}
+function glHero(id,r,withEdit){
+  var g=GL[id],st=glStatusOf(r),e=state.glEdit,editing=!!(withEdit&&e&&e.id===id&&e.key===r.key);
+  return heroCard({icon:navIcon(id),name:g.title(r),meta:[glOneCap(g),'Key '+r.key,st],editing:editing,
+    edit:withEdit&&g.form?"scGlEdit('"+id+"',"+r.key+")":'',expand:'scExpandTab()'});
+}
+/* the record's actions - what the row menu offered - as buttons */
+/* WHAT CAN BE DONE TO A RECORD. A change - activate, block, approve, mark
+   live, resolve - is a log step: it is taken from the Logs tab with a
+   comment, never straight from the row. Looking (View Workflow, View QR
+   Code) and leaving (open another page) are not changes; they stay as
+   buttons on Details. */
+var GL_LOOK=/^(View|Open|Show|Go to|All Visits|No actions)/;
+var GL_LEAVE=/scGo\(|glState\(|scExport|scCopy|scGlForm|scBuyerCredit|scBuyerOrders/;
+function glActs(id,r){
+  var g=GL[id],out=[];
+  if(g.toggle){var on=r[g.toggle.k]===g.toggle.on;out.push({label:on?g.toggle.offLabel:g.toggle.onLabel,code:"scGlToggle('"+id+"',"+r.key+")"});}
+  (g.menu?g.menu(r):[]).forEach(function(x){
+    var code=x[1].replace(/scCloseRowMenu\(\);?/g,'');
+    if(GL_LOOK.test(x[0])||GL_LEAVE.test(code))return;
+    out.push({label:x[0],code:code});
+  });
+  return out;
+}
+function glViewActsHTML(id,r){
+  var g=GL[id],acts=[];
+  (g.menu?g.menu(r):[]).forEach(function(x){
+    var code=x[1].replace(/scCloseRowMenu\(\);?/g,'');
+    if(/^No actions/.test(x[0]))return;
+    if(GL_LOOK.test(x[0])||GL_LEAVE.test(code))acts.push([x[0],code]);
+  });
+  if(glActs(id,r).length)acts.push(['Update in Logs',"scGlTab('logs')"]);
+  if(g.del)acts.push(['Delete',"scGlDelete('"+id+"',"+r.key+")",'danger']);
+  if(!acts.length)return '';
+  return '<div class="sc-gl-actbar">'+acts.map(function(a){
+    return '<button type="button" class="btn-outline btn-sm'+(a[2]?' sc-gl-act-danger':'')+'" onclick="'+a[1]+'">'+esc(a[0])+'</button>';}).join('')+'</div>';
+}
+function glDetailsHTML(id,r){
+  var g=GL[id],seen={},e=state.glEdit;
+  if(e&&e.id===id&&e.key===r.key)return glHero(id,r,true)+glEditFormHTML(id,r);
+  var cards=g.cols.map(function(c){seen[c.h.toLowerCase()]=1;return fieldCard(fieldIco(c.h),c.h,c.cell(r));});
+  /* what the form holds but the table does not show (a notice's description...) */
+  (g.form||[]).forEach(function(fd){
+    if(seen[fd.label.toLowerCase()]||fd.k==='status')return;
+    var v=r[fd.k];if(v==null||v===''||typeof v==='object')return;
+    if(g.cols.some(function(c){return c.cell(r).indexOf(esc(String(v)))>=0;}))return;
+    cards.push(fieldCard(fieldIco(fd.label),fd.label,esc(String(v)),fd.type==='textarea'));
+  });
+  return glHero(id,r,true)+glViewActsHTML(id,r)
+    +secHead(glOneCap(g)+' Details')+'<div class="lp-sb-detail-grid">'+cards.join('')+'</div>';
+}
+/* THE LOGS TAB - the Deals Logs, for a listing record: where it stands, the
+   steps open to it, the step's form (Comment, Cancel, Submit) under the bar
+   with the chosen step marked, and the Activity Log of every step taken. */
+function glLogsHTML(id,r){
+  var g=GL[id],acts=glActs(id,r),la=state.glLogAdd,adding=la&&la.id===id&&la.key===r.key&&acts.some(function(a){return a.label===la.action;})?la.action:'';
+  var cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'')||'Active';
+  var sa=state.role==='Super Admin';
+  /* up to three steps as buttons, the rest under More (the chosen one stays in view) */
+  var shown=acts.slice(0,3),rest=acts.slice(3);
+  if(adding&&rest.some(function(a){return a.label===adding;})){shown=shown.slice(0,2).concat(rest.filter(function(a){return a.label===adding;}));rest=acts.filter(function(a){return shown.indexOf(a)<0;});}
+  var btns=sa?'':shown.map(function(a){
+    var neg=/^(Deactivate|Block|Reject|Revoke|Reverse|Mark Coming Soon|Mark KYC Pending|Reopen|Cancel)/.test(a.label),on=a.label===adding;
+    var cls=on?'btn-primary is-active':adding?'btn-outline':(neg?'btn-outline':'btn-primary');
+    return '<button class="'+cls+' btn-sm sc-quick-btn" type="button" aria-pressed="'+on+'" onclick="scGlLogQuick(\''+id+'\','+r.key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</button>';
+  }).join('')
+    +(!sa&&rest.length?'<button class="btn-outline btn-sm sc-quick-btn sc-more-btn" type="button" onclick="event.stopPropagation();scGlLogMore(this,\''+id+'\','+r.key+')">More '+ICO_DOWN+'</button>':'');
+  if(sa&&acts.length)btns='<div class="sc-gl-sa-pick">'+csField('gl-sa-act',acts.map(function(a){return a.label;}),adding,'Select an action','scGlSaPick')+'</div>';
+  var head='<div class="sc-logs-bar"><div class="sc-logs-cur">'
+      +'<div class="sc-logs-eyebrow">Current status</div>'
+      +'<div class="lp-logs-form-header"><span class="lp-log-dot lp-log-dot--info"></span>'+esc(cur)+'</div>'
+      +'<p class="lp-logs-form-sub sc-logs-who">'+ICO.user+'<span>'+(acts.length?'Open to <b>'+esc(state.role)+'</b>':'No further actions on this '+esc(g.one))+'</span></p></div>'
+    +(btns?'<div class="sc-quick-actions">'+btns+'</div>':'')+'</div>';
+  var form='';
+  if(adding){
+    var anim=!!la.anim;delete la.anim;
+    form='<div class="sc-logadd"><div class="sc-logadd-body"><div class="policy-form-grid">'
+        +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Comment</label>'
+        +'<textarea class="ep-form-input" id="sc-gl-comment" placeholder="Add a note for the next person"'
+        +' onkeydown="if((event.ctrlKey||event.metaKey)&&event.key===\'Enter\'){event.preventDefault();scGlLogSubmit()}"></textarea></div>'
+      +'</div></div>'
+      +'<div class="sc-logadd-foot"><span class="sc-logadd-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit</span>'
+        +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scGlLogCancel()">Cancel</button>'
+        +'<button class="'+(/^(Reject|Block|Revoke|Reverse)/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="scGlLogSubmit()">Submit</button></div></div></div>';
+    head='<div class="sc-act-panel'+(anim?' is-opening':'')+'">'+head+form+'</div>';
+  }
+  var log=(r._log||[]).slice().reverse(),made=r.created||r.joined||r.date||r.inAt||r.rejected||'';
+  if(made)log.unshift({text:glOneCap(g)+' Added',comment:'',who:r.by||'System',role:'',date:String(made),time:''});
+  var table=log.length?recTable(['S.No','Status','Comment','Created By','Create Time'],log.map(function(l,i){
+      return '<tr><td>'+(i+1)+'</td><td><b>'+esc(l.text)+'</b></td>'
+        +'<td class="sc-log-rem">'+(l.comment?esc(l.comment):'<span class="lp-dash">—</span>')+'</td>'
+        +'<td>'+esc(l.who)+'<span class="sc-rec-sub">'+esc(l.role||'')+'</span></td>'
+        +'<td>'+esc(l.date)+'<span class="sc-rec-sub">'+esc(l.time||'')+'</span></td></tr>';
+    }).join('')):'<div class="lp-logs-empty">No activity logs yet.</div>';
+  var count=log.length?'<span class="sc-act-count">'+log.length+(log.length===1?' entry':' entries')+'</span>':'';
+  return '<div class="sc-logs">'+head+'<div class="sc-act-log">'+secHead('Activity Log',count)+table+'</div></div>';
+}
+/* EDITING IN THE TAB - as on Deals: Edit turns Details into the form card
+   in place, the header says Editing, Cancel / Save Changes close it. The
+   draft is kept as it is typed, so a repaint does not lose it. */
+function scGlEdit(id,key){
+  var g=GL[id],r=glRow(id,key);if(!r||!g.form)return;
+  var vals={};g.form.forEach(function(fd){vals[fd.k]=r[fd.k]==null?'':String(r[fd.k]);});
+  state.glEdit={id:id,key:key,vals:vals};state.glLogAdd=null;
+  var o=state.glOpen,sb=document.getElementById('sc-gl-sb');if(!sb)return;
+  if(o&&o.id===id&&o.key===key){o.tab='details';refreshPanel('sc-gl-isb',glPanelHTML(id),true);}
+  else{var sw=!!(o&&o.id===id);state.glOpen={id:id,key:key,tab:'details'};
+    if(sw)refreshPanel('sc-gl-isb',glPanelHTML(id),true);
+    else{sb.classList.remove('sc-still');sb.classList.add('open');fillPanel('sc-gl-isb',glPanelHTML(id));}}
+  markSelectedRow(String(key));
+  setTimeout(function(){var f=document.querySelector('#sc-gl-sb .sc-edit-card .ep-form-input');if(f)f.focus();},0);
+}
+function glEditFormHTML(id,r){
+  var g=GL[id],e=state.glEdit;
+  var cells=g.form.map(function(fd){
+    var v=e.vals[fd.k]==null?'':e.vals[fd.k],ctl;
+    if(fd.type==='select'){var o=typeof fd.opts==='function'?fd.opts():fd.opts;ctl=csField('ge-'+fd.k,o.indexOf(v)<0&&v?[v].concat(o):o,v,'Select '+fd.label.toLowerCase(),'scGlEditPick');}
+    else if(fd.type==='textarea')ctl='<textarea class="ep-form-input" oninput="scGlEditInput(\''+fd.k+'\',this.value)">'+esc(v)+'</textarea>';
+    else ctl='<input class="ep-form-input" type="'+(fd.type||'text')+'" value="'+esc(v)+'" placeholder="'+esc(fd.ph||'')+'" oninput="scGlEditInput(\''+fd.k+'\',this.value)">';
+    return field(fd.label,ctl,fd.req,fd.full||fd.type==='textarea');
+  }).join('');
+  return '<div class="sc-edit-card"><div class="policy-form-grid">'+cells+'</div>'
+    +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scGlEditSave()">Save Changes</button></div></div>';
+}
+function scGlEditInput(k,v){if(state.glEdit)state.glEdit.vals[k]=v;}
+function scGlEditPick(v,csid){scGlEditInput(csid.replace(/^ge-/,''),v);}
+function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
+function scGlEditSave(){
+  var e=state.glEdit;if(!e)return;var g=GL[e.id],r=glRow(e.id,e.key);if(!r){state.glEdit=null;scRender();return;}
+  var vals={};
+  for(var i=0;i<g.form.length;i++){
+    var fd=g.form[i],v=String(e.vals[fd.k]==null?'':e.vals[fd.k]).trim();
+    if(fd.req&&!v){scToast('Enter the '+fd.label.toLowerCase(),'error');return;}
+    if(fd.type==='email'&&v&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){scToast('Enter a valid email','error');return;}
+    vals[fd.k]=v;
+  }
+  var changed=g.form.filter(function(fd){return String(r[fd.k]==null?'':r[fd.k])!==vals[fd.k];}).map(function(fd){return fd.label;});
+  if(!changed.length){state.glEdit=null;refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);scToast('No changes to save','info');return;}
+  Object.assign(r,vals);if(g.onSave)g.onSave(r);
+  glLog(e.id,e.key,'Updated '+changed.join(', '));
+  state.glEdit=null;scRender();scToast(g.title(r)+' updated','success');
+}
+/* the row's action dropdown: the record's status, its steps below */
+function glActionBtn(id,r){
+  if(!glActs(id,r).length)return '';
+  var g=GL[id],cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'')||'Update';
+  return '<button class="ct-action-btn sc-gl-actbtn" type="button" title="'+esc(cur)+'" onclick="event.stopPropagation();scGlRowMenu(this,\''+id+'\','+r.key+')">'
+    +'<span>'+esc(cur)+'</span>'+ICO_DOWN+'</button>';
+}
+function scGlRowMenu(btn,id,key){
+  var r=glRow(id,key),m=rowMenuEl();if(!r)return;
+  if(m.classList.contains('open')&&m.dataset.id===id+':'+key){scCloseRowMenu();return;}
+  scCloseAllDD();
+  m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'+glActs(id,r).map(function(a){
+    return '<div class="ct-act-item sc-act-avail" onclick="scGlStartLog(\''+id+'\','+key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</div>';}).join('');
+  m.dataset.id=id+':'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
+  var rc=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
+  scPlaceMenu(m,{left:rc.right-w,right:rc.right,top:rc.top,bottom:rc.bottom,width:w});
+}
+/* THE DROPDOWN OPENS THE STEP IN LOGS - no popup: the record's panel opens on
+   Logs with the step's form open, as if it had been picked there. */
+function scGlStartLog(id,key,action){
+  scCloseRowMenu();
+  state.glLogAdd={id:id,key:key,action:action,anim:true};
+  var o=state.glOpen,sb=document.getElementById('sc-gl-sb');if(!sb)return;
+  if(o&&o.id===id&&o.key===key){o.tab='logs';refreshPanel('sc-gl-isb',glPanelHTML(id),true);}
+  else{var sw=!!(o&&o.id===id);state.glOpen={id:id,key:key,tab:'logs'};
+    if(sw)refreshPanel('sc-gl-isb',glPanelHTML(id),true);
+    else{sb.classList.remove('sc-still');sb.classList.add('open');fillPanel('sc-gl-isb',glPanelHTML(id));}}
+  markSelectedRow(String(key));
+  setTimeout(function(){var t=document.getElementById('sc-gl-comment');if(t)t.focus();},0);
+}
+function scGlLogQuick(id,key,action){
+  var la=state.glLogAdd;
+  if(la&&la.id===id&&la.key===key&&la.action===action){scGlLogCancel();return;}
+  state.glLogAdd={id:id,key:key,action:action,anim:true};refreshPanel('sc-gl-isb',glPanelHTML(id));
+  setTimeout(function(){var t=document.getElementById('sc-gl-comment');if(t)t.focus();},0);
+}
+function scGlLogMore(btn,id,key){
+  var r=glRow(id,key),m=rowMenuEl();if(!r)return;
+  if(m.classList.contains('open')&&m.dataset.id==='more:'+id+':'+key){scCloseRowMenu();return;}
+  m.innerHTML=glActs(id,r).slice(3).map(function(a){
+    return '<div class="ct-act-item sc-act-avail" onclick="scCloseRowMenu();scGlLogQuick(\''+id+'\','+key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</div>';}).join('');
+  m.dataset.id='more:'+id+':'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
+  var rc=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
+  scPlaceMenu(m,{left:rc.right-w,right:rc.right,top:rc.top,bottom:rc.bottom,width:w});
+}
+function scGlSaPick(v){var o=state.glOpen;if(!o||!v)return;state.glLogAdd={id:o.id,key:o.key,action:v,anim:true};refreshPanel('sc-gl-isb',glPanelHTML(o.id));
+  setTimeout(function(){var t=document.getElementById('sc-gl-comment');if(t)t.focus();},0);}
+function scGlLogCancel(){var la=state.glLogAdd;state.glLogAdd=null;if(la&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(la.id));}
+function scGlLogSubmit(){
+  var la=state.glLogAdd;if(!la)return;
+  var r=glRow(la.id,la.key),a=r&&glActs(la.id,r).filter(function(x){return x.label===la.action;})[0];
+  if(!a){state.glLogAdd=null;scRender();return;}
+  var comment=((document.getElementById('sc-gl-comment')||{}).value||'').trim();
+  var before=(r._log||[]).length;
+  state.glLogAdd=null;
+  (new Function(a.code))();
+  /* the step is logged once, with its comment - whatever the action noted itself is folded in */
+  if(r._log&&r._log.length>before)r._log.splice(0,r._log.length-before);
+  glLog(la.id,la.key,la.action,comment);
+  if(state.glOpen)state.glOpen.tab='logs';
+  scRender();
+}
+/* a related list inside a tab: its rows, or a quiet line when there are none */
+function relList(head,list,row,empty,more){
+  return (list.length?recTable(head,list.slice(0,25).map(row).join('')):'<div class="lp-logs-empty">'+esc(empty)+'</div>')
+    +(list.length>25?'<p class="sc-bulk-note">Showing 25 of '+list.length+'.</p>':'')+(more||'');
+}
+function relHead(id,r,title,n,open){
+  return glHero(id,r,false)+secHead(title,'<span class="sc-act-count">'+n+'</span>'+(open||''));
+}
+function openAll(page,f,label){
+  return ' <button type="button" class="sc-link" onclick="glState(\''+page+'\').f='+JSON.stringify(f).replace(/"/g,"'")+';glState(\''+page+'\').page=1;scGo(\''+page+'\')">'+esc(label)+'</button>';
+}
+var td=function(v){return '<td>'+(v==null||v===''?'—':esc(String(v)))+'</td>';};
+function relTab(id,label,head,listFn,row,empty,open){
+  return {id:id,label:label,
+    html:function(r){var l=listFn(r);return relHead(state.glOpen.id,r,label,l.length,open?open(r):'')+relList(head,l,row,empty);}};
+}
+
+/* ── each page's own tabs ───────────────────────────────────────────────── */
+GL.allbuyers.tabs=[
+  relTab('orders','Orders',['Order ID','Date','Store','Type','Amount','Status'],function(b){return ORDERS.filter(function(o){return o.userId===b.key;});},
+    function(o){return '<tr>'+td(o.key)+td(fmtDT(o.created))+td(o.store)+td(o.type)+td(inr(o.amount))+'<td>'+orderTone(o.status)+'</td></tr>';},'No orders from this buyer yet.'),
+  {id:'credit',label:'Credit',html:function(b){var c=CREDIT_CUSTOMERS.filter(function(x){return x.buyer===b.key;})[0];
+    if(!c)return glHero('allbuyers',b,false)+secHead('Credit')+'<div class="lp-logs-empty">Not on credit.</div><div class="sc-gl-actbar"><button class="btn-outline btn-sm" type="button" onclick="scBuyerCredit('+b.key+')">Add to Credit</button></div>';
+    var band=bandBy(c.band)||{limit:0,days:0};
+    return glHero('allbuyers',b,false)+secHead('Credit')+'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'Account',c.key)+fieldCard(ICO.tag,'Credit Band',esc(c.band))
+      +fieldCard(ICO.money,'Credit Used',inr(c.used)+' of '+inr(band.limit))+fieldCard(ICO.cal,'Credit Period',band.days+' days')+fieldCard(ICO.check,'Status',activeBadge(c.status==='Active'?'Active':'Inactive'))+'</div>';}}
+];
+GL.creditbands.tabs=[relTab('customers','Customers',['Account','Customer','Mobile','Credit Used','Status'],function(b){return CREDIT_CUSTOMERS.filter(function(c){return c.band===b.name;});},
+  function(c){return '<tr>'+td(c.key)+td(c.buyerName)+td(c.mobile)+td(inr(c.used))+'<td>'+badge(c.status==='Active'?'approved':'unapproved',c.status)+'</td></tr>';},'No customers on this band.')];
+GL.maincats.tabs=[relTab('subs','Sub Categories',['Key','Sub Category','Sequence','Status'],function(m){return SUB_CATEGORIES.filter(function(s){return s.main===m.name;});},
+  function(s){return '<tr>'+td(s.key)+td(s.name)+td(s.seq)+'<td>'+activeBadge(s.status)+'</td></tr>';},'No sub categories yet.')];
+GL.subcats.tabs=[relTab('grands','Grand Sub Categories',['Key','Grand Sub Category','Sequence','Status'],function(m){return GRAND_CATEGORIES.filter(function(s){return s.sub===m.name;});},
+  function(s){return '<tr>'+td(s.key)+td(s.name)+td(s.seq)+'<td>'+activeBadge(s.status)+'</td></tr>';},'No grand sub categories yet.')];
+GL.stores.tabs=[
+  relTab('products','Products',['Product ID','Name','Type','Category','Status'],function(st){return PRODUCTS.filter(function(p){return p.storeId===st.key;});},
+    function(p){return '<tr>'+td(p.key)+td(p.name)+td(p.itemType)+td(p.main)+'<td>'+activeBadge(p.status)+'</td></tr>';},'No products in this store yet.'),
+  relTab('orders','Orders',['Order ID','Date','Buyer','Amount','Status'],function(st){return ORDERS.filter(function(o){return o.storeId===st.key;});},
+    function(o){return '<tr>'+td(o.key)+td(fmtDT(o.created))+td(o.user)+td(inr(o.amount))+'<td>'+orderTone(o.status)+'</td></tr>';},'No orders for this store yet.')];
+GL.communities.tabs=[
+  relTab('residents','Residents',['Key','Name','Property','Position','Status'],function(c){return RESIDENTS.filter(function(x){return x.comm===c.name;});},
+    function(x){return '<tr>'+td(x.key)+td(x.name)+td(x.prop)+td(x.pos)+'<td>'+activeBadge(x.status)+'</td></tr>';},'No residents yet.'),
+  relTab('blocks','Blocks',['Block Id','Block / Tower','Flats','Status'],function(c){return BLOCKS.filter(function(x){return x.comm===c.name;});},
+    function(b){return '<tr>'+td(b.key)+td(b.name)+td(FLATS.filter(function(f){return f.block===b.key;}).length)+'<td>'+activeBadge(b.status)+'</td></tr>';},'No blocks yet.'),
+  relTab('amenities','Amenities',['Service ID','Amenity','Fee','Status'],function(c){return AMENITIES.filter(function(x){return x.comm===c.name;});},
+    function(a){return '<tr>'+td(a.key)+td(a.name)+td(a.fee?'INR '+a.fee:'Free')+'<td>'+activeBadge(a.status)+'</td></tr>';},'No amenities yet.'),
+  relTab('members','Members',['Member Id','Name','Designation','Status'],function(c){return CMEMBERS.filter(function(x){return x.comm===c.name;});},
+    function(m){return '<tr>'+td(m.key)+td(m.name)+td(m.desig)+'<td>'+activeBadge(m.status)+'</td></tr>';},'No members yet.')];
+GL.blocks.tabs=[relTab('flats','Flats',['Flat Id','Flat Number','Status'],function(b){return FLATS.filter(function(f){return f.block===b.key;});},
+  function(f){return '<tr>'+td(f.key)+td(f.num)+'<td>'+activeBadge(f.status)+'</td></tr>';},'No flats in this block yet.',
+  function(b){return openAll('flats',{block:blockLabel(b)},'Open in All Flats');})];
+GL.residents.tabs=[relTab('notices','Notices',['Post ID','Title','Category','Date'],function(r){return NOTICES.filter(function(n){return n.comm===r.comm;});},
+  function(n){return '<tr>'+td(n.key)+td(n.title)+td(n.cat)+td(n.date)+'</tr>';},'No notices in this community.')];
+GL.custbands.tabs=[relTab('wallets','E-Wallets',['Key Id','Wallet','Coins','Status'],function(b){return EWALLETS.filter(function(w){return w.band===b.name;});},
+  function(w){return '<tr>'+td(w.key)+td(w.name)+td(w.coins)+'<td>'+activeBadge(w.status)+'</td></tr>';},'No e-wallets on this band.')];
+GL.discounts.tabs=[relTab('scans','Redemptions',['User','Store','Scan Date','Status'],function(d){return DISC_TXNS.filter(function(t){return t.disc===d.key;});},
+  function(t){return '<tr>'+td(t.user)+td(t.store)+td(t.scanned)+'<td>'+badge(t.status==='Redeemed'?'approved':t.status==='Pending'?'pending':'unapproved',t.status)+'</td></tr>';},'Not redeemed yet.')];
+GL.livebuyers.tabs=[{id:'keys',label:'Access Keys',html:function(r){
+  return glHero('livebuyers',r,false)+secHead('Access Keys')+'<div class="lp-sb-detail-grid">'
+    +fieldCard(ICO.key,'Access Key','<span class="sc-mono">'+esc(r.akey)+'</span>',true)+fieldCard(ICO.key,'Access Value','<span class="sc-mono">'+esc(r.aval)+'</span>',true)+'</div>'
+    +'<div class="sc-gl-actbar"><button class="btn-outline btn-sm" type="button" onclick="scCopySecret('+r.key+',\'akey\')">Copy Access Key</button>'
+    +'<button class="btn-outline btn-sm" type="button" onclick="scCopySecret('+r.key+',\'aval\')">Copy Access Value</button>'
+    +'<button class="btn-outline btn-sm" type="button" onclick="glLog(\'livebuyers\','+r.key+',\'Regenerated keys\');scRegenKeys('+r.key+')">Regenerate Keys</button></div>';}}];
+
+/* ══ SEQUENCE, SUPPORT, CARDS, LOCATION ════════════════════════════════════
+   Category & Sequence: each app section's display order and visibility,
+   reordered in the panel's Sequence tab. Support & Help Desk: tickets, the
+   teams they are assigned to, their categories, and policies. Cards and
+   Subscriptions: card products and the cards issued from them. Location
+   control: which cities are Live. */
+
+/* ── CATEGORY & SEQUENCE ───────────────────────────────────────────────── */
+var SEQ_CONFIGS=[[1001,'Home Sections',['Banner Carousel','Shop by Category','Top Stores','Discounts For You','Your Community','Recently Viewed']],
+  [1002,'Discounts',DISCOUNTS.map(function(d){return d.name;}).concat(['Bank Offers','Weekend Deals'])],
+  [1003,'Community',COMMUNITIES.slice(0,6).map(function(c){return c.name;})],
+  [1004,'Inside Community',['Notice Board','Amenities','Daily Help','Visitors','Residents','Blocks & Flats','Maintenance','Events','Polls','Helpdesk',
+    'Marketplace','Lost & Found','Parking','Emergency Contacts','Documents','Payments','Clubhouse','Gym','Pool Booking','Feedback']],
+  [1006,'Health Sub Categories',['Consultation','Pharmacy','Diagnostics','Dental','Psychology','Ayurveda','Homeopathy','Physiotherapy','Nutrition',
+    'Eye Care','Skin Care','Inpatient Admission','Home Care']],
+  [1007,'Mart',['Fresh Fruits','Vegetables','Dairy & Bakery','Staples','Snacks']],[1008,'Food',[]],[1009,'Rooms',[]]]
+  .map(function(x){return {key:x[0],name:x[1],items:x[2].map(function(n,i){return {name:n,on:!(i%7===6)};}),status:x[2].length?'Active':'Future'};});
+GL.sequence={one:'configuration',noun:'configurations',rows:SEQ_CONFIGS,
+  title:function(c){return c.name;},
+  search:{placeholder:'Search configuration',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive','Future']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Future','pending']]);},
+  cols:[{h:'Configuration Name',cell:function(c){return '<div class="lp-c-main">'+esc(c.name)+'</div><div class="lp-c-sub">Module ID: SEQ-'+c.key+'</div>';}},
+    {h:'Items',cell:function(c){return '<span class="sc-count-pill">'+c.items.length+'</span>';}},
+    {h:'Visible',cell:function(c){var v=c.items.filter(function(i){return i.on;}).length;return c.items.length?plain(v+' of '+c.items.length):'<span class="lp-dash">—</span>';}},
+    {h:'Status',cell:function(c){return c.status==='Future'?badge('pending','Future'):activeBadge(c.status);}}],
+  form:[{k:'name',label:'Configuration Name',req:true,full:true},{k:'status',label:'Status',type:'select',opts:['Active','Inactive','Future'],req:true,def:'Active'}],
+  defaults:function(){return {items:[]};},
+  toggle:{k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'},
+  tabs:[{id:'items',label:'Sequence',html:function(c){
+    var rows=c.items.map(function(it,i){
+      return '<div class="sc-seq-row'+(it.on?'':' is-off')+'"><span class="sc-seq-no">'+(i+1)+'</span><span class="sc-seq-name">'+esc(it.name)+'</span>'
+        +'<span class="sc-seq-tools">'
+          +'<button type="button" class="lp-action-btn" title="Move up" aria-label="Move '+esc(it.name)+' up"'+(i?'':' disabled')+' onclick="scSeqMove('+c.key+','+i+',-1)">'+ICO_UP+'</button>'
+          +'<button type="button" class="lp-action-btn" title="Move down" aria-label="Move '+esc(it.name)+' down"'+(i<c.items.length-1?'':' disabled')+' onclick="scSeqMove('+c.key+','+i+',1)">'+ICO_DOWN+'</button>'
+          +'<button type="button" role="switch" aria-checked="'+it.on+'" class="sc-switch'+(it.on?' is-on':'')+'" title="'+(it.on?'Hide':'Show')+'" onclick="scSeqVis('+c.key+','+i+')"><span></span></button>'
+        +'</span></div>';
+    }).join('');
+    return relHead('sequence',c,'Display Order',c.items.filter(function(i){return i.on;}).length+' visible')
+      +(rows?'<div class="sc-seq-list">'+rows+'</div>':'<div class="lp-logs-empty">No items yet - this section is planned for the future.</div>')
+      +'<div class="sc-gl-actbar" style="margin-top:14px"><input class="ep-form-input sc-seq-add" id="sc-seq-new" type="text" placeholder="Add an item" onkeydown="if(event.key===\'Enter\')scSeqAdd('+c.key+')">'
+      +'<button class="btn-outline btn-sm" type="button" onclick="scSeqAdd('+c.key+')">'+ICO.plus+' Add Item</button></div>';
+  }}]};
+var ICO_UP='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+function scSeqMove(key,i,d){
+  var c=glRow('sequence',key),j=i+d;if(!c||j<0||j>=c.items.length)return;
+  var t=c.items[i];c.items[i]=c.items[j];c.items[j]=t;glLog('sequence',key,'Moved '+t.name+' to position '+(j+1));scRender();
+}
+function scSeqVis(key,i){
+  var c=glRow('sequence',key);if(!c)return;var it=c.items[i];it.on=!it.on;glLog('sequence',key,(it.on?'Showed ':'Hid ')+it.name);scRender();
+}
+function scSeqAdd(key){
+  var c=glRow('sequence',key),el=document.getElementById('sc-seq-new'),v=el&&el.value.trim();if(!c||!v)return;
+  c.items.push({name:v,on:true});if(c.status==='Future')c.status='Active';glLog('sequence',key,'Added '+v);scRender();scToast(v+' added','success','Position '+c.items.length+' in '+c.name+'.');
+}
+
+/* ── SUPPORT: CATEGORIES, TEAMS, TICKETS, POLICIES ─────────────────────── */
+var SUP_CATS=[[233,'AGENT','16 Feb 2024','Active'],[234,'ITEM','16 Feb 2024','Inactive'],[235,'ORDER','16 Feb 2024','Inactive'],[236,'FULFILLMENT','16 Feb 2024','Inactive'],
+  [237,'PAYMENT','16 Feb 2024','Active'],[238,'Test Category','16 Feb 2024','Inactive'],[425,'FULFILLMENT','09 Aug 2024','Active'],[468,'TESTING NAME','01 Sep 2025','Active'],
+  [501,'REFUND','12 Sep 2026','Active']].map(function(x){return {key:x[0],name:x[1],created:x[2],status:x[3]};});
+function supCatNames(){return SUP_CATS.map(function(c){return c.name;}).filter(function(v,i,a){return a.indexOf(v)===i;});}
+var SUP_TEAMS=[[976,'Test support','TST007','Testsuppteam@yopmail','Test Category','16 Feb 2024'],[981,'Payments Desk','PAY101','payments@opendhi.com','PAYMENT','02 Mar 2025'],
+  [988,'Order Care','ORD204','ordercare@opendhi.com','ORDER','19 Jul 2025'],[993,'Agent Helpline','AGT310','agents@opendhi.com','AGENT','05 Jan 2026']]
+  .map(function(x){return {key:x[0],name:x[1],code:x[2],email:x[3],cat:x[4],created:x[5],status:'Active'};});
+function supTeamNames(){return SUP_TEAMS.map(function(t){return t.name;});}
+var TKT_STATUS=['Open','In Progress','Resolved','Closed'];
+var TICKETS=[['Payment deducted but order failed','Complaint','Buyer','Payments Desk','PAYMENT','High','L1','In Progress','Under Review'],
+  ['Refund not received for #28868','Complaint','Buyer','Payments Desk','REFUND','Critical','L2','Open','Escalated'],
+  ['Unable to add new product images','Query','Retailer','Order Care','ITEM','Medium','L1','Open','—'],
+  ['Agent referral bonus missing','Request','Agent','Agent Helpline','AGENT','Medium','L1','Resolved','—'],
+  ['Wrong item delivered','Complaint','Buyer','Order Care','FULFILLMENT','High','L2','In Progress','Awaiting Customer'],
+  ['How to change store timings','Query','Retailer','Test support','Test Category','Low','L1','Closed','—'],
+  ['Settlement amount mismatch','Complaint','Retailer','Payments Desk','PAYMENT','High','L2','Open','—'],
+  ['Order stuck in Pending','Complaint','Buyer','Order Care','ORDER','Medium','L1','Resolved','—']]
+  .map(function(x,i){return {key:5120-i,title:x[0],issue:'ISS-'+(88410-i*7),type:x[1],role:x[2],team:x[3],cat:x[4],priority:x[5],level:x[6],status:x[7],sub:x[8],
+    created:fmtDate(addD(DASH_TODAY,-i)),comments:[]};});
+var PRIO_TONE={Low:'closed',Medium:'pending',High:'unapproved',Critical:'unapproved'};
+GL.tickets={one:'ticket',noun:'tickets',rows:TICKETS,
+  title:function(t){return t.title;},
+  search:{placeholder:'Search title or issue ID',fields:['title','issue','key']},
+  filters:[{k:'type',label:'Select Type',opts:['Complaint','Query','Request']},{k:'role',label:'Select Role',opts:['Buyer','Retailer','Agent']},
+    {k:'status',label:'Select Status',opts:TKT_STATUS},{k:'level',label:'Select Level',opts:['L1','L2','L3']},
+    {k:'priority',label:'Select Priority',opts:['Low','Medium','High','Critical']},{k:'cat',label:'Select Category',opts:supCatNames}],
+  stats:function(rows){return [['All',rows.length,'active'],['Open',rows.filter(function(t){return t.status==='Open'||t.status==='In Progress';}).length,'pending'],
+    ['Critical',rows.filter(function(t){return t.priority==='Critical'&&t.status!=='Closed';}).length,'unapproved']];},
+  cols:[{h:'Key',cell:function(t){return plain(t.key);}},
+    {h:'Title',cell:function(t){return '<div class="lp-c-main sc-c-title" title="'+esc(t.title)+'">'+esc(t.title)+'</div><div class="lp-c-sub">'+esc(t.issue)+'</div>';}},
+    {h:'Type',cell:function(t){return '<div class="lp-c-plain">'+esc(t.type)+'</div><div class="lp-c-sub">'+esc(t.role)+'</div>';}},
+    {h:'Assign Team',cell:function(t){return t.team?catJump('supteams','q',t.team):'<span class="lp-dash">Unassigned</span>';}},
+    {h:'Category',cell:function(t){return plain(t.cat);}},
+    {h:'Priority',cell:function(t){return badge(PRIO_TONE[t.priority],t.priority)+' <span class="sc-level">'+esc(t.level)+'</span>';}},
+    {h:'Status',cell:function(t){return badge(t.status==='Resolved'||t.status==='Closed'?'approved':t.status==='Open'?'pending':'active',t.status)
+      +(t.sub&&t.sub!=='—'?'<div class="lp-c-sub">'+esc(t.sub)+'</div>':'');}}],
+  form:[{k:'title',label:'Title',req:true,full:true},{k:'type',label:'Type',type:'select',opts:['Complaint','Query','Request'],req:true},
+    {k:'role',label:'Role',type:'select',opts:['Buyer','Retailer','Agent'],req:true},{k:'cat',label:'Category',type:'select',opts:supCatNames,req:true},
+    {k:'priority',label:'Priority',type:'select',opts:['Low','Medium','High','Critical'],req:true,def:'Medium'},
+    {k:'team',label:'Assign Team',type:'select',opts:supTeamNames,req:true},{k:'level',label:'Level',type:'select',opts:['L1','L2','L3'],req:true,def:'L1'}],
+  defaults:function(n){return {issue:'ISS-'+(88420+n),status:'Open',sub:'—',created:fmtDate(DASH_TODAY),comments:[]};},
+  menu:function(t){
+    var go=function(lbl,st,sub){return [lbl,'scCloseRowMenu();scTicketSet('+t.key+',\''+st+'\',\''+sub+'\')'];},out=[];
+    if(t.status==='Open')out.push(go('Start Progress','In Progress','Under Review'));
+    if(t.status==='Open'||t.status==='In Progress')out.push(go('Resolve','Resolved','—'));
+    if(t.status==='Resolved')out.push(go('Close Ticket','Closed','—'));
+    if(t.status==='Resolved'||t.status==='Closed')out.push(go('Reopen','Open','Reopened'));
+    if(t.level!=='L3'&&t.status!=='Closed')out.push(['Escalate to '+(t.level==='L1'?'L2':'L3'),'scCloseRowMenu();scTicketEscalate('+t.key+')']);
+    return out;
+  },
+  tabsOff:[{id:'comments',label:'Comments',html:function(t){
+    var list=t.comments.length?'<div class="sc-gl-tl">'+t.comments.map(function(c){
+        return '<div class="sc-gl-tl-row"><span class="sc-gl-tl-dot"></span><div class="sc-gl-tl-body"><div class="sc-gl-tl-text sc-tkt-c">'+esc(c.text)+'</div>'
+          +'<div class="sc-gl-tl-meta">'+esc(c.who)+'<span class="hd-sb-dot">•</span>'+esc(c.date)+' · '+esc(c.time)+'</div></div></div>';}).join('')+'</div>'
+      :'<div class="lp-logs-empty">No comments yet.</div>';
+    return relHead('tickets',t,'Comments',t.comments.length)
+      +'<div class="sc-tkt-compose"><textarea class="ep-form-input sc-notice-desc" id="sc-tkt-c" rows="3" placeholder="Write a comment for the team"></textarea>'
+      +'<div class="sc-gl-actbar" style="margin:8px 0 18px;justify-content:flex-end"><button class="btn-primary btn-sm" type="button" onclick="scTicketComment('+t.key+')">Add Comment</button></div></div>'+list;
+  }}]};
+function scTicketSet(key,st,sub){var t=glRow('tickets',key);if(!t)return;t.status=st;t.sub=sub;scRender();scToast('Ticket '+key+' '+st.toLowerCase(),st==='Resolved'||st==='Closed'?'success':'info');}
+function scTicketEscalate(key){var t=glRow('tickets',key);if(!t)return;t.level=t.level==='L1'?'L2':'L3';t.sub='Escalated';scRender();scToast('Ticket '+key+' escalated to '+t.level,'info');}
+function scTicketComment(key){
+  var t=glRow('tickets',key),el=document.getElementById('sc-tkt-c'),v=el&&el.value.trim();if(!t)return;
+  if(!v){scToast('Write a comment first','error');return;}
+  var s=stamp();t.comments.unshift({text:v,who:who(),date:s.date,time:s.time.slice(0,5)});glLog('tickets',key,'Comment added');scRender();scToast('Comment added','success');
+}
+GL.supteams={one:'support team',noun:'support teams',rows:SUP_TEAMS,
+  title:function(t){return t.name;},
+  search:{placeholder:'Search by email',fields:['email','name','code','key']},
+  filters:[{k:'cat',label:'All Categories',opts:supCatNames},{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:onOffStats,
+  cols:[{h:'Key',cell:function(t){return plain(t.key);}},{h:'Team Name',cell:function(t){return mainTxt(t.name);}},
+    {h:'Team Code',cell:function(t){return '<span class="sc-mono">'+esc(t.code)+'</span>';}},{h:'Team Email',cell:function(t){return mailCell(t.email);}},
+    {h:'Category',cell:function(t){return plain(t.cat);}},{h:'Date',cell:function(t){return plain(t.created);}},{h:'Status',cell:function(t){return activeBadge(t.status);}}],
+  form:[{k:'name',label:'Team Name',req:true},{k:'code',label:'Team Code',req:true,ph:'e.g. PAY101'},{k:'email',label:'Team Email',type:'email',req:true},
+    {k:'cat',label:'Category',type:'select',opts:supCatNames,req:true}],
+  defaults:function(){return {created:fmtDate(DASH_TODAY),status:'Active'};},
+  toggle:onOff,
+  tabs:[relTab('tickets','Tickets',['Key','Title','Priority','Status'],function(t){return TICKETS.filter(function(k){return k.team===t.name;});},
+    function(k){return '<tr>'+td(k.key)+td(k.title)+'<td>'+badge(PRIO_TONE[k.priority],k.priority)+'</td>'+td(k.status)+'</tr>';},'No tickets assigned to this team.')]};
+GL.supcats={one:'support category',noun:'support categories',rows:SUP_CATS,
+  title:function(c){return c.name;},
+  search:{placeholder:'Search by name',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:onOffStats,
+  cols:[{h:'Key',cell:function(c){return plain(c.key);}},{h:'Name',cell:function(c){return mainTxt(c.name);}},
+    {h:'Date',cell:function(c){return plain(c.created);}},{h:'Status',cell:function(c){return activeBadge(c.status);}}],
+  form:[{k:'name',label:'Category Name',req:true,full:true}],
+  defaults:function(){return {created:fmtDate(DASH_TODAY),status:'Active'};},
+  toggle:onOff,
+  tabs:[relTab('tickets','Tickets',['Key','Title','Team','Status'],function(c){return TICKETS.filter(function(k){return k.cat===c.name;});},
+    function(k){return '<tr>'+td(k.key)+td(k.title)+td(k.team)+td(k.status)+'</tr>';},'No tickets in this category.')]};
+var POLICY_TYPES=['Refund','Cancellation','Return','Privacy','Terms of Use','Shipping'];
+var POLICIES=[[611,'7 Day Easy Returns','Return','7 days'],[609,'Order Cancellation','Cancellation','Before dispatch'],[604,'Refund to Source','Refund','5-7 working days'],
+  [598,'Privacy Policy','Privacy','Permanent'],[592,'Terms of Use','Terms of Use','Permanent'],[587,'Same Day Delivery','Shipping','Same day']]
+  .map(function(x,i){return {key:x[0],name:x[1],type:x[2],period:x[3],by:['Shaun Jacob','Shrinivas Sadalawar'][i%2],created:fmtDate(addD(DASH_TODAY,-i*19))+' · 10:'+(10+i*7)+' AM',
+    status:i===5?'Inactive':'Active',desc:'Applies to all orders placed on the platform.'};});
+GL.policies={one:'policy',noun:'policies',rows:POLICIES,
+  title:function(p){return p.name;},
+  search:{placeholder:'Search policy name',fields:['name','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']},{k:'type',label:'Filter By',opts:POLICY_TYPES}],
+  stats:onOffStats,
+  cols:[{h:'Policy Id',cell:function(p){return plain(p.key);}},{h:'Policy Name',cell:function(p){return mainTxt(p.name);}},
+    {h:'Created By',cell:function(p){return plain(p.by);}},{h:'Created Time',cell:function(p){return plain(p.created);}},
+    {h:'Policy Type',cell:function(p){return plain(p.type);}},{h:'Time Period',cell:function(p){return plain(p.period);}},
+    {h:'Status',cell:function(p){return activeBadge(p.status);}}],
+  form:[{k:'name',label:'Policy Name',req:true},{k:'type',label:'Policy Type',type:'select',opts:POLICY_TYPES,req:true},
+    {k:'period',label:'Time Period',req:true,ph:'e.g. 7 days'},{k:'desc',label:'Policy Details',type:'textarea',req:true,full:true}],
+  defaults:function(){var d=new Date();return {by:state.role,created:fmtDate(DASH_TODAY)+' · '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),status:'Active'};},
+  toggle:onOff,del:true};
+
+/* ── CARDS & SUBSCRIPTIONS ─────────────────────────────────────────────── */
+var CARD_CATS=['Membership','Subscription','Gift','Loyalty'];
+var CARDS=[['MHB','My Home Bhooja Gold','Membership','Physical',12,2999,'My Home Bhooja Clubhouse'],['MKP','Mukesh Health Plus','Subscription','Virtual',6,499,'Mukesh Pharmacy'],
+  ['ZNG','Zing Fresh Pass','Subscription','Virtual',3,199,'Zing Grocery'],['GFT','Festive Gift Card','Gift','Physical',12,1000,'C Mart'],
+  ['FPK','Freedom Park Resident','Membership','Physical',24,0,'Freedom Park'],['LYL','Dhi Loyalty','Loyalty','Virtual',12,0,'DHI Hyperlocal Pvt Ltd']]
+  .map(function(x,i){return {key:701+i,prefix:x[0],name:x[1],cat:x[2],type:x[3],months:x[4],price:x[5],store:x[6],status:i===3?'Inactive':'Active'};});
+function cardNames(){return CARDS.map(function(c){return c.name;});}
+GL.cards={one:'card',noun:'cards',rows:CARDS,
+  title:function(c){return c.name;},
+  search:{placeholder:'Enter card name',fields:['name','prefix']},search2:{placeholder:'Enter store name',fields:['store']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive']}],
+  stats:function(rows){return [['Cards',rows.length,'active'],['Issued',ISSUED_CARDS.length,'approved']];},
+  cols:[{h:'Prefix',cell:function(c){return '<span class="sc-mono">'+esc(c.prefix)+'</span>';}},
+    {h:'Card Name',cell:function(c){return '<div class="lp-c-main">'+esc(c.name)+'</div><div class="lp-c-sub">'+esc(c.store)+'</div>';}},
+    {h:'Card Category',cell:function(c){return plain(c.cat);}},{h:'Card Type',cell:function(c){return plain(c.type);}},
+    {h:'Validity',cell:function(c){return plain(c.months+(c.months===1?' month':' months'));}},
+    {h:'Price',cell:function(c){return c.price?plain(inr(c.price)):badge('approved','Free');}},{h:'Status',cell:function(c){return activeBadge(c.status);}}],
+  form:[{k:'name',label:'Card Name',req:true},{k:'prefix',label:'Prefix',req:true,ph:'3 letters'},{k:'store',label:'Store Name',req:true},
+    {k:'cat',label:'Card Category',type:'select',opts:CARD_CATS,req:true},{k:'type',label:'Card Type',type:'select',opts:['Physical','Virtual'],req:true},
+    {k:'months',label:'Validity (months)',type:'number',req:true,def:'12'},{k:'price',label:'Price (₹)',type:'number',req:true,def:'0'}],
+  defaults:function(){return {status:'Active'};},
+  onSave:function(c){c.prefix=c.prefix.toUpperCase().slice(0,4);c.months=Math.max(1,+c.months||1);c.price=Math.max(0,+c.price||0);},
+  toggle:onOff,
+  tabs:[relTab('issued','Issued Cards',['Card Number','User','Expiry','Status'],function(c){return ISSUED_CARDS.filter(function(x){return x.card===c.name;});},
+    function(x){return '<tr>'+td(x.number)+td(x.user)+td(x.expiry)+'<td>'+activeBadge(x.status)+'</td></tr>';},'No cards issued yet.')]};
+var ISSUED_CARDS=(function(){
+  var users=[['Priya Nair','Resident'],['Arjun Rao','Resident'],['Rambabu Musunuru','Buyer'],['Deepa Menon','Resident'],['Karthik Reddy','Buyer'],
+    ['Ramesh Gowda','Staff'],['Manasa','Resident'],['Utkarsh Shukla','Buyer'],['Anita Shetty','Staff'],['Baiju Balakrishnan','Buyer'],['Thulasi Annapureddy','Resident'],['Mukesh Kum','Buyer']];
+  return users.map(function(u,i){
+    var c=CARDS[i%CARDS.length],act=addD(DASH_TODAY,-(i*23+5)),exp=new Date(act);exp.setMonth(exp.getMonth()+c.months);
+    return {key:8801+i,number:c.prefix+'-'+(4410+i*137)+'-'+(1000+i*911%9000),user:u[0],userType:u[1],card:c.name,issued:fmtDate(addD(act,-2)),
+      activated:fmtDate(act),expiry:fmtDate(exp),userStatus:i===7?'Blocked':'Active',status:exp<DASH_TODAY?'Expired':i===4?'Inactive':'Active'};});
+})();
+GL.cardlist={one:'issued card',noun:'cards',rows:ISSUED_CARDS,
+  title:function(x){return x.number;},
+  search:{placeholder:'Search card number or user',fields:['number','user','key']},
+  filters:[{k:'status',label:'Select Status',opts:['Active','Inactive','Expired']},{k:'userStatus',label:'Select User Status',opts:['Active','Blocked']},
+    {k:'card',label:'Select Card type',opts:cardNames},{k:'userType',label:'Select User Type',opts:['Resident','Buyer','Staff']}],
+  stats:function(rows){return statusStats(rows,'status',[['Active','approved'],['Expired','unapproved']]);},
+  cols:[{h:'Card Number',cell:function(x){return '<div class="lp-c-main sc-mono">'+esc(x.number)+'</div><div class="lp-c-sub">Card ID '+x.key+'</div>';}},
+    {h:'User Name',cell:function(x){return '<div class="lp-c-plain">'+esc(x.user)+'</div><div class="lp-c-sub">'+esc(x.userType)+(x.userStatus==='Blocked'?' · Blocked':'')+'</div>';}},
+    {h:'Card Type',cell:function(x){return plain(x.card);}},{h:'Card Issue',cell:function(x){return plain(x.issued);}},
+    {h:'QR Code',cell:function(x){return '<span class="sc-qr-mini" title="QR for '+esc(x.number)+'">'+qrSvg(x.key,36)+'</span>';}},
+    {h:'Validity',cell:function(x){return '<div class="lp-c-plain">'+esc(x.activated)+'</div><div class="lp-c-sub">to '+esc(x.expiry)+'</div>';}},
+    {h:'Status',cell:function(x){return x.status==='Expired'?badge('closed','Expired'):activeBadge(x.status);}}],
+  menu:function(x){return [[x.userStatus==='Blocked'?'Unblock User':'Block User','scCloseRowMenu();scCardUser('+x.key+')'],
+    [x.status==='Inactive'?'Activate Card':'Deactivate Card','scCloseRowMenu();scCardState('+x.key+')']];}};
+function scCardUser(key){var x=glRow('cardlist',key);if(!x)return;x.userStatus=x.userStatus==='Blocked'?'Active':'Blocked';scRender();scToast(x.user+(x.userStatus==='Blocked'?' blocked':' unblocked'),'info');}
+function scCardState(key){var x=glRow('cardlist',key);if(!x)return;x.status=x.status==='Inactive'?'Active':'Inactive';scRender();scToast('Card '+x.number+' '+x.status.toLowerCase(),'info');}
+
+/* ── LOCATION CONTROL ──────────────────────────────────────────────────── */
+var CITIES=[["'S GRAVENWEZEL",'VLAANDEREN','2970 - 2970'],["'S HERENELDEREN",'VLAANDEREN','3700 - 3700'],['24 PARAGANAS NORTH','WEST BENGAL','700028 - 743711'],
+  ['24 PARAGANAS SOUTH','WEST BENGAL','700070 - 743613'],['AAIGEM','VLAANDEREN','9420 - 9420'],['AALBEKE','VLAANDEREN','8511 - 8511'],['AALST','VLAANDEREN','3800 - 9300'],
+  ['AGRA','UTTAR PRADESH','282001 - 283126'],['AHMEDABAD','GUJARAT','380001 - 382481'],['BENGALURU','KARNATAKA','560001 - 562157'],['BHOPAL','MADHYA PRADESH','462001 - 462046'],
+  ['CHANDIGARH','CHANDIGARH','160001 - 160102'],['CHENNAI','TAMIL NADU','600001 - 600130'],['COIMBATORE','TAMIL NADU','641001 - 641697'],['DEHRADUN','UTTARAKHAND','248001 - 248197'],
+  ['GUNTUR','ANDHRA PRADESH','522001 - 522663'],['GURUGRAM','HARYANA','122001 - 122505'],['HYDERABAD','TELANGANA','500001 - 501510'],['INDORE','MADHYA PRADESH','452001 - 453771'],
+  ['JAIPUR','RAJASTHAN','302001 - 303905'],['KOCHI','KERALA','682001 - 683594'],['KOLKATA','WEST BENGAL','700001 - 700163'],['LUCKNOW','UTTAR PRADESH','226001 - 227309'],
+  ['MUMBAI','MAHARASHTRA','400001 - 400104'],['MYSURU','KARNATAKA','570001 - 571130'],['NAGPUR','MAHARASHTRA','440001 - 441501'],['NEW DELHI','DELHI','110001 - 110097'],
+  ['PUNE','MAHARASHTRA','411001 - 412308'],['SURAT','GUJARAT','394101 - 395023'],['VADODARA','GUJARAT','390001 - 391776'],['VIJAYAWADA','ANDHRA PRADESH','520001 - 521456'],
+  ['VISAKHAPATNAM','ANDHRA PRADESH','530001 - 531219'],['WARANGAL','TELANGANA','506001 - 506371']]
+  .map(function(x,i){var live=['BENGALURU','CHENNAI','HYDERABAD','MUMBAI','PUNE','VIJAYAWADA','WARANGAL','KOCHI'].indexOf(x[0])>=0;
+    return {key:i+1,city:x[0],state:x[1],pins:x[2],status:live?'Live':'Coming Soon'};});
+GL.cities={one:'city',noun:'cities',rows:CITIES,
+  title:function(c){return c.city.charAt(0)+c.city.slice(1).toLowerCase();},
+  search:{placeholder:'Search by pincode',fields:['pins','city'],},
+  filters:[{k:'city',label:'Select City',opts:function(){return CITIES.map(function(c){return c.city;});}},
+    {k:'state',label:'Select State',opts:function(){return CITIES.map(function(c){return c.state;}).filter(function(v,i,a){return a.indexOf(v)===i;}).sort();}},
+    {k:'status',label:'Select Status',opts:['Live','Coming Soon']}],
+  stats:function(rows){return statusStats(rows,'status',[['Live','approved'],['Coming Soon','pending']]);},
+  cols:[{h:'City Name',cell:function(c){return mainTxt(c.city);}},{h:'State Name',cell:function(c){return plain(c.state);}},
+    {h:'Pincode Range',cell:function(c){return '<span class="sc-mono">'+esc(c.pins)+'</span>';}},
+    {h:'Status',cell:function(c){return badge(c.status==='Live'?'approved':'pending',c.status);}}],
+  menu:function(c){return [[c.status==='Live'?'Mark Coming Soon':'Mark Live','scCloseRowMenu();scCitySet('+c.key+',\''+(c.status==='Live'?'Coming Soon':'Live')+'\')']];}};
+function scCityMenu(btn,key){
+  var c=glRow('cities',key),m=rowMenuEl();if(!c)return;
+  if(m.classList.contains('open')&&m.dataset.id==='city:'+key){scCloseRowMenu();return;}
+  m.innerHTML=['Live','Coming Soon'].map(function(s){var cur=s===c.status;
+    return '<div class="ct-act-item '+(cur?'sc-act-off':'sc-act-avail')+'"'+(cur?'':' onclick="scCloseRowMenu();scCitySet('+key+',\''+s+'\')"')+'>'+s+'</div>';}).join('');
+  m.dataset.id='city:'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
+  var rc=btn.getBoundingClientRect(),w=Math.max(150,Math.ceil(m.getBoundingClientRect().width));m.style.width=w+'px';
+  scPlaceMenu(m,{left:rc.right-w,right:rc.right,top:rc.top,bottom:rc.bottom,width:w});
+}
+function scCitySet(key,st){var c=glRow('cities',key);if(!c||c.status===st)return;c.status=st;glLog('cities',key,'Marked '+st);scRender();
+  scToast(GL.cities.title(c)+' is '+(st==='Live'?'now live':'coming soon'),st==='Live'?'success':'info');}
+
+Object.assign(PAGE_ACTIONS,{sequence:['Create Configuration',function(){scGlForm('sequence');}],tickets:['Raise Ticket',function(){scGlForm('tickets');}],
+  supteams:['Create Team',function(){scGlForm('supteams');}],supcats:['Create Category',function(){scGlForm('supcats');}],
+  policies:['Create Policy',function(){scGlForm('policies');}],cards:['Create Card',function(){scGlForm('cards');}],
+  cardlist:['Export Cards',function(){scExportGL('cardlist','card-listing');},ICO_DOWNLOAD]});
+
+/* ══ MY PROFILE ════════════════════════════════════════════════════════════
+   Opened from the profile menu. The account's personal information (edited
+   in the standard popup form), the stores it runs - each a link to All
+   Stores when it is one - and account actions. */
+var PROFILE={store:'Mukesh Pharmacy',name:'shrinivas-sadalawar',email:'sadalawar@newforceltd.com',zip:'500049',gst:'6382917382',pan:'Egskdyhw',
+  phone:'919064702615',address:'Cyber Towers',
+  stores:['Zing Grocery','C Mart','Suma Grocery','Peace Commercial Community','Chennai Commercial','Chennai Fashion Store 2k26','Comm Store Chennai2',
+    'ComM StorE Chennai','Lara Locals','OpenDhi Connect And Earn']};
+var PROFILE_FIELDS=[['store','Store Name',ICO.store],['name','Name',ICO.user],['email','Email',ICO.doc],['zip','Zip Code',ICO.pin],
+  ['gst','GST Number',ICO.hash],['pan','PAN Number',ICO.hash],['phone','Phone No.',ICO.phone],['address','Address',ICO.pin]];
+function profileHTML(){
+  var P=PROFILE,ini=P.name.split(/[\s-]+/).filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  var storeRows=GL.stores?glSrc(GL.stores):[];
+  var stores=P.stores.map(function(n){
+    var hit=storeRows.filter(function(r){return r.name.toLowerCase()===n.toLowerCase();})[0];
+    return '<li class="sc-pf-store">'+ICO.store+(hit?catJump('stores','q',hit.name).replace('>'+esc(hit.name)+'<','>'+esc(n)+'<'):'<span>'+esc(n)+'</span>')+'</li>';
+  }).join('');
+  return '<div class="listing-page"><div class="sc-bill-card sc-pf-card">'
+    +'<div class="hd-sb-hero sc-hero sc-pf-hero"><div class="sc-pf-ava">'+esc(ini)+'</div>'
+      +'<div class="hd-sb-hero-text"><div class="hd-sb-hero-name">'+esc(P.name)+'</div>'
+        +'<div class="hd-sb-hero-meta">'+esc(P.store)+'<span class="hd-sb-dot">•</span>'+esc(P.email)+'<span class="hd-sb-dot">•</span>'+esc(state.role)+'</div></div>'
+      +'<div class="hd-sb-hero-right">'+(state.pfEdit?'<span class="sc-editing-pill">'+ICO_EDIT+' Editing</span>'
+        :'<button class="lp-sb-view-edit-btn" type="button" onclick="scProfileEdit()">'+ICO_EDIT+' Edit</button>')+'</div></div>'
+    +secHead('Personal Information')
+    +(state.pfEdit
+      ?'<div class="sc-edit-card sc-pf-edit"><div class="policy-form-grid sc-gl-form is-3col">'+PROFILE_FIELDS.map(function(f){
+          return field(f[1],'<input class="ep-form-input" id="pf-'+f[0]+'" type="'+(f[0]==='email'?'email':'text')+'" value="'+esc(P[f[0]])+'">',f[0]!=='address');}).join('')+'</div>'
+        +'<div class="sc-edit-actions"><button class="btn-outline" onclick="state.pfEdit=false;scRender()">Cancel</button><button class="btn-primary" onclick="scProfileSave()">Save Changes</button></div></div>'
+      :'<div class="lp-sb-detail-grid sc-pf-grid">'+PROFILE_FIELDS.map(function(f){return fieldCard(f[2],f[1],esc(P[f[0]]));}).join('')+'</div>')
+    +secHead('Stores','<span class="sc-act-count">'+P.stores.length+' stores</span>')
+    +'<ul class="sc-pf-stores">'+stores+'</ul>'
+    +secHead('Account Information')
+    +'<div class="lp-sb-detail-grid sc-pf-grid">'+fieldCard(ICO.shield,'Role',esc(state.role))+fieldCard(ICO.clock,'Last Login','Today, 9:41 AM')+fieldCard(ICO.check,'Account Status',activeBadge('Active'))+'</div>'
+    +'<div class="sc-pf-danger"><div><b>Delete Account</b><span>Removes this account and its access to every store. This cannot be undone.</span></div>'
+      +'<button class="btn-outline btn-sm sc-gl-act-danger" type="button" onclick="scProfileDelete()">'+ICO_TRASH+' Delete Account</button></div>'
+  +'</div></div>';
+}
+function scProfileEdit(){state.pfEdit=true;scRender();var f=document.getElementById('pf-store');if(f)f.focus();}
+function scProfileSave(){
+  var v={};
+  for(var i=0;i<PROFILE_FIELDS.length;i++){var k=PROFILE_FIELDS[i][0];v[k]=((document.getElementById('pf-'+k)||{}).value||'').trim();
+    if(!v[k]&&k!=='address'){scToast('Enter the '+PROFILE_FIELDS[i][1].toLowerCase(),'error');return;}}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)){scToast('Enter a valid email','error');return;}
+  if(!/^\d{6}$/.test(v.zip)){scToast('Zip code must be 6 digits','error');return;}
+  if(!/^\+?\d{10,13}$/.test(v.phone)){scToast('Enter a valid phone number','error');return;}
+  Object.assign(PROFILE,v);state.pfEdit=false;scRender();scToast('Profile updated','success');
+}
+function scProfileDelete(){
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scCloseModal();scToast(\'Account deletion requested\',\'info\',\'This prototype keeps the account - the request is not sent anywhere.\')">Delete Account</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Delete Account',PROFILE.name,
+    '<p class="sc-confirm-text">Delete <b>'+esc(PROFILE.name)+'</b>? Access to all '+PROFILE.stores.length+' stores ends and this cannot be undone.</p>',foot);
+}
+
 /* ══ BOOT ═════════════════════════════════════════════════════════════════  */
-document.getElementById('sc-create-btn').innerHTML=ICO.plus+' Create SCR';
+[['ICO_DOWNLOAD','download'],['ICO_IMPORT','import'],['ICO_EXPAND','expand'],['ICO_COLLAPSE','collapse'],['ICO_PRINT','print'],
+ ['ICO_DL','download'],['ICO_OUT','out'],['ICO_HOURGLASS','hourglass'],['ICO_DONE','done'],['ICO_REJECT','reject'],
+ ['ICO_UNDO','undo'],['ICO_ARROW','arrow'],['ICO_BACK','back'],['ICO_EDIT','edit'],['ICO_KEBAB','kebab'],['ICO_TRASH','trash']].forEach(function(p){
+  if(typeof window[p[0]]==='string')window[p[0]]=tagIco(window[p[0]],p[1]);
+});
 scRender();
