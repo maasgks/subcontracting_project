@@ -1074,16 +1074,17 @@ var TITLES={dashboard:'Dashboard',deals:'Deals',orders:'Purchase Orders','scr-fo
   staff:'Staff And Roles',discounts:'Discounts',discounttxns:'Discount Transactions',notifevents:'Notifications',
   settlement:'Settlement Reports',salesproducts:'Sales By Products',salesorders:'Sales Orders Report',catalogreject:'Catalog Reject Report',
   sequence:'Sequence Management',tickets:'Tickets',supteams:'Support Teams',supcats:'Support Categories',policies:'All Policies',
-  cards:'Cards',cardlist:'Card Listing',cities:'City Status Management',profile:'My Profile'};
+  cards:'Cards',cardlist:'Card Listing',cities:'City Status Management',profile:'My Profile',addhsn:'Add HSN/SAC'};
 /* The SCR form is a page of its own but belongs to Deals. */
-function navPage(){return state.page==='scr-form'?'deals':state.page;}
+function navPage(){return state.page==='scr-form'?'deals':state.page==='addhsn'?'hsn':state.page;}
 function scGo(page){
   state.page=page;
-  SC_NAV.forEach(function(g){if(g.dropdown&&navIds(g).indexOf(page)>=0){openGroups={};openGroups[g.dropdown]=true;openSubs={};
+  var navOf=page==='addhsn'?'hsn':page;
+  SC_NAV.forEach(function(g){if(g.dropdown&&navIds(g).indexOf(navOf)>=0){openGroups={};openGroups[g.dropdown]=true;openSubs={};
     (g.children||[]).forEach(function(c){if(c.group&&c.children.some(function(x){return x.id===page;}))openSubs[c.group]=true;});}});
   /* the listing panel's own state; Deals and Purchase Orders keep their behaviour */
   var glWasOpen=!!state.glOpen;
-  state.dealOpen=false;state.orderOpen=false;state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;
+  state.dealOpen=false;state.orderOpen=false;state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;state.glDraft=null;state.pfPop=false;state.seqEdit=null;
   if(glWasOpen&&state.expanded){state.expanded=false;applyExpanded();}
   /* Arriving from the rail is a fresh arrival at the page. Carrying a stage
      filter over from a dashboard card would leave the listing quietly scoped
@@ -1191,7 +1192,7 @@ function scRender(){
   buildRail();
   var el=document.getElementById('adt-content');
   el.innerHTML=state.page==='deals'?dealsPageHTML():state.page==='orders'?ordersPageHTML():state.page==='scr-form'?scrFormPageHTML()
-    :state.page==='billing'?billingPageHTML():state.page==='bulkupload'?bulkUploadHTML():state.page==='addnotice'?addNoticeHTML():state.page==='profile'?profileHTML():GL[state.page]?glPageHTML(state.page):dashboardHTML();
+    :state.page==='billing'?billingPageHTML():state.page==='bulkupload'?bulkUploadHTML():state.page==='addnotice'?addNoticeHTML():state.page==='addhsn'?addHsnHTML():state.page==='profile'?profileHTML():GL[state.page]?glPageHTML(state.page):dashboardHTML();
   /* A panel that was already open stays open through a re-render — with the
      class applied in the same frame, so it does not replay the slide-in every
      time a log is saved. Opening it from a row click is the other path, and
@@ -4352,10 +4353,10 @@ function scRowMenu(btn,id,scope){
   var dealItems=list.filter(function(a){return PO_ACTIONS.indexOf(a)<0;});
   if(scope!=='po'&&(!dealLogsAllowed()||!dealItems.length)){
     var po=list.some(function(a){return PO_ACTIONS.indexOf(a)>=0;})?dealPONo(id):'';
-    m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
+    m.innerHTML=''
       +'<div class="ct-act-item done">No actions in Deals</div>'
       +(po?'<div class="ct-act-item sc-act-avail" onclick="scRowOpenPO()">Open Purchase Order '+esc(po)+'</div>':'');
-  }else m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'
+  }else m.innerHTML=''
     +(list.length?list.map(function(a,i){
       if(scope==='po'&&PO_APPROVAL.indexOf(a)<0)return '';
       if(scope!=='po'&&PO_ACTIONS.indexOf(a)>=0)return '';
@@ -5281,7 +5282,9 @@ function glPageHTML(id){
   var off=(st.page-1)*PAGE_SIZE;
   var open=state.glOpen&&state.glOpen.id===id?state.glOpen.key:null;
   var rows=pageSlice(all,st.page).map(function(r,n){
-    return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')"><td>'+(off+n+1)+'</td>'+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+c.cell(r)+'</td>';}).join('')
+    var ex=g.expandable&&!!(state.glExp||{})[id+':'+r.key];
+    var sno=g.expandable?'<td><div class="sc-rowexp"><button type="button" class="sc-rowexp-btn'+(ex?' is-open':'')+'" title="'+(ex?'Show less':'Show more')+'" aria-expanded="'+ex+'" onclick="event.stopPropagation();scGlExpand(\''+id+'\','+r.key+')">'+ICO_DOWN+'</button><span>'+(off+n+1)+'</span></div></td>':'<td>'+(off+n+1)+'</td>';
+    return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+(ex?' is-expanded':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')">'+sno+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+(g.expandable&&!ex&&c.brief?c.brief(r):c.cell(r))+'</td>';}).join('')
       +'<td onclick="event.stopPropagation()"><div class="sc-gl-acts">'+(g.rowTools?g.rowTools(r):'')
         +(g.del?'<button class="lp-action-btn sc-del-btn" type="button" title="Delete" aria-label="Delete '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlDelete(\''+id+'\','+r.key+')">'+ICO_TRASH+'</button>':'')
         +glActionBtn(id,r)
@@ -5535,6 +5538,9 @@ function qrSvg(seed,px){
 GL.qrcodes={one:'QR code',noun:'QR codes',sub:'A QR code or barcode for a product or store',
   rows:(function(){
     var rows=[];
+    rows.push({key:65389,prefix:'Mass_Store_qrcode',type:'Store',mode:'Auto',status:'Assigned',service:'Store Payments',retailer:'Business',store:'Mukesh Pharmacy'});
+    rows.push({key:65388,prefix:'Mass_Community_qrcode',type:'Community',mode:'Auto',status:'Assigned',service:'Community Access',retailer:'Business',store:'Tree Park Community'});
+    rows.push({key:65387,prefix:'Mass_Community_qrcode',type:'Community',mode:'Manual',status:'Unassigned',service:'Community Access',retailer:'Individual',store:'Freedom Park'});
     for(var i=0;i<48;i++){var store=i===4||i===6||i===8||i%7===3;
       rows.push({key:65386-i,prefix:store?'Mass_Store_qrcode':'Barcode',type:store?'Store':'Product',mode:i%10===9?'Manual':'Auto',
         status:i%8===7?'Unassigned':'Assigned',service:store?'Store Payments':'Product Billing',retailer:i%3?'Business':'Individual',
@@ -5543,22 +5549,24 @@ GL.qrcodes={one:'QR code',noun:'QR codes',sub:'A QR code or barcode for a produc
   })(),
   title:function(r){return 'QR '+r.key;},
   search:{placeholder:'Store name',fields:['store']},
-  filters:[{k:'status',label:'Select Status',opts:['Assigned','Unassigned']},{k:'type',label:'Select Type',opts:['Product','Store']},
-    {k:'mode',label:'Select Option',opts:['Auto','Manual']},{k:'service',label:'Select Services',opts:['Product Billing','Store Payments']},
+  filters:[{k:'status',label:'Select Status',opts:['Assigned','Unassigned']},{k:'type',label:'Select Type',opts:['Product','Store','Community']},
+    {k:'mode',label:'Select Option',opts:['Auto','Manual']},{k:'service',label:'Select Services',opts:['Product Billing','Store Payments','Community Access']},
     {k:'retailer',label:'Retailer Type',opts:['Individual','Business']}],
   stats:function(rows){return statusStats(rows,'status',[['Assigned','approved'],['Unassigned','pending']]);},
   cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Prefix',cell:function(r){return mainTxt(r.prefix);}},
     {h:'Type',cell:function(r){return plain(r.type);}},{h:'BarQue Type',cell:function(r){return plain(r.mode);}},
-    {h:'QR Code',cell:function(r){return '<button type="button" class="sc-qr-btn" title="View QR '+r.key+'" onclick="scQrView('+r.key+')">'+qrSvg(r.key,40)+'</button>';}},
+    {h:'QR Code',noDetail:true,cell:function(r){return '<button type="button" class="sc-qr-btn" title="View QR '+r.key+'" onclick="event.stopPropagation();scGlOpen(\'qrcodes\','+r.key+')">'+qrSvg(r.key,40)+'</button>';}},
     {h:'Status',cell:function(r){return activeBadge(r.status);}}],
   tool:function(){return '<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scQrDownloadAll()">'+ICO_DOWNLOAD+' QR / Barcode</button>';},
-  form:[{k:'prefix',label:'Prefix',req:true,def:'Barcode'},{k:'type',label:'Type',type:'select',opts:['Product','Store'],req:true},
+  form:[{k:'prefix',label:'Prefix',req:true,def:'Barcode'},{k:'type',label:'Type',type:'select',opts:['Product','Store','Community'],req:true},
     {k:'mode',label:'BarQue Type',type:'select',opts:['Auto','Manual'],def:'Auto',req:true},
-    {k:'service',label:'Service',type:'select',opts:['Product Billing','Store Payments'],req:true},
+    {k:'service',label:'Service',type:'select',opts:['Product Billing','Store Payments','Community Access'],req:true},
     {k:'store',label:'Store Name',req:true}],
   defaults:function(){return {status:'Unassigned',retailer:'Business'};},
   toggle:{k:'status',on:'Assigned',off:'Unassigned',onLabel:'Assign',offLabel:'Unassign',onDone:'assigned',offDone:'unassigned'},
-  menu:function(r){return [['View QR Code','scCloseRowMenu();scQrView('+r.key+')']];}
+  detailsTop:function(r){return '<div class="sc-qr-big"><span class="sc-qr-frame">'+qrSvg(r.key,150)+'</span>'
+    +'<div class="sc-qr-meta"><b>'+esc(r.prefix)+'</b><span>'+esc(r.type)+' · '+esc(r.store)+'</span>'
+    +'<button class="btn-outline btn-sm" type="button" onclick="scQrDownload('+r.key+')">'+ICO_DOWNLOAD+' Download QR</button></div></div>';}
 };
 function scQrView(key){
   var r=glRow('qrcodes',key);if(!r)return;
@@ -5653,12 +5661,12 @@ function orderUserCell(o){
 function orderTxnCell(o){
   return '<div class="sc-ord-kv"><div><em>Sales Order ID</em><b>'+o.key+'</b></div><div><em>Order Amount</em><b>'+inr(o.amount)+'</b></div>'
     +'<div><em>Platform</em>'+platformChip(o.platform)+'</div>'
-    +'<button type="button" class="sc-link" onclick="scOrderDetails('+o.key+')">Details</button></div>';
+    +'<button type="button" class="sc-link" onclick="event.stopPropagation();scGlOpen(state.page,'+o.key+')">Details</button></div>';
 }
 function orderTypeCell(o){
   return '<div class="sc-ord-kv"><div><em>Order Type</em><b>'+esc(o.type)+'</b></div>'
     +(o.slot?'<div><em>Scheduled For</em><span><b>'+esc(fmtDate(o.slot.day))+'</b><span class="lp-c-sub">'+esc(o.slot.time)+'</span></span></div>':'')
-    +'<button type="button" class="sc-link" onclick="scOrderWorkflow('+o.key+')">Workflow</button></div>';
+    +'<button type="button" class="sc-link" onclick="event.stopPropagation();scRetailOrderTab('+o.key+',\'workflow\')">Workflow</button></div>';
 }
 function orderStatusCell(o){
   return '<div class="sc-ord-kv"><div><em>Current Status</em>'+orderTone(o.status)+'</div>'
@@ -5710,7 +5718,7 @@ function scOrderWorkflow(key){
 var orderStats=function(rows){return [['All',rows.length,'active'],['Completed',rows.filter(function(o){return o.status==='Completed';}).length,'approved'],
   ['Pending',rows.filter(function(o){return o.status==='Pending'||o.status==='In Progress';}).length,'pending']];};
 var orderMenu=function(o){
-  var m=[['View Details','scCloseRowMenu();scOrderDetails('+o.key+')'],['View Workflow','scCloseRowMenu();scOrderWorkflow('+o.key+')']];
+  var m=[];
   if(o.status==='Pending')m.push(['Accept Order','scOrderStep('+o.key+',\'accept\')']);
   if(o.status==='In Progress')m.push(['Complete Order','scOrderStep('+o.key+',\'complete\')']);
   if(o.status==='Pending'||o.status==='In Progress')m.push(['Reject Order','scOrderStep('+o.key+',\'reject\')']);
@@ -5747,7 +5755,7 @@ GL.ipay={one:'payment',noun:'instant payments',rows:function(){return ORDERS.fil
     {h:'Status',cell:function(o){return orderTone(o.status);}},{h:'Create Time',cell:function(o){return plain(fmtDT(o.created));}},
     {h:'Activity',cell:function(o){return o.payId?'<span class="sc-mono">'+esc(o.payId)+'</span>':'<span class="lp-dash">—</span>';}}],
   menu:function(o){
-    var m=[['View Details','scCloseRowMenu();scOrderDetails('+o.key+')']];
+    var m=[];
     if(o.status==='Paid')m.push(['Refund Payment','scCloseRowMenu();scRefundPayment('+o.key+')']);
     if(o.status==='Pending')m.push(['Mark as Paid','scCloseRowMenu();scMarkPaid('+o.key+')']);
     return m;
@@ -6366,7 +6374,7 @@ function ava(name){
   var ini=s.split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
   return '<span class="sc-ava sc-ava-'+(h%6)+'" aria-hidden="true">'+esc(ini||'?')+'</span>';
 }
-function personCell(name,email){return '<div class="sc-person">'+ava(name)+'<div class="sc-person-txt"><div class="lp-c-main">'+esc(name)+'</div>'+(email?'<div class="lp-c-sub" title="'+esc(email)+'">'+esc(email)+'</div>':'')+'</div></div>';}
+function personCell(name,email){return '<div class="sc-person"><div class="sc-person-txt"><div class="lp-c-main">'+esc(name)+'</div>'+(email?'<div class="lp-c-sub" title="'+esc(email)+'">'+esc(email)+'</div>':'')+'</div></div>';}
 function mailCell(v){return v?'<div class="lp-c-plain sc-c-vendor" title="'+esc(v)+'">'+esc(v)+'</div>':'<span class="lp-dash">—</span>';}
 var onOff={k:'status',on:'Active',off:'Inactive',onLabel:'Activate',offLabel:'Deactivate',onDone:'activated',offDone:'deactivated'};
 var onOffStats=function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive','']]);};
@@ -7034,7 +7042,7 @@ function scGlOpen(id,key){
   var o=state.glOpen;
   if(o&&o.id===id&&o.key===key){scGlClose();return;}
   var switching=!!(o&&o.id===id);
-  state.glEdit=null;state.glSub=null;state.permDraft=null;
+  state.glEdit=null;state.glSub=null;state.permDraft=null;state.glDraft=null;state.pfPop=false;state.seqEdit=null;
   state.glOpen={id:id,key:key,tab:switching?o.tab:'details'};
   var sb=document.getElementById('sc-gl-sb');if(!sb)return;
   if(switching)refreshPanel('sc-gl-isb',glPanelHTML(id),true);
@@ -7042,14 +7050,14 @@ function scGlOpen(id,key){
   markSelectedRow(String(key));
 }
 function scGlClose(){
-  state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;if(state.expanded){state.expanded=false;applyExpanded();}
+  state.glOpen=null;state.glLogAdd=null;state.glEdit=null;state.glSub=null;state.permDraft=null;state.glDraft=null;state.pfPop=false;state.seqEdit=null;if(state.expanded){state.expanded=false;applyExpanded();}
   var sb=document.getElementById('sc-gl-sb');if(sb)sb.classList.remove('open');
   markSelectedRow(null);
 }
-function scGlTab(tab){if(!state.glOpen)return;state.glOpen.tab=tab;refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id),true);}
+function scGlTab(tab){if(!state.glOpen)return;state.glOpen.tab=tab;state.glDraft=null;state.pfPop=false;refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id),true);}
 function glPanelHTML(id){
   var g=GL[id],o=state.glOpen,r=o&&glRow(id,o.key);if(!r)return '';
-  var tabs=[{id:'details',label:'Details'}].concat((g.tabs||[]).map(function(t){return {id:t.id,label:typeof t.label==='function'?t.label(r):t.label};}))
+  var tabs=[{id:'details',label:g.detailsLabel||'Details'}].concat((g.tabs||[]).map(function(t){return {id:t.id,label:typeof t.label==='function'?t.label(r):t.label};}))
     .concat([{id:'logs',label:'Logs'}]);
   if(!tabs.some(function(t){return t.id===o.tab;}))o.tab='details';
   var body=o.tab==='details'?glDetailsHTML(id,r):o.tab==='logs'?glLogsHTML(id,r)
@@ -7105,7 +7113,8 @@ function glViewActsHTML(id,r){
 function glDetailsHTML(id,r){
   var g=GL[id],seen={},e=state.glEdit;
   if(e&&e.id===id&&e.key===r.key)return glHero(id,r,true)+(g.editHTML?g.editHTML(r):glEditFormHTML(id,r));
-  var cards=g.cols.map(function(c){seen[c.h.toLowerCase()]=1;return fieldCard(fieldIco(c.h),c.h,c.cell(r));});
+  var cards=g.detailFields?g.detailFields(r).map(function(f){seen[f[0].toLowerCase()]=1;return fieldCard(f[2]||fieldIco(f[0]),f[0],f[1],f[3]);})
+    :g.cols.filter(function(c){return !c.noDetail;}).map(function(c){seen[c.h.toLowerCase()]=1;return fieldCard(fieldIco(c.h),c.h,c.cell(r));});
   /* what the form holds but the table does not show (a notice's description...) */
   (g.form||[]).forEach(function(fd){
     if(seen[fd.label.toLowerCase()]||fd.k==='status')return;
@@ -7114,7 +7123,7 @@ function glDetailsHTML(id,r){
     cards.push(fieldCard(fieldIco(fd.label),fd.label,esc(String(v)),fd.type==='textarea'));
   });
   return glHero(id,r,true)+glViewActsHTML(id,r)
-    +secHead(glOneCap(g)+' Details')+'<div class="lp-sb-detail-grid">'+cards.join('')+'</div>';
+    +secHead(glOneCap(g)+' Details')+(g.detailsTop?g.detailsTop(r):'')+'<div class="lp-sb-detail-grid">'+cards.join('')+'</div>'+(g.detailsExtra?g.detailsExtra(r):'');
 }
 /* THE LOGS TAB - the Deals Logs, for a listing record: where it stands, the
    steps open to it, the step's form (Comment, Cancel, Submit) under the bar
@@ -7127,7 +7136,7 @@ function glLogsHTML(id,r){
   var shown=acts.slice(0,3),rest=acts.slice(3);
   if(adding&&rest.some(function(a){return a.label===adding;})){shown=shown.slice(0,2).concat(rest.filter(function(a){return a.label===adding;}));rest=acts.filter(function(a){return shown.indexOf(a)<0;});}
   var btns=sa?'':shown.map(function(a){
-    var neg=/^(Deactivate|Block|Reject|Revoke|Reverse|Mark Coming Soon|Mark KYC Pending|Reopen|Cancel)/.test(a.label),on=a.label===adding;
+    var neg=/^(Deactivate|Delete|Block|Reject|Revoke|Reverse|Mark Coming Soon|Mark KYC Pending|Reopen|Cancel)/.test(a.label),on=a.label===adding;
     var cls=on?'btn-primary is-active':adding?'btn-outline':(neg?'btn-outline':'btn-primary');
     return '<button class="'+cls+' btn-sm sc-quick-btn" type="button" aria-pressed="'+on+'" onclick="scGlLogQuick(\''+id+'\','+r.key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</button>';
   }).join('')
@@ -7148,19 +7157,19 @@ function glLogsHTML(id,r){
       +'</div></div>'
       +'<div class="sc-logadd-foot"><span class="sc-logadd-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit</span>'
         +'<div class="sc-logadd-btns"><button class="btn-outline" onclick="scGlLogCancel()">Cancel</button>'
-        +'<button class="'+(/^(Reject|Block|Revoke|Reverse)/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="scGlLogSubmit()">Submit</button></div></div></div>';
+        +'<button class="'+(/^(Reject|Block|Revoke|Reverse|Delete)/.test(adding)?'btn-primary sc-btn-danger':'btn-primary')+'" onclick="scGlLogSubmit()">Submit</button></div></div></div>';
     head='<div class="sc-act-panel'+(anim?' is-opening':'')+'">'+head+form+'</div>';
   }
   var log=(r._log||[]).slice().reverse(),made=r.created||r.joined||r.date||r.inAt||r.rejected||'';
   if(made)log.unshift({text:glOneCap(g)+' Added',comment:'',who:r.by||'System',role:'',date:String(made),time:''});
   var table=log.length?recTable(['S.No','Status','Comment','Created By','Create Time'],log.map(function(l,i){
-      return '<tr><td>'+(i+1)+'</td><td><b>'+esc(l.text)+'</b></td>'
+      return '<tr><td>'+(i+1)+'</td><td>'+badge(glLogTone(l.text),l.text)+'</td>'
         +'<td class="sc-log-rem">'+(l.comment?esc(l.comment):'<span class="lp-dash">—</span>')+'</td>'
         +'<td>'+esc(l.who)+'<span class="sc-rec-sub">'+esc(l.role||'')+'</span></td>'
         +'<td>'+esc(l.date)+'<span class="sc-rec-sub">'+esc(l.time||'')+'</span></td></tr>';
     }).join('')):'<div class="lp-logs-empty">No activity logs yet.</div>';
   var count=log.length?'<span class="sc-act-count">'+log.length+(log.length===1?' entry':' entries')+'</span>':'';
-  return '<div class="sc-logs">'+head+'<div class="sc-act-log">'+secHead('Activity Log',count)+table+'</div></div>';
+  return '<div class="sc-logs">'+(g.logsExtra?g.logsExtra(r):'')+head+'<div class="sc-act-log">'+secHead('Activity Log',count)+table+'</div></div>';
 }
 /* EDITING IN THE TAB - as on Deals: Edit turns Details into the form card
    in place, the header says Editing, Cancel / Save Changes close it. The
@@ -7178,9 +7187,10 @@ function scGlEdit(id,key){
   markSelectedRow(String(key));
   setTimeout(function(){var f=document.querySelector('#sc-gl-sb .sc-edit-card .ep-form-input');if(f)f.focus();},0);
 }
+function glEditFields(g){return g.form.filter(function(fd){return fd.k!=='status'&&!(g.toggle&&fd.k===g.toggle.k);});}
 function glEditFormHTML(id,r){
   var g=GL[id],e=state.glEdit;
-  var cells=g.form.map(function(fd){
+  var cells=glEditFields(g).map(function(fd){
     var v=e.vals[fd.k]==null?'':e.vals[fd.k],ctl;
     if(fd.type==='select'){var o=typeof fd.opts==='function'?fd.opts():fd.opts;ctl=csField('ge-'+fd.k,o.indexOf(v)<0&&v?[v].concat(o):o,v,'Select '+fd.label.toLowerCase(),'scGlEditPick');}
     else if(fd.type==='textarea')ctl='<textarea class="ep-form-input" oninput="scGlEditInput(\''+fd.k+'\',this.value)">'+esc(v)+'</textarea>';
@@ -7196,31 +7206,35 @@ function scGlEditPick(v,csid){scGlEditInput(csid.replace(/^ge-/,''),v);}
 function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;state.permDraft=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
 function scGlEditSave(){
   var e=state.glEdit;if(!e)return;var g=GL[e.id],r=glRow(e.id,e.key);if(!r){state.glEdit=null;scRender();return;}
-  var vals={};
-  for(var i=0;i<g.form.length;i++){
-    var fd=g.form[i],v=String(e.vals[fd.k]==null?'':e.vals[fd.k]).trim();
+  var vals={},ef=glEditFields(g);
+  for(var i=0;i<ef.length;i++){
+    var fd=ef[i],v=String(e.vals[fd.k]==null?'':e.vals[fd.k]).trim();
     if(fd.req&&!v){scToast('Enter the '+fd.label.toLowerCase(),'error');return;}
     if(fd.type==='email'&&v&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){scToast('Enter a valid email','error');return;}
     vals[fd.k]=v;
   }
-  var changed=g.form.filter(function(fd){return String(r[fd.k]==null?'':r[fd.k])!==vals[fd.k];}).map(function(fd){return fd.label;});
+  if(g.check){var why=g.check(Object.assign({},r,vals),r.key);if(why){scToast(why,'error');return;}}
+  var changed=ef.filter(function(fd){return String(r[fd.k]==null?'':r[fd.k])!==vals[fd.k];}).map(function(fd){return fd.label;});
   if(!changed.length){state.glEdit=null;refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);scToast('No changes to save','info');return;}
   Object.assign(r,vals);if(g.onSave)g.onSave(r);
   glLog(e.id,e.key,'Updated '+changed.join(', '));
   state.glEdit=null;scRender();scToast(g.title(r)+' updated','success');
 }
+function glLogTone(t){return /^(Delete|Disable|Deactivate|Reject|Block|Revoke|Reverse|Cancel|Inactive|Removed|Mark Coming Soon|Escalate)/.test(t)?'unapproved'
+  :/^(Enable|Activate|Approve|Active|Restore|Mark Live|Resolve|Close|Complete|Confirm|Accept|Unblock|.* Added)/.test(t)?'approved':'active';}
 /* the row's action dropdown: the record's status, its steps below */
 function glActionBtn(id,r){
   if(!glActs(id,r).length)return '';
-  var g=GL[id],cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'')||'Update';
-  return '<button class="ct-action-btn sc-gl-actbtn" type="button" title="'+esc(cur)+'" onclick="event.stopPropagation();scGlRowMenu(this,\''+id+'\','+r.key+')">'
-    +'<span>'+esc(cur)+'</span>'+ICO_DOWN+'</button>';
+  /* one label and one width on every row - the Status column already says where the record stands */
+  var g=GL[id],cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'');
+  return '<button class="ct-action-btn sc-gl-actbtn" type="button" title="Update'+(cur?' · now '+esc(cur):'')+'" aria-label="Update '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlRowMenu(this,\''+id+'\','+r.key+')">'
+    +'<span>Update</span>'+ICO_DOWN+'</button>';
 }
 function scGlRowMenu(btn,id,key){
   var r=glRow(id,key),m=rowMenuEl();if(!r)return;
   if(m.classList.contains('open')&&m.dataset.id===id+':'+key){scCloseRowMenu();return;}
   scCloseAllDD();
-  m.innerHTML='<div class="sc-act-head">'+esc(state.role)+'</div>'+glActs(id,r).map(function(a){
+  m.innerHTML=glActs(id,r).map(function(a){
     return '<div class="ct-act-item sc-act-avail" onclick="scGlStartLog(\''+id+'\','+key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</div>';}).join('');
   m.dataset.id=id+':'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
   var rc=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
@@ -7806,7 +7820,7 @@ GL.teams={one:'team',noun:'teams',rows:TEAMS,
     }}
   ]};
 /* members and task profiles are edited in the tab, as everything else is */
-function scSubCancel(){state.glSub=null;state.permDraft=null;if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));}
+function scSubCancel(){state.glSub=null;state.permDraft=null;state.glDraft=null;state.pfPop=false;state.seqEdit=null;if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));}
 function scMemberEdit(key,idx){
   var t=glRow('teams',key);if(!t)return;var m=idx>=0?teamMembers(t)[idx]:{name:'',email:'',mobile:'',role:''};
   state.glSub={kind:'member',key:key,idx:idx,v:Object.assign({},m)};refreshPanel('sc-gl-isb',glPanelHTML('teams'));
@@ -7845,7 +7859,7 @@ function scProfileSaveTP(){
   if(!permCount(d.perms)){scToast('Give the profile at least one permission','error');return;}
   var ps=teamProfiles(t),p={id:se.idx<0?ps.reduce(function(m,x){return Math.max(m,x.id);},0)+1:ps[se.idx].id,role:role,perms:permsOrdered(t.vertical,d.perms)};
   if(se.idx<0)ps.push(p);else ps[se.idx]=p;
-  glLog('teams',t.key,(se.idx<0?'Added task profile ':'Updated task profile ')+role);state.glSub=null;state.permDraft=null;scRender();scToast(role+(se.idx<0?' added':' updated'),'success');
+  glLog('teams',t.key,(se.idx<0?'Added task profile ':'Updated task profile ')+role);state.glSub=null;state.permDraft=null;state.glDraft=null;state.pfPop=false;state.seqEdit=null;scRender();scToast(role+(se.idx<0?' added':' updated'),'success');
 }
 function scProfileDelTP(key,idx){
   var t=glRow('teams',key),p=t&&teamProfiles(t)[idx];if(!p)return;
@@ -7856,6 +7870,1149 @@ function scProfileDelTP(key,idx){
 function scProfileDelGoTP(key,idx){var t=glRow('teams',key);var p=teamProfiles(t).splice(idx,1)[0];glLog('teams',key,'Deleted task profile '+p.role);scCloseModal();scRender();scToast(p.role+' deleted','info');}
 
 Object.assign(PAGE_ACTIONS,{teams:['Create Team',function(){scGlForm('teams');}],templates:['Create Template',function(){scOpenTemplateForm();}]});
+
+/* ── ALL RETAILERS: STORES TAB, DELETE THROUGH LOGS ─────────────────────
+   Every store belongs to one retailer (the retailers whose admin type is
+   Retailer, in turn). A retailer is deleted from its Logs - Inactive and
+   Delete are the steps, as in the system - and is kept as Deleted. */
+GL.retailers.filters[1].opts=['Active','Inactive','Deleted'];
+GL.retailers.stats=function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive',''],['Deleted','']]);};
+GL.retailers.toggle=null;
+GL.retailers.menu=function(r){
+  var go=function(lbl,st){return [lbl,'scRetailerSet('+r.key+',\''+st+'\')'];};
+  return r.status==='Active'?[go('Inactive','Inactive'),go('Delete','Deleted')]:r.status==='Inactive'?[go('Active','Active'),go('Delete','Deleted')]:[go('Restore','Active')];
+};
+function scRetailerSet(key,st){var r=glRow('retailers',key);if(!r)return;r.status=st;scToast(r.name+(st==='Deleted'?' deleted':st==='Active'?' is active':' is inactive'),st==='Active'?'success':'info');}
+function retailerStores(r){
+  var owners=glSrc(GL.retailers).filter(function(x){return x.position==='Retailer';});
+  var i=owners.indexOf(r);if(i<0)return [];
+  return glSrc(GL.stores).filter(function(st,j){return j%owners.length===i;});
+}
+var STORE_ADDR={Hyderabad:'Plot 12, HITEC City, Madhapur',Warangal:'2-5-118, Hanamkonda Main Rd',Chennai:'18, Anna Salai, Teynampet',
+  Bengaluru:'201-202, Koramangala 5th Block',Pune:'Survey 44, Baner Road',Vijayawada:'MG Road, Labbipet',Mumbai:'Linking Road, Bandra West'};
+GL.retailers.tabs=[{id:'stores',label:'Stores',html:function(r){
+  var list=retailerStores(r);
+  return relHead('retailers',r,'Store Details',list.length+(list.length===1?' store':' stores'))
+    +relList(['S.No','Store Name','QR Code','Image','Store Create Time','Location','Sub Domain'],list,function(st,i){
+      var made=addD(DASH_TODAY,-((st.key*7)%200)),h=('0'+(st.key%12+8)).slice(-2),m=('0'+(st.key*13%60)).slice(-2);
+      return '<tr>'+td(i+1)+'<td><b>'+esc(st.name)+'</b></td>'
+        +'<td><span class="sc-qr-mini" title="QR for '+esc(st.name)+'">'+qrSvg(st.key,36)+'</span></td>'
+        +'<td><span class="sc-thumb">'+ICO.store+'</span></td>'
+        +td(isoDay(made)+' '+h+':'+m)
+        +'<td class="sc-loc">'+esc((STORE_ADDR[st.city]||'Main Road')+', '+st.city+', '+st.state+', '+st.country)+'</td>'
+        +td(st.retailer==='Business'?'Product':'Service')+'</tr>';
+    },r.position==='Retailer'?'No stores yet.':'Only retailers run stores - this is a '+r.position+'.');
+}}];
+
+/* ══ STORE PANEL: SECTIONS & LISTS ═════════════════════════════════════════
+   Two reusable pieces for detail tabs.
+   A SECTION is a group of a record's fields - viewed as field cards (or as
+   setting rows), with its own Edit that turns it into the form in place:
+   Cancel / Save Changes, logged as "Updated <section>".
+   A LIST is a table of things a record holds (holidays, partners, printers),
+   with + Add opening its form above the table and a remove that confirms.
+   One draft at a time lives in state.glDraft. */
+var DAY_ABBR=['S','M','T','W','T','F','S'],DAY_NAME=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var SEC_DEF={},LIST_DEF={};
+function secFmt(f,v){
+  if(f.type==='switch')return '<span class="sc-onoff'+(v?' is-on':'')+'"><i></i>'+(v?'On':'Off')+'</span>';
+  if(f.type==='days')return '<span class="sc-days">'+DAY_ABBR.map(function(d,i){return '<span class="sc-day'+((v||[]).indexOf(i)>=0?' is-on':'')+'" title="'+DAY_NAME[i]+'">'+d+'</span>';}).join('')+'</span>';
+  if(f.type==='masked')return v?'<span class="sc-mono">XXXXXXXXXXXX</span>':'<span class="lp-dash">—</span>';
+  if(v===''||v==null)return '<span class="lp-dash">—</span>';
+  return esc(String(v))+(f.unit?' '+esc(f.unit):'');
+}
+function draftCtl(f,v){
+  var k=f.k;
+  if(f.type==='switch')return '<button type="button" role="switch" aria-checked="'+!!v+'" class="sc-switch'+(v?' is-on':'')+'" onclick="scDFlip(\''+k+'\',this)"><span></span></button>';
+  if(f.type==='days')return '<span class="sc-days is-edit">'+DAY_ABBR.map(function(d,i){
+    return '<button type="button" class="sc-day'+((v||[]).indexOf(i)>=0?' is-on':'')+'" title="'+DAY_NAME[i]+'" aria-pressed="'+((v||[]).indexOf(i)>=0)+'" onclick="scDDay('+i+',this)">'+d+'</button>';}).join('')+'</span>';
+  if(f.type==='select'){var o=typeof f.opts==='function'?f.opts():f.opts;return csField('dr-'+k,o,v==null?'':String(v),'Select '+f.label.toLowerCase(),'scDPick');}
+  if(f.type==='textarea')return '<textarea class="ep-form-input" oninput="scDInput(\''+k+'\',this.value)">'+esc(v||'')+'</textarea>';
+  if(f.type==='file')return '<input class="ep-form-input sc-file-input" type="file" onchange="scDFile(\''+k+'\',this)"'+(f.accept?' accept="'+f.accept+'"':'')+'>';
+  return '<input class="ep-form-input" type="'+(f.type==='masked'?'text':f.type||'text')+'" value="'+esc(v==null?'':v)+'" placeholder="'+esc(f.ph||'')+'" oninput="scDInput(\''+k+'\',this.value)">';
+}
+function scDInput(k,v){if(state.glDraft)state.glDraft.vals[k]=v;}
+function scDPick(v,csid){scDInput(csid.replace(/^dr-/,''),v);}
+function scDFlip(k,btn){var d=state.glDraft;if(!d)return;d.vals[k]=!d.vals[k];btn.classList.toggle('is-on',d.vals[k]);btn.setAttribute('aria-checked',d.vals[k]);}
+function scDDay(i,btn){var d=state.glDraft;if(!d)return;var a=d.vals.days||(d.vals.days=[]),j=a.indexOf(i);if(j<0)a.push(i);else a.splice(j,1);
+  btn.classList.toggle('is-on',j<0);btn.setAttribute('aria-pressed',j<0);}
+function scDFile(k,inp){var f=inp.files&&inp.files[0],d=state.glDraft;if(!f||!d)return;
+  if(f.size>2048*1024){scToast(f.name+' is over 2048 KB','error');inp.value='';return;}d.vals[k]={name:f.name,size:f.size,url:URL.createObjectURL(f)};}
+function secFields(def){return def.fields||[].concat.apply([],def.groups.map(function(g){return g[1];}));}
+function glPanelRefresh(){if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));}
+
+/* ── a section: view or edit ────────────────────────────────────────────── */
+function secBlock(id,r,sec){
+  var def=SEC_DEF[sec],obj=def.get(r),d=state.glDraft,editing=!!(d&&d.mode==='sec'&&d.sec===sec&&d.key===r.key);
+  var src=editing?d.vals:obj;
+  var cell=function(f){return editing?draftCtl(f,src[f.k]):secFmt(f,src[f.k]);};
+  var body;
+  if(def.groups){
+    body='<div class="sc-set">'+def.groups.map(function(g){
+      return '<div class="sc-set-group"><div class="sc-set-gtitle">'+esc(g[0])+'</div><div class="sc-set-rows">'
+        +g[1].map(function(f){return '<div class="sc-set-row"><span class="sc-set-label">'+esc(f.label)+'</span><span class="sc-set-val">'+cell(f)+'</span></div>';}).join('')+'</div></div>';
+    }).join('')+'</div>';
+  }else if(editing){
+    body='<div class="policy-form-grid">'+def.fields.map(function(f){return field(f.label,cell(f),f.req,f.full||f.type==='textarea'||f.type==='days');}).join('')+'</div>';
+  }else body='<div class="lp-sb-detail-grid">'+def.fields.filter(function(f){return !f.editOnly;}).map(function(f){return fieldCard(fieldIco(f.label),f.label,cell(f),f.full);}).join('')+'</div>';
+  var edit=editing?'':'<button class="lp-sb-view-edit-btn" type="button" onclick="scSecEdit(\''+id+'\','+r.key+',\''+sec+'\')">'+ICO_EDIT+' Edit</button>';
+  return '<div class="sc-sec">'+secHead(def.title,editing?'<span class="sc-editing-pill">'+ICO_EDIT+' Editing</span>':edit)
+    +(editing?'<div class="sc-edit-card">'+body+'<div class="sc-edit-actions"><button class="btn-outline" onclick="scDraftCancel()">Cancel</button>'
+      +'<button class="btn-primary" onclick="scSecSave()">Save Changes</button></div></div>':body)+'</div>';
+}
+function scSecEdit(id,key,sec){
+  var r=glRow(id,key),def=SEC_DEF[sec];if(!r)return;var obj=def.get(r),vals={};
+  secFields(def).forEach(function(f){vals[f.k]=f.type==='days'?(obj[f.k]||[]).slice():obj[f.k];});
+  state.glDraft={mode:'sec',id:id,key:key,sec:sec,vals:vals};glPanelRefresh();
+}
+function scDraftCancel(){state.glDraft=null;glPanelRefresh();}
+function scSecSave(){
+  var d=state.glDraft;if(!d||d.mode!=='sec')return;var r=glRow(d.id,d.key),def=SEC_DEF[d.sec];if(!r)return;
+  var fs=secFields(def),obj=def.get(r);
+  for(var i=0;i<fs.length;i++){var f=fs[i],v=d.vals[f.k];
+    if(f.req&&(v===''||v==null)){scToast('Enter the '+f.label.toLowerCase(),'error');return;}
+    if(f.pattern&&v&&!f.pattern.test(String(v))){scToast(f.label+' is not valid','error');return;}}
+  if(fs.some(function(f){return f.type==='days';})&&!(d.vals.days||[]).length){scToast('Pick at least one day','error');return;}
+  if(def.check){var why=def.check(d.vals);if(why){scToast(why,'error');return;}}
+  var changed=fs.filter(function(f){return !f.editOnly&&JSON.stringify(String(obj[f.k]==null?'':obj[f.k]))!==JSON.stringify(String(d.vals[f.k]==null?'':d.vals[f.k]));});
+  if(!changed.length){state.glDraft=null;glPanelRefresh();scToast('No changes to save','info');return;}
+  fs.forEach(function(f){if(f.editOnly)return;var v=d.vals[f.k];obj[f.k]=f.type==='number'&&v!==''?+v:v;});
+  if(def.after)def.after(r);
+  glLog(d.id,d.key,'Updated '+def.title,def.commentKey?String(d.vals[def.commentKey]||'').trim():'');state.glDraft=null;scRender();scToast(def.title+' saved','success');
+}
+
+/* ── a list: table, + Add form, remove ──────────────────────────────────── */
+function listBlock(id,r,list){
+  var def=LIST_DEF[list],rows=def.get(r),d=state.glDraft,adding=!!(d&&d.mode==='list'&&d.list===list&&d.key===r.key);
+  var blocked=def.blocked?def.blocked(r):'';
+  var form=adding?'<div class="sc-edit-card sc-sub-edit"><div class="policy-form-grid">'+def.fields.map(function(f){return field(f.label,draftCtl(f,d.vals[f.k]),f.req,f.full);}).join('')+'</div>'
+    +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scDraftCancel()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scListSave()">'+esc(def.addLabel||'Add')+'</button></div></div>':'';
+  var add=adding||blocked?'':'<button class="btn-primary btn-sm" type="button" onclick="scListAdd(\''+id+'\','+r.key+',\''+list+'\')">'+ICO.plus+' '+esc(def.addLabel||'Add')+'</button>';
+  /* a list may show only some of its rows (a search); each row keeps its real position for remove */
+  var view=rows.map(function(x,i){return [x,i];}).filter(function(p){return !def.show||def.show(p[0],r);});
+  var table=blocked?'<div class="lp-logs-empty">'+esc(blocked)+'</div>':view.length?recTable(['S.No'].concat(def.cols.map(function(c){return c[1];})).concat(def.noDelete?[]:['Action']),view.map(function(p,n){var x=p[0],i=p[1];
+      return '<tr><td>'+(n+1)+'</td>'+def.cols.map(function(c){return '<td>'+(c[2]?c[2](x):esc(x[c[0]]==null||x[c[0]]===''?'—':String(x[c[0]])))+'</td>';}).join('')
+        +(def.noDelete?'':'<td><button class="lp-action-btn sc-del-btn" type="button" title="Remove" aria-label="Remove" onclick="scListDel(\''+id+'\','+r.key+',\''+list+'\','+i+')">'+ICO_TRASH+'</button></td>')+'</tr>';
+    }).join('')):'<div class="lp-logs-empty">'+esc(def.empty||'No data found.')+'</div>';
+  return '<div class="sc-sec">'+secHead(def.title,add)+form+table+'</div>';
+}
+function scListAdd(id,key,list){var def=LIST_DEF[list],vals={};def.fields.forEach(function(f){vals[f.k]=f.def||'';});state.glDraft={mode:'list',id:id,key:key,list:list,vals:vals};glPanelRefresh();
+  setTimeout(function(){var f=document.querySelector('#sc-gl-sb .sc-sub-edit .ep-form-input, #sc-gl-sb .sc-sub-edit .cs-trigger');if(f)f.focus();},0);}
+function scListSave(){
+  var d=state.glDraft;if(!d||d.mode!=='list')return;var r=glRow(d.id,d.key),def=LIST_DEF[d.list];if(!r)return;
+  for(var i=0;i<def.fields.length;i++){var f=def.fields[i];if(f.req&&!d.vals[f.k]){scToast((f.type==='select'?'Select ':f.type==='file'?'Choose ':'Enter ')+'the '+f.label.toLowerCase(),'error');return;}}
+  var row=def.make?def.make(d.vals,r):Object.assign({},d.vals);if(!row)return;
+  def.get(r).push(row);if(def.after)def.after(r);
+  glLog(d.id,d.key,'Added '+def.one+(row.name?' '+row.name:''));state.glDraft=null;scRender();scToast(def.one.replace(/^./,function(c){return c.toUpperCase();})+' added','success');
+}
+function scListDel(id,key,list,i){
+  var r=glRow(id,key),def=LIST_DEF[list],x=r&&def.get(r)[i];if(!x)return;
+  var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
+    +'<button class="btn-primary sc-btn-danger" onclick="scListDelGo(\''+id+'\','+key+',\''+list+'\','+i+')">Remove</button></div>';
+  document.getElementById('sc-modal-root').innerHTML=modalShell('Remove '+def.one,GL[id].title(r),'<p class="sc-confirm-text">Remove this '+esc(def.one)+(x.name?' <b>'+esc(x.name)+'</b>':'')+'?</p>',foot);
+}
+function scListDelGo(id,key,list,i){var r=glRow(id,key),def=LIST_DEF[list],x=def.get(r).splice(i,1)[0];if(def.after)def.after(r);glLog(id,key,'Removed '+def.one+(x&&x.name?' '+x.name:''));scCloseModal();scRender();scToast(def.one+' removed','info');}
+
+/* ══ ALL STORES ═══════════════════════════════════════════════════════════ */
+function storeOwner(st){
+  var owners=glSrc(GL.retailers).filter(function(x){return x.position==='Retailer';}),i=glSrc(GL.stores).indexOf(st);
+  return owners.length&&i>=0?owners[i%owners.length]:null;
+}
+var STORE_SETTINGS=[
+  ['Order Setting',[['orderCancel','Order Cancellation','switch'],['orderConfirm','Order Confirmation','switch']]],
+  ['Tax Setting',[['tax','Enable','switch']]],
+  ['Time To Ship',[['ship','Time To Ship (hours)','number']]],
+  ['Max Selling Qty',[['maxQty','Max Selling Qty','number']]],
+  ['Currency Setting',[['curFmt','Currency Format','select',['Dot','Comma']]]],
+  ['Sales Channel',[['sales','Enable','switch']]],
+  ['Sales Channels',[['ondc','ONDC','switch'],['mystore','Mystore','switch'],['paytmCh','Paytm','switch'],['bhaiyaa','Bhaiyaa','switch']]],
+  ['Payment Settings',[['eventPts','Payment With Event Points','switch'],['razorpay','Razorpay','switch'],['ccavenue','Ccavenue','switch'],['phonepeGw','Phone Pay Gateway','switch'],
+    ['coins','Pay With Coins','switch'],['paytm','Paytm','switch'],['phonepeUpi','Phone Pay Upi','switch'],['gpay','Google Pay','switch'],['cod','COD','switch']]],
+  ['Store View',[['communityOnly','Community Only','switch']]],
+  ['Sound Alert',[['sound','Sound Alert','switch']]],
+  ['Group Order',[['groupOrder','Group Order','switch']]],
+  ['Store Domain',[['retail','Retail','switch']]],
+  ['Payment Configuration',[['payCfg','Payment Configuration','switch']]],
+  ['Minimum Order Value',[['mov','Minimum Order Value (₹)','number'],['movOn','MOV Status','switch']]],
+  ['Self Booking',[['guestBook','Guest Self Booking','switch'],['selfBook','Self Booking','switch']]],
+  ['Store Access',[['walkIn','Walk In','switch'],['distUnit','Distance Measurement','select',['Kilometre','Mile']],['payType','Payment Type','select',['Payment Before','Payment After']],
+    ['inventory','Inventory','select',['With Inventory','Without Inventory']],['deliveryBy','Delivery By','select',['Internal Delivery Partner','Logistic Partner','Self']],
+    ['coverage','Delivery Coverage (km)','number'],['delivery','Delivery','switch'],['ipNoInv','Instant Payment Without Invoice','switch'],['ipEvent','Instant Payment With Event','switch'],
+    ['ipCard','Instant Payment With Card','switch'],['ipCash','Instant Payment With Cash','switch'],['ipInv','Instant Payment With Invoice','switch'],['chargeBuyer','Delivery Charge Bear By Buyer','switch']]],
+  ['Delivery Type',[['instDel','Instant Delivery','switch'],['schedDel','Schedule Delivery','switch']]],
+  ['Delivery Partner',[['adloggs','Adloggs','switch'],['prodAdd','Product Addition Access','switch'],['prodPrice','Product Pricing Rights','switch'],['slotBook','Slot Booking','switch']]]
+].map(function(g){return [g[0],g[1].map(function(f){return {k:f[0],label:f[1],type:f[2],opts:f[3]};})];});
+var LBP_LIST=[['Live LBP Store',5,'Sector 70, Mohali','+91 9876001122'],['Mohali LBP Store',125,'Phase 8B, Mohali','+91 9876001133'],['Rakesh LBP',5,'Kharar Road, Mohali','+91 9876001144'],
+  ['ShyamStore',5,'Zirakpur Main Road','+91 9876001155'],['ShivLBP',5,'Sector 17, Chandigarh','+91 9876001166']];
+var SUPPLIER_LIST=[['Sri Balaji Distributors','Begum Bazaar, Hyderabad','+91 9848011111'],['Metro Wholesale','Kukatpally, Hyderabad','+91 9848022222'],
+  ['Apollo Pharma Supply','Ameerpet, Hyderabad','+91 9848033333'],['Fresh Farms Co-op','Shamshabad, Hyderabad','+91 9848044444']];
+function storeExt(st){
+  if(st.ext)return st.ext;
+  var done=Math.round((st.profile||25)/25),own=storeOwner(st),k=st.key;
+  var sets={};STORE_SETTINGS.forEach(function(g){g[1].forEach(function(f){sets[f.k]=f.type==='switch'?false:'';});});
+  Object.assign(sets,{tax:true,sales:true,bhaiyaa:true,razorpay:true,sound:true,retail:true,payCfg:true,guestBook:true,selfBook:true,walkIn:true,delivery:true,ipNoInv:true,ipCard:true,
+    ship:8,maxQty:5,curFmt:'Dot',mov:'',distUnit:'Kilometre',payType:'Payment Before',inventory:'With Inventory',deliveryBy:'Internal Delivery Partner',coverage:2});
+  st.ext={
+    images:{listing:true,front:true,nearby:true,discounts:true},gallery:[],
+    profile:{timezone:'Asia/Kolkata',owner:own?own.name:'',city:st.city,state:st.state,pin:String(500000+k%900),lat:(17.38+(k%50)/1000).toFixed(4),lng:(78.48+(k%70)/1000).toFixed(4),
+      subdomain:st.retailer==='Business'?'Product':'Service',category:(STORE_CATS[k%STORE_CATS.length]||'Grocery Retail'),
+      location:(STORE_ADDR[st.city]||'Main Road')+', '+st.city+', '+st.state+', India',currency:'INR',country:st.country||'India',
+      mobile:'+91-94'+String(18464861+k).slice(-8),email:own?own.email:'store'+k+'@opendhi.com',created:fmtDate(addD(DASH_TODAY,-((k*7)%200))),house:String(3000+k%300),
+      short:st.name+' - everyday essentials near you.',long:st.name+' serves the neighbourhood with quality products and quick delivery.'},
+    sched:{type:'Daily',open:'08:00',close:'22:00',days:[0,1,2,3,4,5,6],cutoff:'20:00'},intervals:[],holidays:[],
+    settings:sets,
+    bank:done>=2?{branch:'Axis Bank',addr:'Madhapur Branch, Hyderabad',ifsc:'UTIB000'+(1000+k%9000),holder:own?own.name:st.name,acct:'9180100'+String(k*7919).slice(-8)}:{branch:'',addr:'',ifsc:'',holder:'',acct:''},
+    kyc:done>=3?{btype:'Proprietorship',pan:'ABCPE'+(1000+k%9000)+'K',aadhaar:'Uploaded',tan:'HYDS'+(10000+k)+'A',gst:'36ABCPE'+(1000+k%9000)+'K1Z5',cin:'',fssai:'1362'+String(k*31).slice(-8),msme:'',linked:'Yes'}
+      :{btype:'',pan:'',aadhaar:'Not Uploaded',tan:'',gst:'',cin:'',fssai:'',msme:'',linked:'No'},kycFiles:[],
+    addons:{pos:false,soundbox:false},
+    lbps:done>=4?[{name:LBP_LIST[0][0],addr:LBP_LIST[0][2],rate:LBP_LIST[0][1],phone:LBP_LIST[0][3],status:'Active'}]:[],suppliers:[],
+    merchant:{name:'',keyId:'',secret:'',gateway:'razorpay'},soundboxes:[],posList:[],printers:[],agents:[],
+    flow:[{st:'Active',c:'Active',amt:'',when:'09 Oct, 2026 05:51:47 PM',by:own?own.name:'System'},{st:'Enable',c:'Enable',amt:'',when:'09 Oct, 2026 05:52:11 PM',by:own?own.name:'System'}]
+  };
+  return st.ext;
+}
+/* profile completion: the four parts the system scores */
+function storeCompletion(st){
+  var x=storeExt(st),p=x.profile;
+  var parts=[['Basic Details',!!(p.location&&p.mobile&&p.email&&p.pin)],['KYC Details',!!(x.kyc.pan&&x.kyc.gst)],
+    ['Bank Details',!!(x.bank.acct&&x.bank.ifsc)],['Delivery + Location',!!(x.lbps.length&&p.lat&&p.lng)]];
+  return {parts:parts,pct:parts.filter(function(q){return q[1];}).length*25};
+}
+function storeSync(st){st.profile=storeCompletion(st).pct;}
+SEC_DEF.storeProfile={title:'Store Profile',get:function(r){return storeExt(r).profile;},after:storeSync,fields:[
+  {k:'timezone',label:'Store Timezone',type:'select',opts:['Asia/Kolkata','Asia/Dubai','Europe/Brussels'],req:true},{k:'owner',label:'Retailer Name'},
+  {k:'pin',label:'Pin Code',req:true,pattern:/^\d{4,6}$/},{k:'lat',label:'Latitude',type:'number'},{k:'lng',label:'Longitude',type:'number'},
+  {k:'subdomain',label:'Sub Domain',type:'select',opts:['Product','Service']},{k:'category',label:'Store Category',type:'select',opts:STORE_CATS},
+  {k:'currency',label:'Store Currency',type:'select',opts:['INR','USD','EUR']},{k:'mobile',label:'Store Mobile Number',req:true},
+  {k:'email',label:'Store Email',type:'email',req:true,pattern:/^[^@\s]+@[^@\s]+\.[^@\s]+$/},{k:'house',label:'House / Flat / Floor Number'},
+  {k:'created',label:'Store Created Date'},{k:'location',label:'Store Location',full:true,req:true},
+  {k:'short',label:'Short Desc',type:'textarea',full:true},{k:'long',label:'Long Desc',type:'textarea',full:true}]};
+SEC_DEF.storeSched={title:'Time Schedule Details',get:function(r){return storeExt(r).sched;},fields:[
+  {k:'type',label:'Schedule Type',type:'select',opts:['Daily','Weekdays','Custom'],req:true},{k:'open',label:'Opens At',type:'time',req:true},
+  {k:'close',label:'Closes At',type:'time',req:true},{k:'cutoff',label:'Delivery Cut Off Time',type:'time'},{k:'days',label:'Store Days',type:'days',full:true}]};
+SEC_DEF.storeSettings={title:'Store Settings',get:function(r){return storeExt(r).settings;},groups:STORE_SETTINGS};
+SEC_DEF.storeBank={title:'Bank Account Details',get:function(r){return storeExt(r).bank;},after:storeSync,fields:[
+  {k:'branch',label:'Branch Name',req:true},{k:'addr',label:'Branch Address',req:true},{k:'ifsc',label:'Bank’s IFSC Code',req:true,pattern:/^[A-Z]{4}0[A-Z0-9]{6}$/,ph:'e.g. UTIB0001234'},
+  {k:'holder',label:'Bank Account Holder’s Name',req:true},{k:'acct',label:'Bank Account Number',req:true,pattern:/^\d{9,18}$/}]};
+SEC_DEF.storeKyc={title:'KYC Details',get:function(r){return storeExt(r).kyc;},after:storeSync,fields:[
+  {k:'btype',label:'Business Type',type:'select',opts:['Proprietorship','Partnership','Private Limited','LLP']},{k:'pan',label:'PAN Number',type:'masked',pattern:/^[A-Z]{5}\d{4}[A-Z]$/,ph:'ABCDE1234F'},
+  {k:'aadhaar',label:'Aadhaar Card',type:'select',opts:['Uploaded','Not Uploaded']},{k:'tan',label:'TAN',type:'masked'},{k:'gst',label:'GST Number',type:'masked'},
+  {k:'cin',label:'CIN Number',type:'masked'},{k:'fssai',label:'FSSAI Licence Number',type:'masked'},{k:'msme',label:'MSME Registration Number',type:'masked'},
+  {k:'linked',label:'Is PAN & Aadhaar Linked',type:'select',opts:['Yes','No']}]};
+SEC_DEF.storeAddons={title:'Add On Services',get:function(r){return storeExt(r).addons;},groups:[['Razorpay',[
+  {k:'pos',label:'Are you interested in Razorpay POS solution',type:'switch'},{k:'soundbox',label:'Are you interested in Razorpay Soundbox solution',type:'switch'}]]]};
+SEC_DEF.storeMerchant={title:'Merchant Details',get:function(r){return storeExt(r).merchant;},fields:[
+  {k:'name',label:'Merchant Name',req:true},{k:'keyId',label:'Razorpay Key Id',req:true},{k:'secret',label:'Razorpay Secret Key',type:'masked',req:true},
+  {k:'gateway',label:'Gateway',type:'select',opts:['razorpay','ccavenue','phonepe'],req:true}]};
+LIST_DEF.storeIntervals={title:'Intervals',one:'interval',addLabel:'Add',empty:'No intervals added yet.',get:function(r){return storeExt(r).intervals;},
+  fields:[{k:'name',label:'Interval Name',req:true,ph:'e.g. Lunch break'},{k:'from',label:'From',type:'time',req:true},{k:'to',label:'To',type:'time',req:true}],
+  cols:[['name','Interval'],['from','From'],['to','To']],make:function(v){if(v.to<=v.from){scToast('The end time must be after the start','error');return null;}return {name:v.name,from:v.from,to:v.to};}};
+LIST_DEF.storeHolidays={title:'Store Holidays',one:'holiday',addLabel:'Add',empty:'No holidays added yet.',get:function(r){return storeExt(r).holidays;},
+  fields:[{k:'date',label:'Date',type:'date',req:true},{k:'name',label:'Reason',req:true,ph:'e.g. Diwali'}],
+  cols:[['date','Date',function(x){var d=isoToDate(x.date);return d?fmtDate(d):esc(x.date);}],['name','Reason']]};
+LIST_DEF.storeKycFiles={title:'KYC Attachments',one:'attachment',addLabel:'Add Attachments',empty:'No attachments yet.',get:function(r){return storeExt(r).kycFiles;},
+  fields:[{k:'doc',label:'Document',type:'select',opts:['PAN Card','Aadhaar Card','GST Certificate','FSSAI Licence','Cancelled Cheque'],req:true},{k:'file',label:'File',type:'file',accept:'image/*,.pdf',req:true}],
+  cols:[['doc','Document'],['file','File',function(x){return '<a class="sc-link" href="'+x.file.url+'" download="'+esc(x.file.name)+'">'+esc(x.file.name)+'</a>';}],['size','Size',function(x){return esc(attSize(x.file.size));}]],
+  make:function(v){return {name:v.doc,doc:v.doc,file:v.file};}};
+LIST_DEF.storeLbps={title:'Logistic Partner Details',one:'logistic partner',addLabel:'Add',empty:'No logistic partners yet.',get:function(r){return storeExt(r).lbps;},after:storeSync,
+  fields:[{k:'pick',label:'Logistic Partner',type:'select',req:true,full:true,opts:function(){return LBP_LIST.map(function(x){return x[0]+' ('+x[1]+' Rs./Km)';});}}],
+  cols:[['name','Name'],['addr','Address'],['rate','Delivery Charges',function(x){return esc(x.rate+' Rs./Km');}],['phone','Contact Number'],['status','Status',function(x){return activeBadge(x.status);}]],
+  make:function(v,r){var x=LBP_LIST.filter(function(q){return v.pick.indexOf(q[0]+' (')===0;})[0];if(!x)return null;
+    if(storeExt(r).lbps.some(function(q){return q.name===x[0];})){scToast(x[0]+' is already added','error');return null;}return {name:x[0],addr:x[2],rate:x[1],phone:x[3],status:'Active'};}};
+LIST_DEF.storeSuppliers={title:'Supplier Business Partner',one:'supplier',addLabel:'Add',empty:'No supplier business partners yet.',get:function(r){return storeExt(r).suppliers;},
+  fields:[{k:'pick',label:'Supplier',type:'select',req:true,full:true,opts:function(){return SUPPLIER_LIST.map(function(x){return x[0];});}}],
+  cols:[['name','Name'],['addr','Address'],['phone','Contact Number'],['status','Status',function(x){return activeBadge(x.status);}]],
+  make:function(v,r){var x=SUPPLIER_LIST.filter(function(q){return q[0]===v.pick;})[0];if(!x)return null;
+    if(storeExt(r).suppliers.some(function(q){return q.name===x[0];})){scToast(x[0]+' is already added','error');return null;}return {name:x[0],addr:x[1],phone:x[2],status:'Active'};}};
+LIST_DEF.storeSoundbox={title:'SoundBox Details',one:'soundbox',addLabel:'Add SoundBox Details',empty:'No soundbox added yet.',get:function(r){return storeExt(r).soundboxes;},
+  blocked:function(r){return storeExt(r).addons.soundbox?'':'Enable Soundbox from Add On Services first.';},
+  fields:[{k:'name',label:'Device Name',req:true},{k:'serial',label:'Serial Number',req:true}],cols:[['name','Device'],['serial','Serial Number']]};
+LIST_DEF.storePos={title:'POS Details',one:'POS terminal',addLabel:'Add POS Details',empty:'No POS terminal added yet.',get:function(r){return storeExt(r).posList;},
+  blocked:function(r){return storeExt(r).addons.pos?'':'Enable POS from Add On Services first.';},
+  fields:[{k:'name',label:'Terminal Name',req:true},{k:'tid',label:'Terminal ID',req:true}],cols:[['name','Terminal'],['tid','Terminal ID']]};
+LIST_DEF.storePrinters={title:'Printer Details',one:'printer',addLabel:'Manage Printer Ids',empty:'No data found.',get:function(r){return storeExt(r).printers;},
+  fields:[{k:'name',label:'Printer Name',req:true,ph:'e.g. Billing counter'},{k:'pid',label:'Printer Id',req:true}],
+  cols:[['name','Name'],['pid','Printer Id'],['at','Created At']],make:function(v){return {name:v.name,pid:v.pid,at:fmtDate(DASH_TODAY)};}};
+LIST_DEF.storeAgents={title:'Agent Details',one:'agent',addLabel:'Add Agent',empty:'No agents assigned yet.',get:function(r){return storeExt(r).agents;},
+  fields:[{k:'pick',label:'Agent',type:'select',req:true,full:true,opts:function(){return PARTNERS.filter(function(p){return p.status==='Active';}).map(function(p){return p.name;});}}],
+  cols:[['name','Name'],['ref','Referral ID'],['mobile','Mobile'],['at','Assigned On']],
+  make:function(v,r){var p=PARTNERS.filter(function(q){return q.name===v.pick;})[0];if(!p)return null;
+    if(storeExt(r).agents.some(function(q){return q.name===p.name;})){scToast(p.name+' is already assigned','error');return null;}return {name:p.name,ref:p.ref,mobile:p.mobile,at:fmtDate(DASH_TODAY)};}};
+
+/* Basic Details: the store's images, its gallery, then the store's details */
+function storeImagesHTML(st){
+  var x=storeExt(st);
+  var tile=function(k,label){return '<div class="sc-img-slot"><span class="sc-img-label">'+esc(label)+'</span><span class="sc-img-box'+(x.images[k]?' is-set':'')+'">'+(x.images[k]?ICO.store:ICO.noimg)+'</span></div>';};
+  var gal=x.gallery.map(function(g,i){return '<div class="sc-gal-item"><img src="'+g.url+'" alt="'+esc(g.name)+'"><button type="button" class="sc-gal-x" title="Remove" aria-label="Remove '+esc(g.name)+'" onclick="scGalDel('+st.key+','+i+')">'+ICO.close+'</button></div>';}).join('');
+  return '<div class="sc-sec">'+secHead('Store Images')
+    +'<div class="sc-img-row">'+tile('listing','Listing Image')+tile('front','Front Image')+tile('nearby','Nearby Image')+tile('discounts','Discounts Image')+'</div>'
+    +'<div class="sc-gal-head">Gallery</div><div class="sc-gal">'+gal
+      +'<label class="sc-gal-add"><input type="file" accept="image/*" multiple hidden onchange="scGalAdd('+st.key+',this.files);this.value=\'\'">'
+      +'<span class="sc-gal-add-ico">'+ATT_ICO.upload+'</span><span>Max 2048kb</span></label></div></div>';
+}
+function scGalAdd(key,files){
+  var st=glRow('stores',key);if(!st)return;var x=storeExt(st),bad=0,n=0;
+  [].forEach.call(files||[],function(f){if(!/^image\//.test(f.type)||f.size>2048*1024){bad++;return;}x.gallery.push({name:f.name,url:URL.createObjectURL(f)});n++;});
+  if(n)glLog('stores',key,'Added '+n+(n===1?' gallery image':' gallery images'));
+  scRender();if(bad)scToast(bad+(bad===1?' file was':' files were')+' not added','error','Images only, up to 2048 KB each.');
+}
+function scGalDel(key,i){var st=glRow('stores',key),x=st&&storeExt(st),g=x&&x.gallery.splice(i,1)[0];if(!g)return;URL.revokeObjectURL(g.url);glLog('stores',key,'Removed gallery image');scRender();}
+
+/* status steps for a store - taken in Logs */
+GL.stores.menu=function(st){
+  var go=function(lbl,s){return [lbl,'scStoreStatus('+st.key+',\''+s+'\')'];};
+  return st.status==='Pending'?[go('Approve Store','Active'),go('Reject Store','Inactive')]:st.status==='Active'?[go('Deactivate Store','Inactive')]:[go('Activate Store','Active')];
+};
+function scStoreStatus(key,s){var st=glRow('stores',key);if(!st)return;st.status=s;storeExt(st).flow.push({st:s,c:'Store '+s.toLowerCase(),amt:'',when:fmtDT(new Date()),by:who()});
+  scToast(st.name+' is now '+s.toLowerCase(),s==='Active'?'success':'info');}
+GL.stores.detailsExtra=function(st){return storeImagesHTML(st)+secBlock('stores',st,'storeProfile');};
+GL.stores.logsExtra=function(st){
+  var c=storeCompletion(st),done=c.pct===100,open=!!state.pfPop;
+  return '<div class="sc-pfs"><button type="button" class="btn-outline btn-sm sc-pfs-btn" onclick="state.pfPop=!state.pfPop;glPanelRefresh()" aria-expanded="'+open+'">Profile Status '
+      +badge(done?'approved':'pending',done?'Complete':'Pending')+ICO_DOWN+'</button>'
+    +(open?'<div class="sc-pfs-pop"><div class="sc-pfs-title">Profile Completion Status</div>'
+      +'<div class="sc-pfs-overall">Overall Completion: <b>'+c.pct+'%</b></div><span class="sc-credit-track"><span class="sc-credit-fill" style="width:'+c.pct+'%"></span></span>'
+      +'<div class="sc-pfs-sub">Section Details</div>'+c.parts.map(function(q){return '<div class="sc-pfs-row'+(q[1]?' is-done':'')+'"><span>'+(q[1]?'✓':'×')+' '+esc(q[0])+'</span><b>'+(q[1]?'25%':'0%')+'</b></div>';}).join('')
+      +'</div>':'')+'</div>';
+};
+function storeFlowHTML(st,id){
+  var x=storeExt(st),rows=x.flow.slice().reverse().concat([]);
+  (st._log||[]).forEach(function(l){rows.unshift({st:l.text,c:l.comment||'—',amt:'',when:l.date+(l.time?' · '+l.time:''),by:l.who});});
+  return recTable(['S.No','Status','Comment','Settlement Amount','Time','Updated By'],rows.map(function(f,i){
+    var tone=/Disable|Inactive|Reject|Delete|Removed/.test(f.st)?'unapproved':/Enable|Active|Approve/.test(f.st)?'approved':'active';
+    return '<tr>'+td(i+1)+'<td>'+badge(tone,f.st)+'</td>'+td(f.c)+td(f.amt||'—')+td(f.when)+td(f.by)+'</tr>';}).join(''));
+}
+function storeTab(id,label,fn){return {id:id,label:label,html:function(st){return glHero('stores',st,false)+fn(st);}};}
+GL.stores.tabs=[
+  storeTab('schedule','Time Schedule',function(st){return secBlock('stores',st,'storeSched')+listBlock('stores',st,'storeIntervals')+listBlock('stores',st,'storeHolidays');}),
+  storeTab('settings','Store Settings',function(st){return secBlock('stores',st,'storeSettings');}),
+  storeTab('bank','Bank Details',function(st){return secBlock('stores',st,'storeBank');}),
+  storeTab('kyc','KYC Details',function(st){return secBlock('stores',st,'storeKyc')+listBlock('stores',st,'storeKycFiles');}),
+  storeTab('addons','Add On Services',function(st){return secBlock('stores',st,'storeAddons');}),
+  storeTab('lbps','Logistic Partners',function(st){return listBlock('stores',st,'storeLbps');}),
+  storeTab('suppliers','Supplier Business Partners',function(st){return listBlock('stores',st,'storeSuppliers');}),
+  storeTab('workflow','Workflow',function(st){return secHead('Workflow Details')+storeFlowHTML(st);}),
+  storeTab('merchant','Merchant Details',function(st){
+    var sub=state.merchTab||'merchant';
+    var bar='<div class="dashboard-tabs sc-subtabs">'+[['merchant','Merchant Details'],['soundbox','SoundBox Details'],['pos','POS Details']].map(function(t){
+      return '<button type="button" class="tab-btn'+(sub===t[0]?' active':'')+'" onclick="state.merchTab=\''+t[0]+'\';state.glDraft=null;glPanelRefresh()">'+t[1]+'</button>';}).join('')+'</div>';
+    return bar+(sub==='merchant'?secBlock('stores',st,'storeMerchant'):sub==='soundbox'?listBlock('stores',st,'storeSoundbox'):listBlock('stores',st,'storePos'));
+  }),
+  storeTab('printers','Printer Details',function(st){return listBlock('stores',st,'storePrinters');}),
+  storeTab('agents','Agent Details',function(st){return listBlock('stores',st,'storeAgents');})
+];
+
+/* ══ STORE CATEGORIES: the configuration a category gives its stores ══════ */
+var STORECAT_CFG=[
+  ['Order Value',[{k:'movOn',label:'Minimum Order Value',type:'switch'},{k:'mov',label:'Minimum Order Value (₹)',type:'number'}]],
+  ['Store Access',[{k:'payType',label:'Payment Type',type:'select',opts:['payment_before','payment_after']},{k:'invType',label:'Inventory Type',type:'select',opts:['with_inventory','without_inventory']}]],
+  ['Order Type',[{k:'delivery',label:'Delivery',type:'switch'},{k:'instant',label:'Instant Payment',type:'switch'},{k:'visit',label:'Store Visit',type:'switch'},
+    {k:'schedule',label:'Schedule Delivery',type:'switch'},{k:'instDel',label:'Instant Delivery',type:'switch'},{k:'dine',label:'Dine In',type:'switch'}]],
+  ['Order Setting',[{k:'confirm',label:'Order Confirmation',type:'switch'},{k:'credit',label:'Credit',type:'switch'}]]
+];
+function storecatCfg(c){
+  if(!c.cfg){var food=/Restaurant|Bakery|Rooms/.test(c.name);
+    c.cfg={movOn:true,mov:1,payType:food?'payment_before':'payment_after',invType:/Service|Rooms|Salon|Fitness|Education|Events/.test(c.name)?'without_inventory':'with_inventory',
+      delivery:!/Service|Rooms/.test(c.name),instant:false,visit:true,schedule:false,instDel:false,dine:food,confirm:false,credit:false};}
+  return c.cfg;
+}
+SEC_DEF.storecatCfg={title:'Category Configuration',get:storecatCfg,groups:STORECAT_CFG};
+GL.storecats.detailsExtra=function(c){return secBlock('storecats',c,'storecatCfg');};
+GL.storecats.tabs=[{id:'workflow',label:'Workflow',html:function(c){
+  var rows=[{s:'Created',c:'Category added',w:'—',by:'System'}].concat((c._log||[]).slice().reverse().map(function(l){return {s:l.text,c:l.comment||'—',w:l.date+(l.time?' · '+l.time:''),by:l.who};}));
+  return glHero('storecats',c,false)+secHead('Workflow Details')+recTable(['S.No','Status','Comment','Time','Updated By'],rows.map(function(x,i){return '<tr>'+td(i+1)+'<td><b>'+esc(x.s)+'</b></td>'+td(x.c)+td(x.w)+td(x.by)+'</tr>';}).join(''));
+}}];
+
+GL.stores.detailsLabel='Basic Details';
+/* the listing's report links and Login are row actions, not details */
+GL.stores.cols.forEach(function(c){if(/^(Reports|Activity)$/.test(c.h))c.noDetail=true;});
+/* ── TAGS: the tag's image above its details, and its Workflow ─────────── */
+/* the standard Workflow tab: Created, then every step taken on the record */
+function wfTab(id){return {id:'workflow',label:'Workflow',html:function(r){
+  var made=r.created||r.date||'—';
+  var rows=[{s:'Created',c:glOneCap(GL[id])+' added',w:String(made),by:r.by||'System'}].concat((r._log||[]).slice().reverse().map(function(l){return {s:l.text,c:l.comment||'—',w:l.date+(l.time?' · '+l.time:''),by:l.who};}));
+  return glHero(id,r,false)+secHead('Workflow Details')+recTable(['S.No','Status','Comment','Time','Updated By'],rows.map(function(x,i){
+    var tone=/Inactive|Deactivate|Delete|Reject|Removed/.test(x.s)?'unapproved':/Active|Created|Approve/.test(x.s)?'approved':'active';
+    return '<tr>'+td(i+1)+'<td>'+badge(tone,x.s)+'</td>'+td(x.c)+td(x.w)+td(x.by)+'</tr>';}).join(''));
+}};}
+GL.tags.cols.forEach(function(c){if(c.h==='Tag Image')c.noDetail=true;});
+GL.tags.detailsTop=function(r){
+  var img=r.img?'<img src="'+r.img.url+'" alt="'+esc(r.name)+'">':'<span class="sc-tag-img sc-tag-img-lg'+(r.type==='Community'?' is-comm':'')+'">'+(r.type==='Community'?ICO.users:ICO.tag)+'</span>';
+  return '<div class="sc-qr-big sc-tag-big"><span class="sc-qr-frame sc-tag-frame">'+img+'</span>'
+    +'<div class="sc-qr-meta"><b>'+esc(r.name)+'</b><span>'+esc(r.type)+' · '+esc(r.category)+'</span>'
+    +'<label class="btn-outline btn-sm sc-tag-up"><input type="file" accept="image/*" hidden onchange="scTagImage('+r.key+',this.files[0]);this.value=\'\'">'+ATT_ICO.upload+' '+(r.img?'Change Image':'Upload Image')+'</label></div></div>';
+};
+function scTagImage(key,f){
+  var r=glRow('tags',key);if(!r||!f)return;
+  if(!/^image\//.test(f.type)||f.size>2048*1024){scToast('Choose an image up to 2048 KB','error');return;}
+  if(r.img)URL.revokeObjectURL(r.img.url);r.img={name:f.name,url:URL.createObjectURL(f)};glLog('tags',key,'Updated tag image');scRender();scToast('Tag image updated','success');
+}
+GL.tags.tabs=[wfTab('tags')];
+
+/* ══ RETAIL ORDERS: ROWS THAT OPEN, AND THE ORDER PANEL ════════════════════
+   An order row shows the minimum - when, who, which order, its type and
+   status - and opens in place (▾) for the phone, address, amount, platform,
+   slot and payment. The panel carries the system's order tabs: Details,
+   Products, Order Details, Store, User, Workflow (a plain table, as every
+   module other than Deals / Purchase Orders), Logs, Payment Info and Payment
+   Transactions. */
+function scGlExpand(id,key){if(!state.glExp)state.glExp={};var k=id+':'+key;state.glExp[k]=!state.glExp[k];scRender();}
+function scRetailOrderTab(key,tab){var id=state.page;scGlOpen(id,key);if(state.glOpen&&state.glOpen.key===key)scGlTab(tab);}
+ORDER_CARD_COLS[1].brief=function(o){return '<div class="sc-ord-lines"><span>'+ICO.user+esc(o.user)+'</span></div>';};
+ORDER_CARD_COLS[2].brief=function(o){return '<div class="sc-ord-kv"><div><em>Sales Order ID</em><b>'+o.key+'</b></div></div>';};
+ORDER_CARD_COLS[3].brief=function(o){return '<div class="sc-ord-kv"><div><em>Order Type</em><b>'+esc(o.type)+'</b></div></div>';};
+ORDER_CARD_COLS[4].brief=function(o){return '<div class="sc-ord-kv"><div><em>Current Status</em>'+orderTone(o.status)+'</div></div>';};
+
+function orderExt(o){
+  if(o.ext)return o.ext;
+  var pool=PRODUCTS.filter(function(p){return p.storeId===o.storeId;});if(!pool.length)pool=PRODUCTS;
+  var n=Math.min(pool.length,1+o.key%3),items=[],left=o.amount;
+  for(var i=0;i<n;i++){var p=pool[(o.key+i)%pool.length],qty=1+(o.key+i)%2,amt=i===n-1?left:Math.max(1,Math.round(o.amount/n));left-=amt;
+    items.push({key:p.key,name:p.name,qty:qty,amount:Math.max(0,amt),status:o.status==='Cancelled'?'Rejected':o.status==='Completed'?'Delivered':o.status==='Refund'?'Refunded':o.status==='Pending'?'Pending':'Accepted'});}
+  var paid=o.payment==='Completed'||o.payment==='Refunded'||o.status==='Paid';
+  var tx=[];if(paid)tx.push({id:7928+o.key%50,gw:'Online',method:'Online',status:'Completed',ref:'Online_'+(1791550477+o.key)+'_'+(3700+o.key%99)});
+  if(o.payment==='Refunded'||o.status==='Refund')tx.push({id:7932+o.key%50,gw:'Online',method:'Online',status:'Refund Initiated',ref:'rfnd_'+(o.payId||'T'+o.key.toString(36)).slice(-12)});
+  if(o.payment==='Failed')tx.push({id:7925+o.key%50,gw:'Online',method:'Online',status:'Failed',ref:'Online_'+(1791550400+o.key)});
+  o.ext={dealId:35800+o.key%97,domain:'retail',category:o.type==='Store Visit'||o.type==='Instant Payment'?'offline':'online',txnId:13600+o.key%999,
+    items:items,tx:tx,delivery:o.type==='Delivery'&&o.status!=='Cancelled'?(o.amount>500?0:40):0,
+    cancelReason:o.status==='Cancelled'?'Address not found':'',cancelId:o.status==='Cancelled'?'014':'',cancelledBy:o.status==='Cancelled'?String(o.storeId):''};
+  return o.ext;
+}
+function orderStoreRow(o){return glSrc(GL.stores).filter(function(s){return s.key===o.storeId;})[0];}
+function orderFlow(o){
+  var t=function(d){return fmtDT(d);},rows=[{st:'In Progress',sub:'Order created by '+o.user,pos:'User',at:t(o.created)}];
+  var paid=o.payment==='Completed'||o.payment==='Refunded';
+  if(paid)rows.push({st:'Payment Completed',sub:'Payment completed by '+o.user,pos:'User',at:t(new Date(o.created.getTime()+35e3))});
+  if(o.status==='Completed')rows.push({st:'Order Completed',sub:'Completed by '+o.store,pos:'Retailer',at:t(o.updated)});
+  if(o.status==='Refund')rows.push({st:'Refund Initiated',sub:'Refund initiated by Super Admin',pos:'Superadmin',at:t(o.updated)});
+  if(o.status==='Cancelled'){if(paid)rows.push({st:'Refund Initiated',sub:'Refund initiated by '+o.store,pos:'Superadmin',at:t(o.updated)});rows.push({st:'Order Cancelled',sub:'by '+o.store,pos:'Retailer',at:t(o.updated)});}
+  (o._log||[]).slice().reverse().forEach(function(l){rows.push({st:l.text,sub:l.comment||'—',pos:l.role||'',at:l.date+(l.time?' · '+l.time:'')});});
+  return rows.reverse();
+}
+var orderTabs=function(id){
+  var tab=function(t,label,fn){return {id:t,label:label,html:function(o){return glHero(id,o,false)+fn(o,orderExt(o));}};};
+  return [
+    tab('products','Products',function(o,x){
+      var qty=x.items.reduce(function(a,i){return a+i.qty;},0),refund=x.tx.some(function(q){return q.status==='Refund Initiated';});
+      return secHead('Product Details')+recTable(['S.No','Key Id','Image','Products','Unit','Amount','Status'],x.items.map(function(i,n){
+          return '<tr>'+td(n+1)+td(i.key)+'<td><span class="sc-thumb">'+ICO.cube+'</span></td><td><b>'+esc(i.name)+'</b></td>'+td(i.qty.toFixed(2))+td(inr(i.amount))
+            +'<td>'+badge(i.status==='Rejected'||i.status==='Refunded'?'unapproved':i.status==='Pending'?'pending':'approved',i.status)+'</td></tr>';}).join(''))
+        +'<div class="lp-sb-detail-grid sc-ord-sum">'+fieldCard(ICO.cube,'Total Quantity',qty)+fieldCard(ICO.truck,'Delivery Charges',x.delivery?inr(x.delivery):'—')
+          +fieldCard(ICO.percent,'Total Tax','—')+fieldCard(ICO.tag,'Discount Amount','—')+fieldCard(ICO.coins,'Bhaiyaa Points','—')
+          +fieldCard(ICO.money,'Total Amount',inr(o.amount+x.delivery))+fieldCard(ICO.card,'Paid Amount',x.tx.length?inr(o.amount)+' <span class="lp-c-sub">Online Payment</span>':'—')
+          +(refund?fieldCard(ICO.refund,'Refund Amount',inr(o.amount)):'')+'</div>';
+    }),
+    tab('orderinfo','Order Details',function(o,x){
+      var st=orderStoreRow(o),set=st?storeExt(st).settings:{};
+      return secHead('Order Details')+'<div class="lp-sb-detail-grid">'
+        +(o.status==='Cancelled'?fieldCard(ICO.reject||ICO.info,'Cancellation Reason',esc(x.cancelReason))+fieldCard(ICO.hash,'Cancellation Reason Id',esc(x.cancelId))+fieldCard(ICO.user,'Order Cancelled By',esc(x.cancelledBy)):'')
+        +fieldCard(ICO.truck,'Delivery Charge Bear',set.chargeBuyer?'Enable':'Disable')+fieldCard(ICO.money,'Delivery Charges Borne',set.chargeBuyer?'buyer':'seller')
+        +fieldCard(ICO.cube,'Inventory',esc((set.inventory||'With Inventory').toLowerCase()))+fieldCard(ICO.truck,'LBP Setting',/Internal/.test(set.deliveryBy||'Internal')?'internal':'external')
+        +fieldCard(ICO.card,'Payment Method',esc((set.payType||'Payment Before').toLowerCase()))+'</div>';
+    }),
+    tab('store','Store',function(o){
+      var st=orderStoreRow(o),own=st?storeOwner(st):null,x=st?storeExt(st):null;
+      if(!st)return secHead('Store Details')+'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'Store ID',o.storeId)+fieldCard(ICO.store,'Store Name',esc(o.store))+'</div>';
+      var svc=[];if(x.settings.delivery)svc.push('delivery');if(x.settings.ipCard||x.settings.ipNoInv)svc.push('instant payment');if(x.settings.ipCard)svc.push('instant payment with card');if(x.settings.walkIn)svc.push('walk in');
+      return secHead('Store Details')+'<div class="sc-qr-big sc-ord-store"><span class="sc-qr-frame">'+qrSvg(st.key,120)+'</span><div class="sc-qr-meta"><b>'+esc(st.name)+'</b><span>Store QR · '+esc(x.profile.subdomain)+'</span></div></div>'
+        +'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'Store ID',st.key)+fieldCard(ICO.store,'Store Name',esc(st.name))
+        +fieldCard(ICO.hash,'Retailer ID',own?own.key:'—')+fieldCard(ICO.user,'Retailer Name',own?esc(own.name):'—')+fieldCard(ICO.phone,'Contact Number',esc(x.profile.mobile))
+        +fieldCard(ICO.tag,'Sub Domain',esc(x.profile.subdomain))+fieldCard(ICO.tag,'Store Category',esc(x.profile.category))
+        +fieldCard(ICO.card,'Payment Method',esc(x.settings.payType.toLowerCase()))+fieldCard(ICO.pin,'Store Location',esc(x.profile.location),true)
+        +fieldCard(ICO.check,'Service',esc(svc.join(', ')||'—'),true)+'</div>';
+    }),
+    tab('user','User',function(o){
+      var b=BUYERS.filter(function(q){return q.key===o.userId;})[0];
+      return secHead('User Details')+'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'User ID',o.userId)+fieldCard(ICO.user,'User Name',esc(o.user))
+        +fieldCard(ICO.doc,'Email',b&&b.email?esc(b.email):'—')+fieldCard(ICO.phone,'Contact No','91 '+esc(o.phone))+'</div>';
+    }),
+    tab('workflow','Workflow',function(o){
+      return secHead('Workflow Details')+recTable(['S.No','Status','Sub Status','Position','Time'],orderFlow(o).map(function(f,i){
+        var tone=/Cancel|Reject|Fail/.test(f.st)?'pending':/Refund/.test(f.st)?'pending':/Completed|Accept/.test(f.st)?'approved':'active';
+        return '<tr>'+td(i+1)+'<td>'+badge(tone,f.st)+'</td>'+td(f.sub)+td(f.pos||'—')+td(f.at)+'</tr>';}).join(''));
+    }),
+    tab('payinfo','Payment Info',function(o,x){
+      var refund=x.tx.some(function(q){return q.status==='Refund Initiated';});
+      return secHead('Basic Amount Details')+'<div class="sc-amt">'
+        +'<div class="sc-amt-row"><span>Order Value (+)</span><b>INR '+fmtAmt(o.amount)+'</b></div>'
+        +(x.delivery?'<div class="sc-amt-row"><span>Delivery Charges (+)</span><b>INR '+fmtAmt(x.delivery)+'</b></div>':'')
+        +(refund?'<div class="sc-amt-row is-neg"><span>Refund (−)</span><b>INR '+fmtAmt(o.amount)+'</b></div>':'')
+        +'<div class="sc-amt-row is-total"><span>Net</span><b>INR '+fmtAmt(refund?x.delivery:o.amount+x.delivery)+'</b></div></div>';
+    }),
+    tab('paytx','Payment Transactions',function(o,x){
+      return secHead('Payment Transactions')+(x.tx.length?recTable(['Payment ID','Gateway Type','Payment Method','Payment Status','Payment Reference'],x.tx.map(function(q){
+        return '<tr>'+td(q.id)+td(q.gw)+td(q.method)+'<td>'+badge(q.status==='Completed'?'approved':q.status==='Failed'?'unapproved':'closed',q.status)+'</td><td><span class="sc-mono">'+esc(q.ref)+'</span></td></tr>';}).join('')):'<div class="lp-logs-empty">No payment transactions yet.</div>');
+    })
+  ];
+};
+function orderDetailFields(o){
+  var x=orderExt(o);
+  return [['Sales Order Id',o.key,ICO.hash],['Deal Id',x.dealId,ICO.hash],['Domain',x.domain,ICO.tag],['Category',x.category,ICO.tag],['Platform',platformChip(o.platform),ICO.globe],
+    ['Create Time',esc(fmtDT(o.created)),ICO.cal],['User Name',esc(o.user),ICO.user],['User Mobile',esc(o.phone),ICO.phone],
+    ['Payment Transaction Id',o.payId?'<span class="sc-mono">'+esc(o.payId)+'</span>':'—',ICO.card],['Transaction ID',x.txnId,ICO.hash],
+    ['Order Status',orderTone(o.status),ICO.check],['Payment Status',orderTone(o.payment),ICO.check],['Order Delivery Address',esc(o.city),ICO.pin],['Delivery Address Mobile Number','91 '+esc(o.phone),ICO.phone]];
+}
+['myorders','schedule','ipay','allorders'].forEach(function(id){
+  var g=GL[id];if(!g)return;
+  g.detailFields=orderDetailFields;g.tabs=orderTabs(id);
+  if(g.cols===ORDER_CARD_COLS)g.expandable=true;
+});
+
+/* ── INSTANT PAYMENT ORDERS: their own panel; Payment Info in full ─────── */
+/* the settlement breakdown the system shows on every order */
+function orderPayRows(o,x){
+  var v=o.amount,refund=x.tx.some(function(q){return /Refund/.test(q.status);}),r2=function(n){return Math.round(n*100)/100;};
+  var pts=r2(v*0.00075),gw=r2(v*0.0185),plat=r2(v*0.10),tax=r2(plat*0.18),tds=r2(v*0.001);
+  var rows=[['Order Value',v,'+']];
+  if(x.delivery)rows.push(['Delivery Charges',x.delivery,'+']);
+  if(refund)rows.push(['Refund',v,'-']);
+  rows.push(['Bhaiyaa Points Borne by the Platform (0.075%)',pts,'+'],['Payment Gateway (1.85%)',gw,'-'],['Platform Charges (10%)',plat,'-'],
+    ['Tax On Platform Charges (18%)',tax,'-'],['TDS (0.1%)',tds,'-']);
+  var net=rows.reduce(function(t,q){return t+(q[2]==='+'?q[1]:-q[1]);},0);
+  return {rows:rows,net:r2(net)};
+}
+var _orderTabsBase=orderTabs;
+orderTabs=function(id){
+  var tabs=_orderTabsBase(id);
+  tabs.forEach(function(t){if(t.id==='payinfo')t.html=function(o){var x=orderExt(o),p=orderPayRows(o,x);
+    return glHero(id,o,false)+secHead('Basic Amount Details')+'<div class="sc-amt">'+p.rows.map(function(q){
+      return '<div class="sc-amt-row'+(q[2]==='-'?' is-neg':'')+'"><span>'+esc(q[0])+' ('+(q[2]==='-'?'−':'+')+')</span><b>INR '+q[1].toFixed(2)+'</b></div>';}).join('')
+      +'<div class="sc-amt-row is-total"><span>Settlement to Store</span><b>INR '+p.net.toFixed(2)+'</b></div></div>';};});
+  /* an instant payment has no cart or delivery: no Products, no Order Details */
+  return id==='ipay'?tabs.filter(function(t){return t.id!=='products'&&t.id!=='orderinfo';}):tabs;
+};
+var _orderFlowBase=orderFlow;
+orderFlow=function(o){
+  if(o.type!=='Instant Payment')return _orderFlowBase(o);
+  var t=function(d){return fmtDT(d);},rows=[{st:'Pending',sub:'Order created using instant payment by customer. by '+o.user,pos:'Customer',at:t(o.created)}];
+  if(o.payment==='Completed'||o.payment==='Refunded'||o.status==='Paid')rows.push({st:'Payment Completed',sub:'Order completed using instant payment by customer. by '+o.user,pos:'Customer',at:t(new Date(o.created.getTime()+110e3))});
+  if(o.status==='Refund')rows.push({st:'Refund Initiated',sub:'Refund initiated by Super Admin',pos:'Superadmin',at:t(o.updated)});
+  (o._log||[]).slice().reverse().forEach(function(l){rows.push({st:l.text,sub:l.comment||'—',pos:l.role||'',at:l.date+(l.time?' · '+l.time:'')});});
+  return rows.reverse();
+};
+var _orderExtBase=orderExt;
+orderExt=function(o){
+  var fresh=!o.ext,x=_orderExtBase(o);
+  if(fresh&&o.type==='Instant Payment')x.tx.forEach(function(q){if(q.status==='Completed'){q.gw='RAZORPAY';q.method='card';q.ref=o.payId||q.ref;}});
+  return x;
+};
+GL.ipay.detailFields=function(o){var x=orderExt(o);
+  return [['Order Id',o.key+11,ICO.hash],['Sales Order Id',o.key,ICO.hash],['Deal Id',x.dealId,ICO.hash],['Category',x.category,ICO.tag],
+    ['Create Time',esc(fmtDT(o.created)),ICO.cal],['User Name',esc(o.user),ICO.user],['User Mobile',esc(o.phone),ICO.phone],
+    ['Payment Type','Online',ICO.card],['Order Status',orderTone(o.status),ICO.check]];};
+['myorders','schedule','ipay','allorders'].forEach(function(id){if(GL[id])GL[id].tabs=orderTabs(id);});
+GL.ipay.detailsLabel='Details';
+
+/* ── DEALS (retail): Deal · Cart · User · Store · Workflow ─────────────── */
+function rdealExt(d){
+  if(d.ext)return d.ext;
+  var storeName=d.store.replace(/\s*\(\d+\)$/,''),rid=(d.store.match(/\((\d+)\)/)||[])[1]||'';
+  var ord=ORDERS.filter(function(o){return o.user===d.user;})[0],instant=d.amount===1;
+  var n=+String(d.qty).split('/')[1]||1,pool=PRODUCTS.filter(function(p){return p.store===storeName;});if(!pool.length)pool=PRODUCTS;
+  var items=instant?[{pid:76293,name:'Instant Payment',price:1,qty:1}]:[];
+  for(var i=0;!instant&&i<n;i++){var p=pool[(d.key+i)%pool.length];items.push({pid:p.key,name:p.name,price:Math.round(d.amount/n),qty:1+(i%2)});}
+  d.ext={storeName:storeName,retailerId:rid,userId:ord?ord.userId:'—',phone:ord?ord.phone:'—',instant:instant,items:items};
+  return d.ext;
+}
+GL.retaildeals.detailsLabel='Deal';
+GL.retaildeals.detailFields=function(d){var x=rdealExt(d);
+  return [['Deal Id',d.key,ICO.hash],['Create Time',esc(fmtDT(d.date)),ICO.cal],['Create By',esc(d.user),ICO.user],
+    ['Product Name',esc(x.instant?'Instant Payment':x.items.map(function(i){return i.name;}).join(', ')),ICO.cube],['Quantity',esc(String(d.qty).split('/')[0]),ICO.cube],
+    ['Deal Amount','INR '+fmtAmt(d.amount),ICO.money],['Category',x.instant?'Offline':'Online',ICO.tag],['Domain','retail',ICO.tag],
+    ['Store Name',esc(x.storeName),ICO.store],['User Name',esc(d.user),ICO.user],['Contact No.',esc(x.phone),ICO.phone],['Deal Status',orderTone(d.status),ICO.check]];};
+GL.retaildeals.tabs=[
+  {id:'cart',label:'Cart',html:function(d){var x=rdealExt(d),act=d.status==='Complete'?'Order Placed':d.status==='Cancelled'?'Removed':'In Cart';
+    return glHero('retaildeals',d,false)+secHead('User Cart Detail')+recTable(['S.No','Product Id','Name','Price','Quantity','Date','Action'],x.items.map(function(i,n){
+      return '<tr>'+td(n+1)+td(i.pid)+'<td><b>'+esc(i.name)+'</b></td>'+td('INR '+fmtAmt(i.price))+td(i.qty.toFixed(2))+td(fmtDT(d.date))+'<td>'+badge(act==='Order Placed'?'approved':act==='Removed'?'unapproved':'pending',act)+'</td></tr>';}).join(''));}},
+  {id:'user',label:'User',html:function(d){var x=rdealExt(d),b=BUYERS.filter(function(q){return q.key===x.userId;})[0];
+    return glHero('retaildeals',d,false)+secHead('User Details')+'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'User ID',x.userId)+fieldCard(ICO.user,'User Name',esc(d.user))
+      +fieldCard(ICO.doc,'Email',b&&b.email?esc(b.email):'—')+fieldCard(ICO.phone,'Contact No','91 '+esc(x.phone))+'</div>';}},
+  {id:'store',label:'Store',html:function(d){var x=rdealExt(d),st=glSrc(GL.stores).filter(function(s){return s.name===x.storeName;})[0];
+    if(!st)return glHero('retaildeals',d,false)+secHead('Store Details')+'<div class="lp-sb-detail-grid">'+fieldCard(ICO.store,'Store Name',esc(x.storeName))+fieldCard(ICO.hash,'Retailer ID',esc(x.retailerId))+'</div>';
+    var e=storeExt(st);
+    return glHero('retaildeals',d,false)+secHead('Store Details')+'<div class="sc-qr-big sc-ord-store"><span class="sc-qr-frame">'+qrSvg(st.key,120)+'</span><div class="sc-qr-meta"><b>'+esc(st.name)+'</b><span>Store QR</span></div></div>'
+      +'<div class="lp-sb-detail-grid">'+fieldCard(ICO.hash,'Store ID',st.key)+fieldCard(ICO.store,'Store Name',esc(st.name))+fieldCard(ICO.hash,'Retailer ID',esc(x.retailerId))
+      +fieldCard(ICO.phone,'Contact Number',esc(e.profile.mobile))+fieldCard(ICO.tag,'Store Category',esc(e.profile.category))+fieldCard(ICO.pin,'Store Location',esc(e.profile.location),true)+'</div>';}},
+  {id:'workflow',label:'Workflow',html:function(d){var t=function(dt){return fmtDT(dt);};
+    var rows=[{st:'Deal Created',sub:'Deal created by '+d.user,pos:'Customer',at:t(d.date)}];
+    if(d.status==='Complete')rows.push({st:'Order Placed',sub:'Cart placed as an order by '+d.user,pos:'Customer',at:t(new Date(d.date.getTime()+2e3))});
+    if(d.status==='Cancelled')rows.push({st:'Deal Cancelled',sub:'Deal cancelled',pos:'Retailer',at:t(new Date(d.date.getTime()+60e3))});
+    (d._log||[]).slice().reverse().forEach(function(l){rows.push({st:l.text,sub:l.comment||'—',pos:l.role||'',at:l.date+(l.time?' · '+l.time:'')});});
+    rows.reverse();
+    return glHero('retaildeals',d,false)+secHead('Workflow Details')+recTable(['S.No','Status','Sub Status','Position','Time'],rows.map(function(f,i){
+      return '<tr>'+td(i+1)+'<td>'+badge(/Cancel/.test(f.st)?'unapproved':/Placed|Complete/.test(f.st)?'approved':'active',f.st)+'</td>'+td(f.sub)+td(f.pos||'—')+td(f.at)+'</tr>';}).join(''));}}
+];
+
+/* ══ PRODUCT PANEL ═════════════════════════════════════════════════════════
+   All Products / Product List open the system's product tabs: Details
+   (images, barcode, then the product's groups), Product Settings, Inventory
+   (stock by channel, every movement, and the price - changed with a status
+   comment, as in the system), Workflow and Logs. */
+var PRODUCT_TAXES=[['IGST',5],['CGST',2.5],['SGST',2.5]];
+function prodExt(p){
+  if(p.ext)return p.ext;var k=p.key,svc=p.itemType==='Service';
+  var std=svc?999:[200,32,45,180,285,28,265,175,349,99][k%10],cost=Math.round(std*0.25);
+  p.ext={
+    images:[{sample:true,name:p.name+' 1'},{sample:true,name:p.name+' 2'}],
+    info:{unit:svc?'Session':'Each',domain:'Retail',ean:k%3?'':'890'+String(k*7919).slice(-10),dsn:String(49353969+k%997),taxType:k%4?'Inclusive':'Exclusive',
+      hsn:svc?'9987':['1507','3004','0405','1001'][k%4],profile:'Retailer',created:fmtDate(addD(DASH_TODAY,-(k%60))),by:'Pardeep Singh'},
+    price:{cost:cost,std:std,offer:Math.max(1,Math.round(std*0.9))},
+    mfg:{maker:svc?'':['Cipla','GSK','Amul','Tata Consumer'][k%4],mfgDate:'',expiry:''},
+    desc:{short:'Testing product',long:'Testing product'},
+    settings:{weigh:false,cod:false,cancel:false,ret:!svc,pickup:false,retDays:svc?0:2,fulfil:svc?'Service':'Delivery',ship:'',maxQty:5},
+    inv:[{qty:100,unit:svc?'Session':'Each',status:'Initial Upload',comment:'Initial Upload',sign:1}]
+  };
+  return p.ext;
+}
+function prodStock(p){return prodExt(p).inv.reduce(function(t,m){return t+m.sign*(+m.qty||0);},0);}
+function prodImagesHTML(id,p){
+  var x=prodExt(p);
+  var items=x.images.map(function(im,i){
+    return '<div class="sc-gal-item">'+(im.url?'<img src="'+im.url+'" alt="'+esc(im.name)+'">':'<span class="sc-gal-sample">'+ICO.cube+'</span>')
+      +'<button type="button" class="sc-gal-x" title="Remove" aria-label="Remove image" onclick="scProdImgDel(\''+id+'\','+p.key+','+i+')">'+ICO.close+'</button></div>';}).join('');
+  return '<div class="sc-sec">'+secHead('Image <span class="req">*</span>'.replace(/<[^>]+>/g,'')+'')
+    +'<div class="sc-gal">'+items+'<label class="sc-gal-add"><input type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" multiple hidden onchange="scProdImgAdd(\''+id+'\','+p.key+',this.files);this.value=\'\'">'
+    +'<span class="sc-gal-add-ico">'+ICO.plus+'</span><span>Add image</span></label></div>'
+    +'<p class="sc-img-hint">Only JPG, JPEG, PNG files are allowed.</p></div>'
+    +'<div class="sc-sec">'+secHead('Barcode')+'<div class="sc-qr-big"><span class="sc-qr-frame">'+qrSvg(p.key,110)+'</span><div class="sc-qr-meta"><b>Barcode Image</b><span>'+esc(p.name)+' · '+p.key+'</span></div></div></div>';
+}
+function scProdImgAdd(id,key,files){
+  var p=glRow(id,key);if(!p)return;var x=prodExt(p),bad=0,n=0;
+  [].forEach.call(files||[],function(f){if(!/\.(jpe?g|png)$/i.test(f.name)){bad++;return;}x.images.push({name:f.name,url:URL.createObjectURL(f)});n++;});
+  if(n)glLog(id,key,'Added '+n+(n===1?' image':' images'));scRender();if(bad)scToast(bad+(bad===1?' file was':' files were')+' not added','error','Only JPG, JPEG and PNG files are allowed.');
+}
+function scProdImgDel(id,key,i){
+  var p=glRow(id,key),x=p&&prodExt(p);if(!x)return;
+  if(x.images.length<=1){scToast('A product needs at least one image','error');return;}
+  var im=x.images.splice(i,1)[0];if(im.url)URL.revokeObjectURL(im.url);glLog(id,key,'Removed an image');scRender();
+}
+SEC_DEF.prodInfo={title:'Product Details',get:function(r){return prodExt(r).info;},fields:[
+  {k:'unit',label:'Product Unit',type:'select',opts:['Each','Kg','Litre','Pack','Session'],req:true},{k:'domain',label:'Product Domain',type:'select',opts:['Retail','Wholesale']},
+  {k:'ean',label:'EAN'},{k:'dsn',label:'DSN'},{k:'taxType',label:'Tax Type',type:'select',opts:['Inclusive','Exclusive'],req:true},
+  {k:'hsn',label:'HSN Code',req:true,pattern:/^\d{4,8}$/}]};
+SEC_DEF.prodCat={title:'Category Details',get:function(r){return prodExt(r).info;},fields:[
+  {k:'profile',label:'Service Profile',type:'select',opts:['Retailer','Wholesaler','Service Provider']},{k:'created',label:'Create Time'},{k:'by',label:'Create By'}]};
+SEC_DEF.prodPrice={title:'Price Details',get:function(r){return prodExt(r).price;},commentKey:'_comment',fields:[
+  {k:'std',label:'Standard Price (₹)',type:'number',req:true},{k:'cost',label:'Cost Price (₹)',type:'number',req:true},{k:'offer',label:'Offer Price (₹)',type:'number',req:true},
+  {k:'_comment',label:'Status Comment',type:'textarea',req:true,full:true,editOnly:true}],
+  check:function(v){if(+v.offer>+v.std)return 'The offer price cannot be above the standard price';if(+v.cost>+v.std)return 'The cost price cannot be above the standard price';return '';}};
+SEC_DEF.prodMfg={title:'Manufacturing Details',get:function(r){return prodExt(r).mfg;},fields:[
+  {k:'maker',label:'Manufacturer'},{k:'mfgDate',label:'Manufacturing Date',type:'date'},{k:'expiry',label:'Expiry Date',type:'date'}]};
+SEC_DEF.prodDesc={title:'Additional Details',get:function(r){return prodExt(r).desc;},fields:[
+  {k:'short',label:'Short Description',type:'textarea',full:true},{k:'long',label:'Long Description',type:'textarea',full:true}]};
+SEC_DEF.prodSettings={title:'Advanced Product Settings',get:function(r){return prodExt(r).settings;},groups:[['Advanced Product Settings',[
+  {k:'weigh',label:'Weighable',type:'switch'},{k:'cod',label:'Cash on Delivery',type:'switch'},{k:'cancel',label:'Cancellable',type:'switch'},
+  {k:'ret',label:'Returnable',type:'switch'},{k:'pickup',label:'Seller Pickup',type:'switch'},{k:'retDays',label:'Return Period (days)',type:'number'},
+  {k:'fulfil',label:'Fulfilment Type',type:'select',opts:['Delivery','Pickup','Delivery & Pickup','Service']},{k:'ship',label:'Time to Ship (hours)',type:'number'},
+  {k:'maxQty',label:'Maximum Quantity Can Be Sold',type:'number'}]]]};
+LIST_DEF.prodInv={noDelete:true,title:'Inventory Movements',one:'inventory entry',addLabel:'Add',empty:'No inventory movements yet.',get:function(r){return prodExt(r).inv;},
+  fields:[{k:'status',label:'Status',type:'select',opts:['Good Receipt','Good Issued','Damaged','Returned'],req:true},{k:'qty',label:'Quantity',type:'number',req:true},
+    {k:'comment',label:'Comment',req:true,full:true,ph:'e.g. Restock from supplier'}],
+  cols:[['qty','Quantity',function(m){return esc((m.sign<0?'−':'')+(+m.qty).toFixed(3));}],['unit','Unit'],['status','Status'],['comment','Comment']],
+  make:function(v,r){var q=+v.qty;if(!(q>0)){scToast('Enter a quantity above zero','error');return null;}var out=v.status==='Good Issued'||v.status==='Damaged';
+    if(out&&q>prodStock(r)){scToast('Only '+prodStock(r)+' in stock','error');return null;}
+    return {qty:q,unit:prodExt(r).info.unit,status:v.status,comment:v.comment,sign:out?-1:1};}};
+function prodTaxChips(p){var x=prodExt(p);return '<span class="sc-tax-chips">'+PRODUCT_TAXES.map(function(t){return '<span class="sc-tax-chip">'+t[0]+' @ '+t[1].toFixed(2)+'%</span>';}).join('')+'<span class="sc-tax-chip">HSN '+esc(x.info.hsn)+'</span></span>';}
+function prodPanel(id){
+  var g=GL[id];if(!g)return;
+  g.detailFields=function(p){var x=prodExt(p);
+    return [['Store Name',esc(p.store),ICO.store],['Product Name',esc(p.name),ICO.cube],['Product ID',p.key,ICO.hash],['Product Type',esc(p.itemType),ICO.tag],
+      ['Main Category',esc(p.main),ICO.tag],['Child Category',esc(p.child||'—'),ICO.tag],['Status',activeBadge(p.status),ICO.check],['Tax Applied',prodTaxChips(p),ICO.percent,true]];};
+  g.detailsTop=function(p){return prodImagesHTML(id,p);};
+  g.detailsExtra=function(p){var x=prodExt(p);
+    return secBlock(id,p,'prodInfo')+secBlock(id,p,'prodCat')
+      +'<div class="sc-sec">'+secHead('Bhaiyaa/ONDC Details','<button class="btn-outline btn-sm" type="button" onclick="scGlTab(\'inventory\')">Change in Inventory</button>')
+      +'<div class="lp-sb-detail-grid">'+fieldCard(ICO.cube,'Quantity',prodStock(p).toFixed(3))+fieldCard(ICO.money,'Cost Price',inr(x.price.cost))
+      +fieldCard(ICO.money,'Standard Price',inr(x.price.std))+fieldCard(ICO.money,'Offer Price',inr(x.price.offer))+'</div></div>'
+      +secBlock(id,p,'prodMfg')+secBlock(id,p,'prodDesc');};
+  g.tabs=[
+    {id:'psettings',label:'Product Settings',html:function(p){return glHero(id,p,false)+secBlock(id,p,'prodSettings');}},
+    {id:'inventory',label:'Inventory',html:function(p){var total=prodStock(p);
+      return glHero(id,p,false)+secHead('Inventory Details')
+        +'<div class="sc-inv-cards"><div class="sc-inv-card"><b>'+total+'</b><span>Bhaiyaa</span></div></div>'
+        +'<div class="sc-inv-total">Total Inventory : <b>'+total+'</b></div>'
+        +listBlock(id,p,'prodInv')+secBlock(id,p,'prodPrice');}},
+    wfTab(id)
+  ];
+}
+['allproducts','productlist'].forEach(prodPanel);
+
+/* ── BRANDS & TAX: Details · Workflow · Logs, as in the system ─────────── */
+GL.brands.detailFields=function(b){return [['Brand Id',b.key,ICO.hash],['Brand Name',esc(b.name),ICO.tag],['Main Category',esc(b.main),ICO.tag],
+  ['Child Category',esc(b.sub),ICO.tag],['Status',activeBadge(b.status),ICO.check]];};
+GL.brands.tabs=[wfTab('brands')];
+/* a tax is enabled, disabled or deleted from its Logs; deleted taxes are kept */
+TAXES.forEach(function(t,i){if(!t.created)t.created=fmtDT(new Date(2026,3,10-(i%9),17,24-(i%20)));t.by=t.retailer;});
+var taxState=function(t){return t.status==='Active'?'Enable':t.status==='Deleted'?'Deleted':'Disable';};
+GL.tax.toggle=null;
+GL.tax.filters[0].opts=['Active','Inactive','Deleted'];
+GL.tax.cols.forEach(function(c){if(c.h==='Status')c.cell=function(t){return activeBadge(taxState(t));};});
+GL.tax.menu=function(t){
+  var go=function(lbl,st){return [lbl,'scTaxSet('+t.key+',\''+st+'\')'];};
+  return t.status==='Active'?[go('Disable','Inactive'),go('Delete','Deleted')]:t.status==='Inactive'?[go('Enable','Active'),go('Delete','Deleted')]:[go('Restore','Active')];
+};
+function scTaxSet(key,st){var t=glRow('tax',key);if(!t)return;t.status=st;scToast(GL.tax.title(t)+(st==='Active'?' enabled':st==='Deleted'?' deleted':' disabled'),st==='Active'?'success':'info');}
+GL.tax.detailFields=function(t){return [['ID',t.key,ICO.hash],['Name',esc(t.name),ICO.tag],['Percentage',(+t.pct).toFixed(2),ICO.percent],
+  ['Status',activeBadge(taxState(t)),ICO.check],['Created By',esc(t.by||t.retailer),ICO.user],['Created Time',esc(t.created||'—'),ICO.cal]];};
+GL.tax.stats=function(rows){return statusStats(rows,'status',[['Active','approved'],['Inactive',''],['Deleted','']]).map(function(s){return [s[0]==='Active'?'Enabled':s[0]==='Inactive'?'Disabled':s[0],s[1],s[2]];});};
+GL.tax.tabs=[wfTab('tax')];
+
+/* ── HSN/SAC: Details · Workflow · Logs; Add HSN/SAC is a page, IGST worked out ─ */
+GL.hsn.detailFields=function(h){return [['ID',h.key,ICO.hash],['HSN/SAC Code','<span class="sc-mono">'+esc(h.code)+'</span>',ICO.hash],['Type',esc(h.type),ICO.tag],
+  ['Description',esc(h.desc),ICO.doc],['CGST Rate',(+h.cgst).toFixed(2),ICO.percent],['SGST Rate',(+h.sgst).toFixed(2),ICO.percent],
+  ['IGST Rate',(+h.igst).toFixed(2)+' <span class="lp-c-sub">CGST + SGST</span>',ICO.percent],['Status',activeBadge(h.status),ICO.check]];};
+GL.hsn.tabs=[wfTab('hsn')];
+/* IGST is never typed: it is CGST + SGST */
+GL.hsn.form=GL.hsn.form.filter(function(f){return f.k!=='igst';});
+GL.hsn.onSave=function(h){h.cgst=+h.cgst||0;h.sgst=+h.sgst||0;h.igst=Math.round((h.cgst+h.sgst)*100)/100;};
+function hsnCheck(v,selfKey){
+  if(!/^\d+$/.test(v.code))return 'The code must be digits only';
+  if(v.type==='HSN'&&!/^\d{4}(\d{2})?(\d{2})?$/.test(v.code))return 'An HSN code has 4, 6 or 8 digits';
+  if(v.type==='SAC'&&!/^99\d{4}$/.test(v.code))return 'A SAC code has 6 digits and starts with 99';
+  if(HSNS.some(function(h){return h.code===v.code&&h.key!==selfKey;}))return v.code+' already exists';
+  var c=+v.cgst,s=+v.sgst;if(isNaN(c)||isNaN(s)||c<0||s<0||c>14||s>14)return 'CGST and SGST rates are between 0 and 14';
+  return '';
+}
+GL.hsn.check=hsnCheck;
+function addHsnHTML(){
+  return '<div class="listing-page"><div class="sc-bill-card sc-notice-card">'
+    +secHead('HSN/SAC Details')
+    +'<div class="policy-form-grid sc-notice-grid">'
+      +field('HSN/SAC Code','<input class="ep-form-input" id="hs-code" type="text" inputmode="numeric" maxlength="8" placeholder="Enter HSN/SAC code">',true)
+      +field('Type',csField('hs-type',['HSN','SAC'],'HSN','Select type'),true)
+      +field('Description','<input class="ep-form-input" id="hs-desc" type="text" placeholder="Enter description">',true)
+      +field('CGST Rate (%)','<input class="ep-form-input" id="hs-cgst" type="number" min="0" max="14" step="0.01" placeholder="0.00" oninput="scHsnCalc()">',true)
+      +field('SGST Rate (%)','<input class="ep-form-input" id="hs-sgst" type="number" min="0" max="14" step="0.01" placeholder="0.00" oninput="scHsnCalc()">',true)
+      +'<div class="ep-form-group"><label class="ep-form-label">IGST Rate (%) <span class="req">*</span> <span class="sc-sys">Auto-calculated</span></label>'
+        +'<div class="sc-ro" id="hs-igst">0.00</div></div>'
+    +'</div>'
+    +'<div class="sc-bill-foot"><button class="btn-outline" type="button" onclick="scGo(\'hsn\')">Cancel</button>'
+      +'<button class="btn-primary" type="button" onclick="scSaveHsn()">Submit</button></div>'
+  +'</div></div>';
+}
+function scHsnCalc(){var v=function(id){return +((document.getElementById(id)||{}).value||0)||0;},el=document.getElementById('hs-igst');if(el)el.textContent=(v('hs-cgst')+v('hs-sgst')).toFixed(2);}
+function scSaveHsn(){
+  var v=function(id){return ((document.getElementById(id)||{}).value||'').trim();};
+  var h={code:v('hs-code'),type:csValue('hs-type')||'HSN',desc:v('hs-desc'),cgst:v('hs-cgst'),sgst:v('hs-sgst')};
+  if(!h.code){scToast('Enter the HSN/SAC code','error');return;}
+  if(!h.desc){scToast('Enter the description','error');return;}
+  if(h.cgst===''||h.sgst===''){scToast('Enter the CGST and SGST rates','error');return;}
+  var why=hsnCheck(h);if(why){scToast(why,'error');return;}
+  h.key=HSNS.reduce(function(m,x){return Math.max(m,x.key);},0)+1;h.status='Active';h.created=fmtDate(DASH_TODAY);GL.hsn.onSave(h);
+  HSNS.unshift(h);glState('hsn').f={};glState('hsn').page=1;glLog('hsn',h.key,'Created');
+  scGo('hsn');scToast('HSN/SAC '+h.code+' added','success','IGST '+h.igst.toFixed(2)+'%.');
+}
+Object.assign(PAGE_ACTIONS,{hsn:['Create HSN/SAC',function(){scGo('addhsn');}],addhsn:['All HSN/SAC',function(){scGo('hsn');},ICO.list]});
+
+/* ── ALL BUYERS: the system's buyer tabs ───────────────────────────────── */
+function buyerOrders(b){return ORDERS.filter(function(o){return o.userId===b.key;});}
+function buyerCards(b,gift){return ISSUED_CARDS.filter(function(x){var c=CARDS.filter(function(y){return y.name===x.card;})[0];
+  return x.user===buyerName(b)&&c&&(gift?c.cat==='Gift':c.cat!=='Gift');});}
+GL.allbuyers.detailFields=function(b){return [['Customer ID',b.key,ICO.hash],['First Name',esc(b.first),ICO.user],['Last Name',b.last?esc(b.last):'—',ICO.user],
+  ['Email',b.email?esc(b.email):'—',ICO.doc],['Mobile',esc(b.mobile),ICO.phone],['Joined',esc(b.joined),ICO.cal]];};
+var _buyerCredit=(GL.allbuyers.tabs||[]).filter(function(t){return t.id==='credit';})[0];
+GL.allbuyers.tabs=[
+  wfTab('allbuyers'),
+  relTab('history','Buying History',['Name','Amount','Quantity','Order Status','Date'],buyerOrders,function(o){var x=orderExt(o);
+    return '<tr><td><b>'+esc(x.items.map(function(i){return i.name;}).join(', '))+'</b></td>'+td(inr(o.amount))+td(x.items.reduce(function(t,i){return t+i.qty;},0))
+      +'<td>'+orderTone(o.status)+'</td>'+td(fmtDT(o.created))+'</tr>';},'No purchases yet.'),
+  relTab('premium','Premium Card',['Card Number','Card','Valid Till','Status'],function(b){return buyerCards(b,false);},function(x){
+    return '<tr><td><span class="sc-mono">'+esc(x.number)+'</span></td>'+td(x.card)+td(x.expiry)+'<td>'+(x.status==='Expired'?badge('closed','Expired'):activeBadge(x.status))+'</td></tr>';},'No premium card.'),
+  relTab('gift','Gift Card Details',['Card Number','Card','Issued On','Status'],function(b){return buyerCards(b,true);},function(x){
+    return '<tr><td><span class="sc-mono">'+esc(x.number)+'</span></td>'+td(x.card)+td(x.issued)+'<td>'+(x.status==='Expired'?badge('closed','Expired'):activeBadge(x.status))+'</td></tr>';},'No gift cards.'),
+  relTab('tx','Transactions',['Payment ID','Order','Payment Method','Payment Status','Amount'],function(b){
+      var out=[];buyerOrders(b).forEach(function(o){orderExt(o).tx.forEach(function(q){out.push({q:q,o:o});});});return out;},
+    function(r){return '<tr>'+td(r.q.id)+td(r.o.key)+td(r.q.method)+'<td>'+badge(r.q.status==='Completed'?'approved':r.q.status==='Failed'?'unapproved':'closed',r.q.status)+'</td>'+td(inr(r.o.amount))+'</tr>';},'No transactions yet.')
+].concat(_buyerCredit?[_buyerCredit]:[]);
+
+/* ── CATEGORIES: the main tab is "Category", with the category's image ── */
+function catImageTop(id){return function(r){
+  var img=r.img?'<img src="'+r.img.url+'" alt="'+esc(r.name)+'">':'<span class="sc-tag-img sc-tag-img-lg">'+ICO.layers+'</span>';
+  return '<div class="sc-qr-big sc-tag-big"><span class="sc-qr-frame sc-tag-frame">'+img+'</span>'
+    +'<div class="sc-qr-meta"><b>'+esc(r.name)+'</b><span>'+esc(glOneCap(GL[id]))+' image</span>'
+    +'<label class="btn-outline btn-sm sc-tag-up"><input type="file" accept="image/*" hidden onchange="scCatImage(\''+id+'\','+r.key+',this.files[0]);this.value=\'\'">'+ATT_ICO.upload+' '+(r.img?'Change Image':'Upload Image')+'</label></div></div>';};}
+function scCatImage(id,key,f){
+  var r=glRow(id,key);if(!r||!f)return;
+  if(!/^image\//.test(f.type)||f.size>2048*1024){scToast('Choose an image up to 2048 KB','error');return;}
+  if(r.img)URL.revokeObjectURL(r.img.url);r.img={name:f.name,url:URL.createObjectURL(f)};glLog(id,key,'Updated '+GL[id].one+' image');scRender();scToast('Image updated','success');
+}
+['maincats','subcats','grandcats'].forEach(function(id){
+  var g=GL[id];g.detailsLabel='Category';g.detailsTop=catImageTop(id);
+  g.tabs=(g.tabs||[]).filter(function(t){return t.id!=='workflow';}).concat([wfTab(id)]);
+});
+
+/* ══ COMMUNITY, PLATFORM, AMENITY PANELS (as in the system) ════════════════ */
+function commExt(c){
+  if(c.ext)return c.ext;var k=c.key,first=c.name.split(' ')[0].toLowerCase().replace(/[^a-z]/g,'')||'comm';
+  var addr=['126, Karummariamman Nagar, VGN MelRore Garden, Tambaram, Tamil Nadu 600045, India','Plot 7, Gachibowli, Hyderabad, Telangana 500032, India',
+    '22, MG Road, Bengaluru, Karnataka 560001, India','14, Anna Salai, Chennai, Tamil Nadu 600002, India'][k%4];
+  var stores=glSrc(GL.stores);
+  c.ext={
+    profile:{by:c.name.split(' ').slice(0,2).join(' '),manager:c.name.split(' ').slice(0,2).join(' ').toLowerCase(),email:first+'community@gmail.com',
+      mobile:'+9193'+String(95907652+k).slice(-8),address:addr,house:(k%9)+'-'+(k%3),geofence:10,short:c.name,long:c.name+' community'},
+    settings:{gatepass:true,checkinout:true,selfOnboard:false},
+    stores:[stores[k%stores.length],stores[(k+3)%stores.length]].filter(Boolean).map(function(s){return {id:s.key,name:s.name,status:s.status};})
+  };
+  return c.ext;
+}
+SEC_DEF.commProfile={title:'Community Profile',get:function(r){return commExt(r).profile;},fields:[
+  {k:'by',label:'Created By'},{k:'manager',label:'Manager Name',req:true},{k:'email',label:'Manager Email Address',type:'email',req:true,pattern:/^[^@\s]+@[^@\s]+\.[^@\s]+$/},
+  {k:'mobile',label:'Manager Mobile Number',req:true,pattern:/^\+?\d{10,13}$/},{k:'house',label:'House Number'},{k:'geofence',label:'Geofence Radius (m)',type:'number',req:true},
+  {k:'address',label:'Address',full:true,req:true},{k:'short',label:'Short Description',type:'textarea',full:true},{k:'long',label:'Long Description',type:'textarea',full:true}]};
+SEC_DEF.commSettings={title:'Community Setting',get:function(r){return commExt(r).settings;},groups:[
+  ['Residential Gatepass Services',[{k:'gatepass',label:'Residential Gatepass Services',type:'switch'}]],
+  ['Community Setting',[{k:'checkinout',label:'Check in-Check out status',type:'switch'}]],
+  ['Residential Settings',[{k:'selfOnboard',label:'Resident Self Onboarding',type:'switch'}]]]};
+LIST_DEF.commStores={title:'Store Mapping',one:'store mapping',addLabel:'Mapping',empty:'No stores mapped yet.',get:function(r){return commExt(r).stores;},
+  fields:[{k:'pick',label:'Store',type:'select',req:true,full:true,opts:function(){return glSrc(GL.stores).map(function(s){return s.name+' ('+s.key+')';});}}],
+  cols:[['id','Store Id'],['name','Store Mapped'],['status','Store Status',function(x){return activeBadge(x.status);}]],
+  make:function(v,r){var id=+(v.pick.match(/\((\d+)\)$/)||[])[1],s=glSrc(GL.stores).filter(function(q){return q.key===id;})[0];if(!s)return null;
+    if(commExt(r).stores.some(function(q){return q.id===id;})){scToast(s.name+' is already mapped','error');return null;}return {id:s.key,name:s.name,status:s.status};}};
+GL.communities.detailFields=function(c){var x=commExt(c),p=x.profile;
+  return [['Community Id',c.key,ICO.hash],['Community Name',esc(c.name),ICO.building],['Category',esc(c.cat),ICO.tag],['Registration Type',esc(c.reg),ICO.tag],
+    ['Community Created Date',esc(c.created),ICO.cal],['Status',activeBadge(c.status),ICO.check]];};
+GL.communities.detailsTop=function(c){return '<div class="sc-qr-big"><span class="sc-qr-frame">'+qrSvg(c.key,110)+'</span><div class="sc-qr-meta"><b>QR Code</b><span>'+esc(c.name)+'</span>'
+  +'<button class="btn-outline btn-sm" type="button" onclick="scQrDownload('+c.key+')">'+ICO_DOWNLOAD+' Download QR</button></div></div>';};
+GL.communities.detailsExtra=function(c){return secBlock('communities',c,'commProfile');};
+var _commTabs=GL.communities.tabs||[];
+GL.communities.tabs=[
+  {id:'csettings',label:'Community Setting',html:function(c){return glHero('communities',c,false)+secBlock('communities',c,'commSettings');}},
+  {id:'cstores',label:'Store Mapping',html:function(c){return glHero('communities',c,false)+listBlock('communities',c,'commStores');}},
+  wfTab('communities'),
+  relTab('visitors','Visitor Logs',['Visitor ID','Visitor Name','Check-in Date & Time','Check-out Date & Time'],function(c){return VISITOR_LOGS.filter(function(v){return v.comm===c.name;});},
+    function(v){return '<tr>'+td(v.user)+'<td><b>'+esc(v.name)+'</b></td>'+td(v.inAt)+td(v.outAt||'--')+'</tr>';},'No visitor logs found.')
+].concat(_commTabs);
+
+/* ── ALL PLATFORM ──────────────────────────────────────────────────────── */
+function platExt(p){
+  if(p.ext)return p.ext;var k=p.key,mgr=p.name.toLowerCase().replace(/platform/,'plat').trim();
+  p.ext={profile:{by:mgr,manager:mgr,email:'test'+p.name.split(' ')[0].toLowerCase()+'plat@opendhi.com',mobile:'+9177'+String(66885567+k).slice(-8),pin:'600001',
+      address:'Dasampalaiyam, Main St, Mannadi, George Town, Chennai, Tamil Nadu 600001, India',house:String(12+k%20),short:p.name,long:p.name+' platform'},
+    comms:[],agents:[]};
+  return p.ext;
+}
+SEC_DEF.platProfile={title:'Platform Manager',get:function(r){return platExt(r).profile;},fields:[
+  {k:'by',label:'Created By'},{k:'manager',label:'Platform Manager Name',req:true},{k:'email',label:'Platform Manager Email Address',type:'email',req:true,pattern:/^[^@\s]+@[^@\s]+\.[^@\s]+$/},
+  {k:'mobile',label:'Platform Manager Mobile Number',req:true,pattern:/^\+?\d{10,13}$/},{k:'pin',label:'Pincode',req:true,pattern:/^\d{6}$/},{k:'house',label:'House / Flat / Floor Number'},
+  {k:'address',label:'Address',full:true,req:true},{k:'short',label:'Short Description',type:'textarea',full:true},{k:'long',label:'Long Description',type:'textarea',full:true}]};
+LIST_DEF.platComms={title:'Community Mapping',one:'community mapping',addLabel:'Add',empty:'No communities mapped yet.',get:function(r){return platExt(r).comms;},
+  fields:[{k:'pick',label:'Community',type:'select',req:true,full:true,opts:commNames}],
+  cols:[['id','Community ID'],['name','Community Mapped'],['status','Status',function(x){return activeBadge(x.status);}]],
+  make:function(v,r){var c=COMMUNITIES.filter(function(q){return q.name===v.pick;})[0];if(!c)return null;
+    if(platExt(r).comms.some(function(q){return q.id===c.key;})){scToast(c.name+' is already mapped','error');return null;}return {id:c.key,name:c.name,status:c.status};}};
+LIST_DEF.platAgents={title:'Agent Details',one:'agent',addLabel:'Add Agents',empty:'No agents assigned yet.',get:function(r){return platExt(r).agents;},
+  fields:[{k:'pick',label:'Agent',type:'select',req:true,opts:function(){return PARTNERS.filter(function(p){return p.status==='Active';}).map(function(p){return p.name;});}},
+    {k:'to',label:'Assigned To',type:'select',req:true,opts:commNames}],
+  cols:[['id','Member ID'],['ref','Referral ID'],['name','Agent Name'],['desig','Designation'],['to','Assigned To']],
+  make:function(v,r){var p=PARTNERS.filter(function(q){return q.name===v.pick;})[0];if(!p)return null;
+    if(platExt(r).agents.some(function(q){return q.id===p.key;})){scToast(p.name+' is already an agent here','error');return null;}return {id:p.key,ref:p.ref,name:p.name,desig:p.desig,to:v.to};}};
+GL.platforms.detailFields=function(p){return [['Platform ID',p.key,ICO.hash],['Platform Name',esc(p.name),ICO.server],['Platform Type',esc(p.type),ICO.tag],
+  ['Created Date',esc(p.created),ICO.cal],['Status',activeBadge(p.status),ICO.check]];};
+GL.platforms.detailsTop=catImageTop('platforms');
+GL.platforms.detailsExtra=function(p){return secBlock('platforms',p,'platProfile');};
+GL.platforms.tabs=[
+  {id:'pcomms',label:'Communities',html:function(p){return glHero('platforms',p,false)+listBlock('platforms',p,'platComms');}},
+  {id:'pagents',label:'Agents',html:function(p){return glHero('platforms',p,false)+listBlock('platforms',p,'platAgents');}},
+  wfTab('platforms')];
+
+/* ── AMENITIES ─────────────────────────────────────────────────────────── */
+function amenExt(a){
+  if(a.ext)return a.ext;
+  a.ext={feeType:/Annual|Quarterly|Monthly/.test(a.name)?'Recurring':'One Time',type:/Membership/.test(a.name)?'Membership':'Booking',
+    sub:a.kind==='Other'?'General':a.kind,offer:a.fee?Math.round(a.fee*0.7):0,desc:a.name+' at '+a.comm+'.'};
+  return a.ext;
+}
+SEC_DEF.amenMore={title:'Amenity Details',get:amenExt,fields:[
+  {k:'feeType',label:'Fee Type',type:'select',opts:['One Time','Recurring'],req:true},{k:'type',label:'Amenity Type',type:'select',opts:['Membership','Booking','Pass'],req:true},
+  {k:'sub',label:'Sub Category',type:'select',opts:['Gym','Spa','Pool','Clubhouse','General']},{k:'offer',label:'Offer Price (INR)',type:'number'},
+  {k:'desc',label:'Description',type:'textarea',full:true}],check:function(v){return 0;}};
+GL.amenities.detailFields=function(a){return [['Service ID',a.key,ICO.hash],['Amenities Name',esc(a.name),ICO.sparkle],['Amenities Store Name',esc(a.comm+'_Amenities'),ICO.store],
+  ['Community',esc(a.comm),ICO.building],['Registration Fee',a.fee?'INR '+(+a.fee).toLocaleString('en-IN'):'Free',ICO.money],['Status',activeBadge(a.status),ICO.check]];};
+GL.amenities.detailsTop=catImageTop('amenities');
+GL.amenities.detailsExtra=function(a){return secBlock('amenities',a,'amenMore');};
+GL.amenities.cols.forEach(function(c){if(c.h==='Image')c.noDetail=true;});
+GL.amenities.tabs=[wfTab('amenities')];
+
+/* ══ MEMBERS, RESIDENTS, DAILY HELP, NOTICES (as in the system) ═════════════ */
+function splitName(n){var p=String(n||'').trim().split(/\s+/);return {first:p[0]||'',last:p.slice(1).join(' ')};}
+function splitMobile(m){var d=String(m||'').replace(/[^\d]/g,'');return {cc:'+91',num:d.length>10?d.slice(-10):d};}
+/* Police / AML verification: each run is kept with its outcome */
+function amlHTML(id,r){
+  var runs=r.aml||[];
+  return '<div class="sc-sec">'+secHead('Police / AML Verification','<button class="btn-primary btn-sm" type="button" onclick="scRunAml(\''+id+'\','+r.key+')">Run Verification</button>')
+    +'<div class="sc-sub-title">Verification History</div>'
+    +(runs.length?recTable(['Run Date','Overall Status','Score','Run By'],runs.map(function(v){
+      return '<tr>'+td(v.date)+'<td>'+badge(v.status==='Clear'?'approved':v.status==='Review'?'pending':'unapproved',v.status)+'</td>'+td(v.score+' / 100')+td(v.by)+'</tr>';}).join(''))
+      :'<div class="lp-logs-empty">No records yet.</div>')+'</div>';
+}
+function scRunAml(id,key){
+  var r=glRow(id,key);if(!r)return;var n=(r.aml||[]).length,score=60+((key*37+n*13)%40),st=score>=80?'Clear':score>=70?'Review':'Flagged';
+  (r.aml||(r.aml=[])).unshift({date:fmtDT(new Date()),status:st,score:score,by:who()});
+  glLog(id,key,'Ran Police / AML verification','Result: '+st+' ('+score+'/100)');scRender();scToast('Verification '+st.toLowerCase(),st==='Clear'?'success':'info','Score '+score+' / 100.');
+}
+
+/* ── ALL COMMUNITY MEMBERS ─────────────────────────────────────────────── */
+GL.cmembers.detailFields=function(m){var n=splitName(m.name),mob=splitMobile(m.mobile);
+  return [['Referral ID',String(31373000+m.key%1000*7).slice(0,8),ICO.hash],['Community Name',esc(m.comm),ICO.building],['First Name',esc(n.first),ICO.user],['Last Name',n.last?esc(n.last):'—',ICO.user],
+    ['Email',esc(m.email),ICO.doc],['Country Code',mob.cc,ICO.globe],['Mobile',esc(mob.num),ICO.phone],['Create Time',esc(fmtDT(addD(DASH_TODAY,-(m.key%30)))),ICO.cal],
+    ['Date Of Birth',m.dob?esc(m.dob):'—',ICO.cal],['Designation',esc(m.desig),ICO.tag],['Status',activeBadge(m.status),ICO.check],['KYC Verified',badge(m.kyc==='Yes'?'approved':'unapproved',m.kyc),ICO.check],
+    ['PAN Number',m.pan?'<span class="sc-mono">XXXXXXXXXX</span>':'—',ICO.hash],
+    ['PAN Card','<button class="btn-outline btn-sm" type="button" onclick="scToast(\'PAN card\',\'info\',\'No PAN card uploaded yet.\')">'+ICO_DOWNLOAD+' Download</button>',ICO.doc]];};
+GL.cmembers.tabs=[
+  {id:'mstore',label:'Store',html:function(m){var c=COMMUNITIES.filter(function(x){return x.name===m.comm;})[0],list=c?commExt(c).stores:[];
+    return glHero('cmembers',m,false)+secHead('Community Stores')+(list.length?recTable(['Store Id','Store Name','Status'],list.map(function(s){return '<tr>'+td(s.id)+'<td><b>'+esc(s.name)+'</b></td><td>'+activeBadge(s.status)+'</td></tr>';}).join(''))
+      :'<div class="lp-logs-empty">No stores mapped to '+esc(m.comm)+'.</div>');}},
+  relTab('mbuyers','Buyers',['Key','Name','Mobile','Joined'],function(m){return BUYERS.filter(function(b,i){return (i+m.key)%9===0;});},
+    function(b){return '<tr>'+td(b.key)+'<td><b>'+esc(buyerName(b))+'</b></td>'+td(b.mobile)+td(b.joined)+'</tr>';},'No buyers onboarded by this member.'),
+  wfTab('cmembers'),
+  {id:'mkyc',label:'KYC',html:function(m){return glHero('cmembers',m,false)+amlHTML('cmembers',m);}}
+];
+
+/* ── ALL RESIDENTS: the membership card, attachments, family ───────────── */
+function residentCardSVG(r){
+  var q=qrSvg(r.key,90).replace('<svg','<svg x="292" y="96"');
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="230" viewBox="0 0 400 230"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f7c873"/><stop offset="1" stop-color="#d9962e"/></linearGradient></defs>'
+    +'<rect width="400" height="230" rx="16" fill="url(#g)"/><text x="22" y="34" font-family="Inter,Arial" font-size="11" fill="#fff" letter-spacing="2">MEMBERSHIP CARD</text>'
+    +'<rect x="22" y="58" width="74" height="86" rx="8" fill="#fff" opacity=".9"/><circle cx="59" cy="88" r="16" fill="#cbd5e1"/><rect x="38" y="110" width="42" height="24" rx="12" fill="#cbd5e1"/>'
+    +'<text x="110" y="76" font-family="Inter,Arial" font-size="15" font-weight="700" fill="#fff">'+esc(r.name)+'</text>'
+    +'<text x="110" y="96" font-family="Inter,Arial" font-size="11" fill="#fff">'+esc(r.pos)+' · '+esc(r.comm)+'</text>'
+    +'<text x="110" y="114" font-family="Inter,Arial" font-size="11" fill="#fff">Flat '+esc(r.prop)+'</text>'
+    +'<text x="22" y="204" font-family="Inter,Arial" font-size="11" fill="#fff">Member ID  '+r.key+'</text>'
+    +'<rect x="286" y="90" width="102" height="102" rx="8" fill="#fff"/>'+q+'</svg>';
+}
+function scResidentCard(key){var r=glRow('residents',key);if(!r)return;
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([residentCardSVG(r)],{type:'image/svg+xml'}));a.download='membership-card-'+key+'.svg';
+  document.body.appendChild(a);a.click();a.remove();scToast('Membership card downloaded','success');}
+GL.residents.detailsTop=function(r){return '<div class="sc-mcard-wrap"><div class="sc-mcard">'+residentCardSVG(r)+'</div>'
+  +'<button class="btn-outline btn-sm" type="button" onclick="scResidentCard('+r.key+')">'+ICO_DOWNLOAD+' Download Card</button></div>';};
+GL.residents.detailFields=function(r){return [['Resident Type',esc(r.pos),ICO.tag],['Occupancy Status',esc(r.occ),ICO.home],['Full Name',esc(r.name),ICO.user],
+  ['Email ID',r.email?esc(r.email):'—',ICO.doc],['Community',esc(r.comm),ICO.building],['Property',esc(r.prop),ICO.home],['Mobile',esc(r.mobile),ICO.phone],['Status',activeBadge(r.status),ICO.check]];};
+LIST_DEF.resFiles={title:'Attachments',one:'attachment',addLabel:'Add Attachment',empty:'No attachments yet.',get:function(r){return r.files||(r.files=[]);},
+  fields:[{k:'doc',label:'Document',type:'select',opts:['Rental Agreement','Sale Deed','ID Proof','Police Verification','Other'],req:true},{k:'file',label:'File',type:'file',accept:'image/*,.pdf',req:true}],
+  cols:[['doc','Document'],['file','File',function(x){return '<a class="sc-link" href="'+x.file.url+'" download="'+esc(x.file.name)+'">'+esc(x.file.name)+'</a>';}],['at','Uploaded On']],
+  make:function(v){return {name:v.doc,doc:v.doc,file:v.file,at:fmtDate(DASH_TODAY)};}};
+LIST_DEF.resFamily={title:'Family Members',one:'family member',addLabel:'Add Member',empty:'No family members found.',get:function(r){return r.family||(r.family=[]);},
+  fields:[{k:'name',label:'Name',req:true},{k:'phone',label:'Phone',req:true,ph:'+91'},{k:'type',label:'Type',type:'select',opts:['Spouse','Child','Parent','Sibling','Other'],req:true}],
+  cols:[['name','Name'],['phone','Phone'],['type','Type'],['status','Status',function(x){return activeBadge(x.status);}]],
+  make:function(v){if(!/^\+?\d{10,13}$/.test(String(v.phone).replace(/\s/g,''))){scToast('Enter a valid phone number','error');return null;}return {name:v.name,phone:v.phone,type:v.type,status:'Active'};}};
+GL.residents.tabs=[wfTab('residents'),
+  {id:'rfiles',label:'Attachments',html:function(r){return glHero('residents',r,false)+listBlock('residents',r,'resFiles');}},
+  {id:'rfamily',label:'Family',html:function(r){return glHero('residents',r,false)+listBlock('residents',r,'resFamily');}}
+].concat((GL.residents.tabs||[]).filter(function(t){return t.id==='notices';}));
+
+/* ── ALL DAILY HELP: photo, KYC documents and verification ─────────────── */
+GL.dailyhelp.detailsTop=catImageTop('dailyhelp');
+GL.dailyhelp.detailFields=function(m){var n=splitName(m.name),mob=splitMobile(m.mobile);
+  return [['Member ID',m.key,ICO.hash],['Community Name',esc(m.comm),ICO.building],['First Name',esc(n.first),ICO.user],['Last Name',n.last?esc(n.last):'—',ICO.user],
+    ['Email',m.email?esc(m.email):'—',ICO.doc],['Country Code',mob.cc,ICO.globe],['Mobile',esc(mob.num),ICO.phone],['Designation',esc(m.desig),ICO.tag],
+    ['Status',activeBadge(m.status),ICO.check],['Date Of Birth',m.dob?esc(m.dob):'—',ICO.cal]];};
+LIST_DEF.helpDocs={title:'Document Images',one:'document',addLabel:'Upload New Document',empty:'No documents yet.',get:function(m){return m.docs||(m.docs=[{name:'ID Card',doc:'ID Card',verify:'Not Required',file:null}]);},
+  fields:[{k:'doc',label:'Document Type',type:'select',opts:['ID Card','Aadhaar Card','Address Proof','Police Clearance'],req:true},{k:'file',label:'File',type:'file',accept:'image/*,.pdf',req:true}],
+  cols:[['doc','Document Type'],['verify','Document Verification',function(x){return badge(x.verify==='Verified'?'approved':x.verify==='Pending'?'pending':'closed',x.verify);}],
+    ['file','File',function(x){return x.file?'<a class="sc-link" href="'+x.file.url+'" download="'+esc(x.file.name)+'">View</a>':'<span class="lp-dash">—</span>';}]],
+  make:function(v){return {name:v.doc,doc:v.doc,verify:v.doc==='ID Card'?'Not Required':'Pending',file:v.file};}};
+GL.dailyhelp.tabs=[
+  {id:'hkyc',label:'KYC',html:function(m){return glHero('dailyhelp',m,false)+listBlock('dailyhelp',m,'helpDocs')+amlHTML('dailyhelp',m);}},
+  wfTab('dailyhelp')];
+
+/* ── NOTICE BOARD: Details · Reports · Workflow · Logs ─────────────────── */
+GL.notices.detailFields=function(n){return [['Post ID',n.key,ICO.hash],['Post Type',esc(n.type),ICO.tag],['Category',esc(n.cat),ICO.tag],['Title',esc(n.title),ICO.doc],
+  ['Target Group',esc(n.group),ICO.users],['Attachment',n.img==='none'?'<span class="lp-dash">No attachment</span>':n.img==='pdf'?'PDF attached':'Image attached',ICO.doc],
+  ['Description',esc(n.desc||'—'),ICO.doc,true],['Status',activeBadge(n.status),ICO.check],['Created By',esc(n.by||'harish k'),ICO.user],['Created On',esc(n.date+' | '+n.time),ICO.cal]];};
+GL.notices.tabs=[
+  relTab('nreports','Reports',['Reported By','Reason','Reported On'],function(n){return n.reports||(n.reports=n.key%3===0?[{who:'Priya Nair',why:'Wrong information',at:fmtDT(addD(DASH_TODAY,-2))}]:[]);},
+    function(x){return '<tr><td><b>'+esc(x.who)+'</b></td>'+td(x.why)+td(x.at)+'</tr>';},'No reports on this notice.'),
+  wfTab('notices')];
+
+/* ══ BLOCKS, CUSTOMER BANDS, E-WALLETS, PARTNERS, CAFETERIA (as in the system) ═ */
+/* ── All Blocks ── */
+GL.blocks.detailFields=function(b){return [['Block Id',b.key,ICO.hash],['Community',esc(b.comm),ICO.building],['Block / Tower Name',esc(b.name),ICO.tower],
+  ['Total Flats',FLATS.filter(function(f){return f.block===b.key;}).length,ICO.door],['Status',activeBadge(b.status),ICO.check]];};
+GL.blocks.tabs=(GL.blocks.tabs||[]).filter(function(t){return t.id!=='workflow';}).concat([wfTab('blocks')]);
+
+/* ── Customer Bands: the band's customers ── */
+function bandCustomers(b){
+  if(!b.customers){var n=b.assigned||0;b.customers=[];
+    for(var i=0;i<n;i++){var u=BUYERS[(b.key*3+i*7)%BUYERS.length];b.customers.push({id:u.key,name:buyerName(u),email:u.email,mobile:u.mobile,refId:String(313000+(u.key%997)),refBy:i%2?'Opendhi Agent':'System',card:i%3===0?'N/A':'SC-'+(4400+u.key%900)});}}
+  return b.customers;
+}
+LIST_DEF.bandCust={title:'Customer Details',one:'customer',addLabel:'Add Customer',empty:'No customers on this band.',get:bandCustomers,
+  fields:[{k:'pick',label:'Customer',type:'select',req:true,full:true,opts:function(){return BUYERS.map(function(u){return buyerName(u)+' ('+u.key+')';});}}],
+  cols:[['id','Customer ID'],['name','Customer Name'],['email','Email'],['mobile','Mobile Number'],['refId','Referred Id'],['refBy','Referred By'],['card','Smart Card']],
+  make:function(v,b){var id=+(v.pick.match(/\((\d+)\)$/)||[])[1],u=BUYERS.filter(function(q){return q.key===id;})[0];if(!u)return null;
+    if(bandCustomers(b).some(function(q){return q.id===id;})){scToast(buyerName(u)+' is already on this band','error');return null;}
+    return {id:u.key,name:buyerName(u),email:u.email,mobile:u.mobile,refId:String(313000+(u.key%997)),refBy:who(),card:'N/A'};},
+  after:function(b){b.assigned=bandCustomers(b).length;},
+  show:function(c){var q=(state.bandQ||'').toLowerCase();return !q||(c.name+' '+c.email+' '+c.mobile+' '+c.id).toLowerCase().indexOf(q)>=0;}};
+function scBandExport(key){
+  var b=glRow('custbands',key);if(!b)return;var rows=bandCustomers(b);if(!rows.length){scToast('Nothing to export','info');return;}
+  var csv=[['Customer ID','Customer Name','Email','Mobile Number','Referred Id','Referred By','Smart Card']].concat(rows.map(function(c){return [c.id,c.name,c.email,c.mobile,c.refId,c.refBy,c.card];}))
+    .map(function(l){return l.map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='band-'+key+'-customers.csv';document.body.appendChild(a);a.click();a.remove();
+  scToast('Customers exported','success',rows.length+' in the file.');
+}
+GL.custbands.cols.forEach(function(c){if(c.h==='Customers Assigned')c.cell=function(b){return plain(bandCustomers(b).length);};});
+GL.custbands.detailFields=function(b){return [['Key Id',b.key,ICO.hash],['Band',esc(b.name),ICO.medal],['Created By',esc(b.by),ICO.user],['Create Time',esc(b.created),ICO.cal],
+  ['Customers Assigned',bandCustomers(b).length,ICO.users],['Status',activeBadge(b.status),ICO.check]];};
+GL.custbands.tabs=[
+  {id:'bcust',label:'Customer List',html:function(b){var q=(state.bandQ||'').toLowerCase();
+    var tools='<div class="sc-gl-actbar sc-band-tools"><input class="lp-search-input" type="text" placeholder="Search customer" value="'+esc(state.bandQ||'')+'" oninput="state.bandQ=this.value" onkeydown="if(event.key===\'Enter\')glPanelRefresh()">'
+      +'<button class="btn-outline btn-sm" type="button" onclick="glPanelRefresh()">Search</button><button class="btn-outline btn-sm" type="button" onclick="scBandExport('+b.key+')">'+ICO_DOWNLOAD+' Export Cards</button></div>';
+    var html=listBlock('custbands',b,'bandCust');
+    return glHero('custbands',b,false)+tools+html;}}
+].concat((GL.custbands.tabs||[]).filter(function(t){return t.id==='wallets';})).concat([wfTab('custbands')]);
+
+/* ── E-Wallets: promotion, credits, customers ── */
+function walletExt(w){
+  if(!w.ext)w.ext={promo:{validity:'12 months',perOrder:Math.max(1,Math.round(w.coins/100)),minOrder:100,expiry:'2027-03-31'},
+    credits:[{type:'CREDIT',amount:w.coins,band:w.band,at:'2025-05-28 11:16:51',comment:'Auto-Credit'}]};
+  return w.ext;
+}
+SEC_DEF.walletPromo={title:'Promotion Details',get:function(r){return walletExt(r).promo;},fields:[
+  {k:'perOrder',label:'Coins per Order',type:'number',req:true},{k:'minOrder',label:'Minimum Order Value (₹)',type:'number',req:true},
+  {k:'validity',label:'Coin Validity',type:'select',opts:['3 months','6 months','12 months','No expiry']},{k:'expiry',label:'Promotion Ends',type:'date'}]};
+LIST_DEF.walletCredits={noDelete:true,title:'Transaction Details',one:'credit entry',addLabel:'Credit Entry',empty:'No transactions yet.',get:function(r){return walletExt(r).credits;},
+  fields:[{k:'type',label:'Type',type:'select',opts:['CREDIT','DEBIT'],req:true,def:'CREDIT'},{k:'amount',label:'Amount (coins)',type:'number',req:true},{k:'comment',label:'Comment',req:true,full:true}],
+  cols:[['type','Type',function(x){return badge(x.type==='CREDIT'?'approved':'unapproved',x.type);}],['amount','Amount'],['band','Band Name'],['at','Timestamp'],['comment','Comment']],
+  make:function(v,w){var a=+v.amount;if(!(a>0)){scToast('Enter an amount above zero','error');return null;}if(v.type==='DEBIT'&&a>w.coins){scToast('Only '+w.coins+' coins in the wallet','error');return null;}
+    var d=new Date(),p=function(n){return ('0'+n).slice(-2);};w.coins+=v.type==='CREDIT'?a:-a;
+    return {type:v.type,amount:a,band:w.band,at:isoDay(DASH_TODAY)+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()),comment:v.comment,name:v.type+' '+a};}};
+GL.ewallets.detailFields=function(w){return [['Key Id',w.key,ICO.hash],['Name',esc(w.name),ICO.coins],['Total Coins',(+w.coins).toLocaleString('en-IN'),ICO.coins],
+  ['Customer Band',esc(w.band),ICO.medal],['Status',activeBadge(w.status),ICO.check]];};
+GL.ewallets.detailsExtra=function(w){return secBlock('ewallets',w,'walletPromo');};
+GL.ewallets.tabs=[
+  {id:'wcredits',label:'Credit Transactions',html:function(w){return glHero('ewallets',w,false)+listBlock('ewallets',w,'walletCredits');}},
+  relTab('wcust','Customer List',['Customer Name','Email','Mobile Number'],function(w){var b=CUSTOMER_BANDS.filter(function(x){return x.name===w.band;})[0];return b?bandCustomers(b):[];},
+    function(c){return '<tr><td><b>'+esc(c.name)+'</b></td>'+td(c.email||'—')+td(c.mobile)+'</tr>';},'No customers on this wallet’s band.'),
+  wfTab('ewallets')];
+
+/* ── All Partners: photo, KYC, managed communities, agents under them ── */
+GL.partners.detailsTop=catImageTop('partners');
+GL.partners.detailFields=function(p){var n=splitName(p.name),mob=splitMobile(p.mobile);
+  return [['Member ID',p.key,ICO.hash],['Referral ID','<span class="sc-mono">'+esc(p.ref)+'</span>',ICO.hash],['Community Name',p.comm?esc(p.comm):'Not Assigned',ICO.building],
+    ['First Name',esc(n.first.toLowerCase()),ICO.user],['Last Name',n.last?esc(n.last.toLowerCase()):'—',ICO.user],['Email',esc(p.email),ICO.doc],['Country Code','91',ICO.globe],
+    ['Mobile',esc(mob.num),ICO.phone],['Create Time',esc(fmtDT(addD(DASH_TODAY,-(p.key%40)))),ICO.cal],['Designation',esc(p.desig),ICO.tag],['Status',activeBadge(p.status),ICO.check]];};
+LIST_DEF.partnerComms={title:'Managed Communities',one:'community',addLabel:'Assign Community',empty:'No communities assigned yet.',get:function(p){return p.managed||(p.managed=p.comm?[{name:p.comm,at:fmtDate(addD(DASH_TODAY,-10))}]:[]);},
+  fields:[{k:'pick',label:'Community',type:'select',req:true,full:true,opts:commNames}],cols:[['name','Community'],['at','Assigned On']],
+  make:function(v,p){if((p.managed||[]).some(function(x){return x.name===v.pick;})){scToast(v.pick+' is already assigned','error');return null;}return {name:v.pick,at:fmtDate(DASH_TODAY)};}};
+LIST_DEF.partnerDocs={title:'KYC Documents',one:'document',addLabel:'Upload Document',empty:'No KYC documents yet.',get:function(p){return p.docs||(p.docs=[]);},
+  fields:[{k:'doc',label:'Document Type',type:'select',opts:['PAN Card','Aadhaar Card','Address Proof','Bank Proof'],req:true},{k:'file',label:'File',type:'file',accept:'image/*,.pdf',req:true}],
+  cols:[['doc','Document Type'],['verify','Verification',function(x){return badge('pending',x.verify);}],['file','File',function(x){return '<a class="sc-link" href="'+x.file.url+'" download="'+esc(x.file.name)+'">View</a>';}]],
+  make:function(v){return {name:v.doc,doc:v.doc,verify:'Pending',file:v.file};}};
+GL.partners.tabs=[wfTab('partners'),
+  {id:'pkyc',label:'KYC Details',html:function(p){return glHero('partners',p,false)+listBlock('partners',p,'partnerDocs')+amlHTML('partners',p);}},
+  {id:'pmanage',label:'Manage Agent',html:function(p){return glHero('partners',p,false)+listBlock('partners',p,'partnerComms');}},
+  relTab('pagents','Agent Details',['Member ID','Referral ID','Agent Name','Designation','Status'],function(p){return PARTNERS.filter(function(x){return x.key!==p.key&&x.comm&&x.comm===p.comm;});},
+    function(x){return '<tr>'+td(x.key)+'<td><span class="sc-mono">'+esc(x.ref)+'</span></td><td><b>'+esc(x.name)+'</b></td>'+td(x.desig)+'<td>'+activeBadge(x.status)+'</td></tr>';},'No agents under this partner.')];
+
+/* ── Cafeteria ── */
+GL.cafeteria.detailFields=function(c){return [['Key Id',c.key,ICO.hash],['Name',esc(c.name),ICO.cup],['Created By',esc(c.by),ICO.user],['Created Time',esc(c.created),ICO.cal],['Status',activeBadge(c.status),ICO.check]];};
+GL.cafeteria.tabs=[wfTab('cafeteria')];
+
+/* ══ SEQUENCE, TICKETS, SUPPORT TEAMS (as in the system) ═══════════════════ */
+/* ── Sequence: Basic Details is the item list; Edit reorders it in place ── */
+GL.sequence.detailsLabel='Basic Details';
+GL.sequence.detailFields=function(c){return [['Configuration Name',esc(c.name),ICO.sortlines],['Module ID','SEQ-'+c.key,ICO.hash],
+  ['Items',c.items.length,ICO.list],['Status',c.status==='Future'?badge('pending','Future'):activeBadge(c.status),ICO.check]];};
+GL.sequence.detailsExtra=function(c){
+  var e=state.seqEdit&&state.seqEdit.key===c.key?state.seqEdit:null,items=e?e.items:c.items;
+  var rows=items.map(function(it,i){
+    return '<div class="sc-seq-row'+(it.on?'':' is-off')+'"><span class="sc-seq-name">'+esc(it.name)+'</span>'
+      +'<span class="sc-seq-no">'+(i+1)+'</span>'
+      +(e?'<span class="sc-seq-tools"><button type="button" class="lp-action-btn" title="Move up"'+(i?'':' disabled')+' onclick="scSeqEdMove('+i+',-1)">'+ICO_UP+'</button>'
+          +'<button type="button" class="lp-action-btn" title="Move down"'+(i<items.length-1?'':' disabled')+' onclick="scSeqEdMove('+i+',1)">'+ICO_DOWN+'</button>'
+          +'<button type="button" role="switch" aria-checked="'+it.on+'" class="sc-switch'+(it.on?' is-on':'')+'" title="'+(it.on?'Hide':'Show')+'" onclick="scSeqEdVis('+i+')"><span></span></button></span>'
+        :'<span class="sc-seq-st">'+badge(it.on?'approved':'closed',it.on?'Active':'Hidden')+'</span>')+'</div>';}).join('');
+  return '<div class="sc-sec">'+secHead('Display Order',e?'<span class="sc-editing-pill">'+ICO_EDIT+' Editing</span>':'<button class="lp-sb-view-edit-btn" type="button" onclick="scSeqEdStart('+c.key+')">'+ICO_EDIT+' Edit</button>')
+    +'<div class="sc-seq-head"><span>Item Name</span><span>Sequence</span><span>'+(e?'Order / Visibility':'Status')+'</span></div>'
+    +(rows?'<div class="sc-seq-list">'+rows+'</div>':'<div class="lp-logs-empty">No items yet - this section is planned for the future.</div>')
+    +(e?'<div class="sc-gl-actbar" style="margin-top:12px"><input class="ep-form-input sc-seq-add" id="sc-seq-new" type="text" placeholder="Add an item" onkeydown="if(event.key===\'Enter\')scSeqEdAdd()">'
+        +'<button class="btn-outline btn-sm" type="button" onclick="scSeqEdAdd()">'+ICO.plus+' Add Item</button></div>'
+        +'<div class="sc-edit-actions"><button class="btn-outline" onclick="state.seqEdit=null;glPanelRefresh()">Cancel</button><button class="btn-primary" onclick="scSeqEdSave()">Save Changes</button></div>':'')
+    +'</div>';
+};
+function scSeqEdStart(key){var c=glRow('sequence',key);if(!c)return;state.seqEdit={key:key,items:c.items.map(function(x){return {name:x.name,on:x.on};})};glPanelRefresh();}
+function scSeqEdMove(i,d){var e=state.seqEdit;if(!e)return;var j=i+d;if(j<0||j>=e.items.length)return;var t=e.items[i];e.items[i]=e.items[j];e.items[j]=t;glPanelRefresh();}
+function scSeqEdVis(i){var e=state.seqEdit;if(!e)return;e.items[i].on=!e.items[i].on;glPanelRefresh();}
+function scSeqEdAdd(){var e=state.seqEdit,el=document.getElementById('sc-seq-new'),v=el&&el.value.trim();if(!e||!v)return;e.items.push({name:v,on:true});glPanelRefresh();}
+function scSeqEdSave(){
+  var e=state.seqEdit,c=e&&glRow('sequence',e.key);if(!c)return;
+  var before=JSON.stringify(c.items),after=JSON.stringify(e.items);state.seqEdit=null;
+  if(before===after){glPanelRefresh();scToast('No changes to save','info');return;}
+  c.items=e.items;if(c.status==='Future'&&c.items.length)c.status='Active';glLog('sequence',c.key,'Updated display order',c.items.filter(function(x){return x.on;}).length+' of '+c.items.length+' visible');
+  scRender();scToast(c.name+' saved','success');
+}
+GL.sequence.tabs=[wfTab('sequence')];
+
+/* ── Tickets: Details · Orders · Notes · Images · Workflow · Assign Member · Logs ── */
+function ticketExt(t){
+  if(t.ext)return t.ext;var team=SUP_TEAMS.filter(function(x){return x.name===t.team;})[0],ord=ORDERS[t.key%ORDERS.length];
+  t.ext={by:ord.user,byEmail:(BUYERS.filter(function(b){return b.key===ord.userId;})[0]||{}).email||'',byPhone:ord.phone,
+    assignee:team?teamMembers({key:team.key,name:team.name,email:team.email})[0]:null,orders:t.role==='Buyer'?[ord.key]:[],
+    desc:t.title+'. Please look into this at the earliest.',notes:[],images:[]};
+  return t.ext;
+}
+GL.tickets.detailFields=function(t){var x=ticketExt(t),a=x.assignee;
+  return [['Type',esc(t.type),ICO.tag],['Category',esc(t.cat),ICO.tag],['Level',esc(t.level),ICO.hash],['Priority',badge(PRIO_TONE[t.priority],t.priority),ICO.flag],
+    ['Create Time',esc(t.created),ICO.cal],['Create By',esc(x.by),ICO.user],['Assigned Team',esc(t.team||'—'),ICO.users],
+    ['Assignee Name',a?esc(a.name):'—',ICO.user],['Assignee Email',a?esc(a.email):'—',ICO.doc],['Assignee Contact',a?esc(a.mobile):'—',ICO.phone],
+    ['Status',badge(t.status==='Resolved'||t.status==='Closed'?'approved':t.status==='Open'?'pending':'active',t.status),ICO.check],['Sub-Status',esc(t.sub||'—'),ICO.check],
+    ['Ticket Raised By',esc(x.by),ICO.user],['Ticket Raised Email',x.byEmail?esc(x.byEmail):'—',ICO.doc],['Ticket Raised Contact',esc(x.byPhone),ICO.phone],
+    ['Description',esc(x.desc),ICO.doc,true]];};
+LIST_DEF.tktNotes={noDelete:true,title:'Notes',one:'note',addLabel:'Add Note',empty:'No notes yet.',get:function(t){return ticketExt(t).notes;},
+  fields:[{k:'text',label:'Note',type:'textarea',req:true,full:true}],cols:[['text','Note'],['who','Added By'],['at','Added On']],
+  make:function(v){var s=stamp();return {text:v.text,who:who(),at:s.date+' · '+s.time.slice(0,5),name:''};}};
+LIST_DEF.tktImages={title:'Images',one:'image',addLabel:'Add Image',empty:'No images attached.',get:function(t){return ticketExt(t).images;},
+  fields:[{k:'file',label:'Image',type:'file',accept:'image/*',req:true}],
+  cols:[['file','Image',function(x){return '<a class="sc-link" href="'+x.file.url+'" target="_blank" rel="noopener">'+esc(x.file.name)+'</a>';}],['at','Added On']],
+  make:function(v){return {file:v.file,name:v.file.name,at:fmtDate(DASH_TODAY)};}};
+LIST_DEF.tktAssign={title:'Assign Member',one:'assignee',addLabel:'Assign Member',empty:'No member assigned.',get:function(t){var a=ticketExt(t).assignee;return a?[a]:[];},
+  fields:[{k:'pick',label:'Team Member',type:'select',req:true,full:true,opts:function(){var o=[];SUP_TEAMS.forEach(function(tm){teamMembers({key:tm.key,name:tm.name,email:tm.email}).forEach(function(m){o.push(m.name+' — '+tm.name);});});return o;}}],
+  cols:[['name','Name'],['email','Email'],['mobile','Contact'],['role','Designation']],
+  make:function(v,t){var parts=v.pick.split(' — '),tm=SUP_TEAMS.filter(function(x){return x.name===parts[1];})[0];if(!tm)return null;
+    var m=teamMembers({key:tm.key,name:tm.name,email:tm.email}).filter(function(x){return x.name===parts[0];})[0];if(!m)return null;
+    ticketExt(t).assignee=m;t.team=tm.name;scToast('Assigned to '+m.name,'success');return null;}};
+GL.tickets.tabs=[
+  relTab('torders','Orders',['Order ID','Store','Amount','Status'],function(t){return ticketExt(t).orders.map(orderByKey).filter(Boolean);},
+    function(o){return '<tr>'+td(o.key)+td(o.store)+td(inr(o.amount))+'<td>'+orderTone(o.status)+'</td></tr>';},'No orders linked to this ticket.'),
+  {id:'tnotes',label:'Notes',html:function(t){return glHero('tickets',t,false)+listBlock('tickets',t,'tktNotes');}},
+  {id:'timages',label:'Images',html:function(t){return glHero('tickets',t,false)+listBlock('tickets',t,'tktImages');}},
+  wfTab('tickets'),
+  {id:'tassign',label:'Assign Member',html:function(t){return glHero('tickets',t,false)+listBlock('tickets',t,'tktAssign');}}];
+/* assigning saves itself (it replaces the assignee rather than adding a row) */
+var _listSaveBase=scListSave;
+scListSave=function(){var d=state.glDraft;
+  if(d&&d.mode==='list'&&d.list==='tktAssign'){var t=glRow('tickets',d.key);if(!d.vals.pick){scToast('Select the team member','error');return;}
+    LIST_DEF.tktAssign.make(d.vals,t);glLog('tickets',d.key,'Assigned to '+ticketExt(t).assignee.name);state.glDraft=null;scRender();return;}
+  return _listSaveBase();};
+
+/* ── Support Teams: Details · Workflow · Categories · Access · Team Members ── */
+function supTeamExt(t){
+  if(!t.ext)t.ext={type:['Sales','Support','Operations'][t.key%3],by:'pardeep verma',cats:[{name:t.cat,at:t.created}],
+    access:{view:true,assign:true,resolve:true,close:t.key%2===0,escalate:true,refund:false}};
+  return t.ext;
+}
+GL.supteams.detailFields=function(t){var x=supTeamExt(t);return [['Team ID',t.key,ICO.hash],['Team Name',esc(t.name),ICO.users],['Team Type',esc(x.type),ICO.tag],
+  ['Team Email',esc(t.email),ICO.doc],['Team Code','<span class="sc-mono">'+esc(t.code)+'</span>',ICO.hash],['Category',esc(t.cat),ICO.tag],
+  ['Category Date',esc(t.created),ICO.cal],['Category By',esc(x.by),ICO.user],['Status',activeBadge(t.status),ICO.check]];};
+LIST_DEF.supCats={title:'Categories',one:'category',addLabel:'Add Category',empty:'No categories yet.',get:function(t){return supTeamExt(t).cats;},
+  fields:[{k:'pick',label:'Support Category',type:'select',req:true,full:true,opts:supCatNames}],cols:[['name','Category'],['at','Added On']],
+  make:function(v,t){if(supTeamExt(t).cats.some(function(c){return c.name===v.pick;})){scToast(v.pick+' is already added','error');return null;}return {name:v.pick,at:fmtDate(DASH_TODAY)};}};
+SEC_DEF.supAccess={title:'Access',get:function(t){return supTeamExt(t).access;},groups:[['Ticket Permissions',[
+  {k:'view',label:'View Tickets',type:'switch'},{k:'assign',label:'Assign Tickets',type:'switch'},{k:'resolve',label:'Resolve Tickets',type:'switch'},
+  {k:'close',label:'Close Tickets',type:'switch'},{k:'escalate',label:'Escalate Tickets',type:'switch'},{k:'refund',label:'Approve Refunds',type:'switch'}]]]};
+LIST_DEF.supMembers={title:'Team Members',one:'team member',addLabel:'Add Member',empty:'No team members yet.',get:function(t){return teamMembers({key:t.key,name:t.name,email:t.email,members:t.members});},
+  fields:[{k:'name',label:'Name',req:true},{k:'email',label:'Email',type:'email',req:true},{k:'mobile',label:'Mobile',req:true,ph:'+91'},{k:'role',label:'Designation',type:'select',opts:['Team Lead','Agent','Supervisor'],req:true}],
+  cols:[['name','Name'],['email','Email'],['mobile','Mobile'],['role','Designation']],
+  make:function(v){if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)){scToast('Enter a valid email','error');return null;}return {name:v.name,email:v.email,mobile:v.mobile,role:v.role};}};
+/* a support team keeps its own members list */
+LIST_DEF.supMembers.get=function(t){if(!t.members)t.members=teamMembers({key:t.key,name:t.name,email:t.email}).map(function(m,i){return {name:m.name,email:m.email,mobile:m.mobile,role:i?'Agent':'Team Lead'};});return t.members;};
+var _supTicketsTab=(GL.supteams.tabs||[]).filter(function(x){return x.id==='tickets';});
+GL.supteams.tabs=[wfTab('supteams'),
+  {id:'scats',label:'Categories',html:function(t){return glHero('supteams',t,false)+listBlock('supteams',t,'supCats');}},
+  {id:'saccess',label:'Access',html:function(t){return glHero('supteams',t,false)+secBlock('supteams',t,'supAccess');}},
+  {id:'smembers',label:'Team Members',html:function(t){return glHero('supteams',t,false)+listBlock('supteams',t,'supMembers');}}].concat(_supTicketsTab);
 
 /* ══ BOOT ═════════════════════════════════════════════════════════════════  */
 [['ICO_DOWNLOAD','download'],['ICO_IMPORT','import'],['ICO_EXPAND','expand'],['ICO_COLLAPSE','collapse'],['ICO_PRINT','print'],
