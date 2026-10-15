@@ -120,6 +120,10 @@ Object.keys(ICO).forEach(function(k){ICO[k]=tagIco(ICO[k],k);});
    so swapping in the real structure is an edit to this array alone. */
 var SC_NAV=[
   {id:'dashboard',label:'Dashboard',icon:ICO.grid},
+  {dropdown:'Transactions',icon:ICO.file,children:[
+    {id:'deals',label:'Deals',icon:ICO.file},
+    {id:'orders',label:'Orders',icon:ICO.cart}
+  ]},
   {dropdown:'Team Management',icon:ICO.shield,children:[
     {id:'teams',label:'Teams',icon:ICO.users},
     {id:'templates',label:'Templates',icon:ICO.doc}
@@ -201,10 +205,6 @@ var SC_NAV=[
   ]},
   {dropdown:'Location control',icon:ICO.map,children:[
     {id:'cities',label:'Location control',icon:ICO.pin}
-  ]},
-  {dropdown:'Transactions',icon:ICO.file,children:[
-    {id:'deals',label:'Deals',icon:ICO.file},
-    {id:'orders',label:'Orders',icon:ICO.cart}
   ]},
   {id:'masters',label:'Masters',icon:ICO.sliders,placeholder:true}
 ];
@@ -5284,12 +5284,14 @@ function glPageHTML(id){
   var rows=pageSlice(all,st.page).map(function(r,n){
     var ex=g.expandable&&!!(state.glExp||{})[id+':'+r.key];
     var sno=g.expandable?'<td><div class="sc-rowexp"><button type="button" class="sc-rowexp-btn'+(ex?' is-open':'')+'" title="'+(ex?'Show less':'Show more')+'" aria-expanded="'+ex+'" onclick="event.stopPropagation();scGlExpand(\''+id+'\','+r.key+')">'+ICO_DOWN+'</button><span>'+(off+n+1)+'</span></div></td>':'<td>'+(off+n+1)+'</td>';
-    return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+(ex?' is-expanded':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')">'+sno+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+(g.expandable&&!ex&&c.brief?c.brief(r):c.cell(r))+'</td>';}).join('')
+    return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+(ex?' is-expanded':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')">'+sno+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+(g.expandable&&c.brief&&(!ex||g.expandHTML)?c.brief(r):c.cell(r))+'</td>';}).join('')
       +'<td onclick="event.stopPropagation()"><div class="sc-gl-acts">'+(g.rowTools?g.rowTools(r):'')
         +(g.del?'<button class="lp-action-btn sc-del-btn" type="button" title="Delete" aria-label="Delete '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlDelete(\''+id+'\','+r.key+')">'+ICO_TRASH+'</button>':'')
         +glActionBtn(id,r)
         +'<button class="lp-action-btn" type="button" title="View details" aria-label="View details of '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlOpen(\''+id+'\','+r.key+')">'+ICO.hamburger+'</button>'
-        +'</div></td></tr>';
+        +'</div></td></tr>'
+      /* an opened row shows its extra details as one strip under it */
+      +(ex&&g.expandHTML?'<tr class="sc-exp-row"><td colspan="'+(g.cols.length+2)+'"><div class="sc-exp-strip">'+g.expandHTML(r)+'</div></td></tr>':'');
   }).join('')||emptyRow(g.cols.length+2,'No '+g.noun+' match','Change the search or filters, or Reset to see every '+g.one+'.');
   var stats='<div class="listing-stats">'+g.stats(glSrc(g)).map(function(x){
     return '<div class="listing-stat'+(x[2]?' '+x[2]:'')+'"><div class="listing-stat-count">'+x[1]+'</div><div class="listing-stat-label">'+esc(x[0])+'</div></div>';
@@ -5383,8 +5385,8 @@ function scGlForm(id,key){
   }).join('');
   var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
     +'<button class="btn-primary" onclick="scGlSave(\''+id+'\','+(r?r.key:'null')+')">'+(r?'Save Changes':'Create '+one)+'</button></div>';
-  document.getElementById('sc-modal-root').innerHTML=modalShell(r?'Edit '+one:'Create '+one,r?g.title(r)+' · Key '+r.key:g.sub,
-    section(one+' Details','<div class="policy-form-grid sc-gl-form'+(g.form.length>=5?' is-3col':'')+'">'+cells+'</div>'),foot,true);
+  document.getElementById('sc-modal-root').innerHTML=modalShell(r?'Edit '+one:'Create '+one,r?g.title(r)+' · Key '+r.key:(g.sub||'Fill in the details below to create a new '+g.one+'.'),
+    '<div class="sc-gl-modal-body">'+secHead(one+' Details')+'<div class="policy-form-grid sc-gl-form'+(g.form.length>=5?' is-3col':'')+'">'+cells+'</div></div>',foot,true,'sc-gl-modal');
   var first=document.querySelector('#sc-modal-root .ep-form-input');if(first)first.focus();
 }
 function scGlSave(id,key){
@@ -5555,7 +5557,7 @@ GL.qrcodes={one:'QR code',noun:'QR codes',sub:'A QR code or barcode for a produc
   stats:function(rows){return statusStats(rows,'status',[['Assigned','approved'],['Unassigned','pending']]);},
   cols:[{h:'Key',cell:function(r){return plain(r.key);}},{h:'Prefix',cell:function(r){return mainTxt(r.prefix);}},
     {h:'Type',cell:function(r){return plain(r.type);}},{h:'BarQue Type',cell:function(r){return plain(r.mode);}},
-    {h:'QR Code',noDetail:true,cell:function(r){return '<button type="button" class="sc-qr-btn" title="View QR '+r.key+'" onclick="event.stopPropagation();scGlOpen(\'qrcodes\','+r.key+')">'+qrSvg(r.key,40)+'</button>';}},
+    {h:'QR Code',noDetail:true,cell:function(r){return '<button type="button" class="sc-qr-btn" title="View QR '+r.key+'" onclick="event.stopPropagation();scQrZoom('+r.key+',\''+esc(r.prefix+' · '+r.store).replace(/'/g,"\\'")+'\')">'+qrSvg(r.key,40)+'</button>';}},
     {h:'Status',cell:function(r){return activeBadge(r.status);}}],
   tool:function(){return '<button class="btn-outline btn-sm sc-gl-tool" type="button" onclick="scQrDownloadAll()">'+ICO_DOWNLOAD+' QR / Barcode</button>';},
   form:[{k:'prefix',label:'Prefix',req:true,def:'Barcode'},{k:'type',label:'Type',type:'select',opts:['Product','Store','Community'],req:true},
@@ -7104,8 +7106,8 @@ function glViewActsHTML(id,r){
     if(/^No actions/.test(x[0]))return;
     if(GL_LOOK.test(x[0])||GL_LEAVE.test(code))acts.push([x[0],code]);
   });
-  if(glActs(id,r).length)acts.push(['Update in Logs',"scGlTab('logs')"]);
-  if(g.del)acts.push(['Delete',"scGlDelete('"+id+"',"+r.key+")",'danger']);
+  /* a change is taken from the row's Update or the Logs tab - no extra button on Details */
+  /* Delete lives in the row (the bin icon), not on the Details tab */
   if(!acts.length)return '';
   return '<div class="sc-gl-actbar">'+acts.map(function(a){
     return '<button type="button" class="btn-outline btn-sm'+(a[2]?' sc-gl-act-danger':'')+'" onclick="'+a[1]+'">'+esc(a[0])+'</button>';}).join('')+'</div>';
@@ -7224,7 +7226,8 @@ function glLogTone(t){return /^(Delete|Disable|Deactivate|Reject|Block|Revoke|Re
   :/^(Enable|Activate|Approve|Active|Restore|Mark Live|Resolve|Close|Complete|Confirm|Accept|Unblock|.* Added)/.test(t)?'approved':'active';}
 /* the row's action dropdown: the record's status, its steps below */
 function glActionBtn(id,r){
-  if(!glActs(id,r).length)return '';
+  /* no step open: keep the space, so View details lines up on every row */
+  if(!glActs(id,r).length)return GL[id].toggle||GL[id].menu?'<span class="sc-gl-actbtn-ph" aria-hidden="true"></span>':'';
   /* one label and one width on every row - the Status column already says where the record stands */
   var g=GL[id],cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'');
   return '<button class="ct-action-btn sc-gl-actbtn" type="button" title="Update'+(cur?' · now '+esc(cur):'')+'" aria-label="Update '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlRowMenu(this,\''+id+'\','+r.key+')">'
@@ -7558,7 +7561,7 @@ GL.cardlist={one:'issued card',noun:'cards',rows:ISSUED_CARDS,
   cols:[{h:'Card Number',cell:function(x){return '<div class="lp-c-main sc-mono">'+esc(x.number)+'</div><div class="lp-c-sub">Card ID '+x.key+'</div>';}},
     {h:'User Name',cell:function(x){return '<div class="lp-c-plain">'+esc(x.user)+'</div><div class="lp-c-sub">'+esc(x.userType)+(x.userStatus==='Blocked'?' · Blocked':'')+'</div>';}},
     {h:'Card Type',cell:function(x){return plain(x.card);}},{h:'Card Issue',cell:function(x){return plain(x.issued);}},
-    {h:'QR Code',cell:function(x){return '<span class="sc-qr-mini" title="QR for '+esc(x.number)+'">'+qrSvg(x.key,36)+'</span>';}},
+    {h:'QR Code',noDetail:true,cell:function(x){return '<button type="button" class="sc-qr-mini" title="View QR for '+esc(x.number)+'" onclick="event.stopPropagation();scQrZoom('+x.key+',\''+esc(x.number)+'\')">'+qrSvg(x.key,36)+'</button>';}},
     {h:'Validity',cell:function(x){return '<div class="lp-c-plain">'+esc(x.activated)+'</div><div class="lp-c-sub">to '+esc(x.expiry)+'</div>';}},
     {h:'Status',cell:function(x){return x.status==='Expired'?badge('closed','Expired'):activeBadge(x.status);}}],
   menu:function(x){return [[x.userStatus==='Blocked'?'Unblock User':'Block User','scCloseRowMenu();scCardUser('+x.key+')'],
@@ -7709,9 +7712,9 @@ GL.templates={one:'template',noun:'templates',rows:TEMPLATES,
   filters:[{k:'vertical',label:'All Verticals',opts:VERTICALS}],
   stats:function(rows){var roles={};rows.forEach(function(t){roles[t.role]=1;});
     return [['Templates',rows.length,'active'],['Roles',Object.keys(roles).length,''],['Verticals',VERTICALS.filter(function(v){return rows.some(function(t){return t.vertical===v;});}).length,'']];},
-  cols:[{h:'Role',cell:function(t){var n=permCount(t.perms);return '<div class="lp-c-main">'+esc(t.role)+'</div><div class="lp-c-sub">'+n+(n===1?' permission':' permissions')+'</div>';}},
+  cols:[{h:'Role',cell:function(t){return mainTxt(t.role);}},
     {h:'Vertical',cell:function(t){return plain(t.vertical);}},
-    {h:'Permissions',cell:function(t){return permsHTML(t);}}],
+    {h:'Permissions',noDetail:true,cell:function(t){return tplPermSummary(t);}}],
   del:true,
   tabs:[{id:'perms',label:'Permissions',html:function(t){
     return relHead('templates',t,'Permission Allocation',permCount(t.perms)+' permissions')+permChipsHTML(t.vertical,t.perms);}}],
@@ -7724,6 +7727,22 @@ GL.templates={one:'template',noun:'templates',rows:TEMPLATES,
         +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Permission Allocation <span class="req">*</span></label>'+permEditorHTML(d)+'</div>'
       +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
       +'<button class="btn-primary" onclick="scTplEditSave()">Save Changes</button></div></div>';}};
+/* THE LISTING'S PERMISSIONS: a compact summary - coverage of what the
+   vertical offers, then the modules as count pills (the first few, then
+   "+N more"). Every action, module by module, is the template's
+   Permissions tab. */
+var TPL_PILLS=5;
+function tplPermSummary(t){
+  var mods=tplModules(t.vertical),have=permCount(t.perms),all=mods.reduce(function(s,m){return s+m[2].length;},0);
+  var given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;}),pct=all?Math.round(have/all*100):0;
+  var pills=given.slice(0,TPL_PILLS).map(function(m){var n=t.perms[m[0]].length,full=n===m[2].length;
+    return '<span class="sc-tpl-pill'+(full?' is-full':'')+'" title="'+esc(t.perms[m[0]].map(function(a){return permLabel(m[0],a);}).join(', '))+'">'
+      +esc(m[1])+'<b>'+n+'</b></span>';}).join('');
+  var more=given.length>TPL_PILLS?'<button type="button" class="sc-tpl-more" onclick="event.stopPropagation();scGlOpen(\'templates\','+t.key+');scGlTab(\'perms\')">+'+(given.length-TPL_PILLS)+' more</button>':'';
+  return '<div class="sc-tpl-sum"><div class="sc-tpl-cov"><span class="sc-tpl-bar"><i style="width:'+pct+'%"></i></span>'
+    +'<span class="sc-tpl-covtxt"><b>'+have+'</b> of '+all+' permissions · '+given.length+' of '+mods.length+' modules</span></div>'
+    +'<div class="sc-tpl-pills">'+(pills||'<span class="lp-dash">No permissions</span>')+more+'</div></div>';
+}
 function scPermVertical(v){
   var d=state.permDraft;if(!d)return;d.vertical=v;
   var ok={};tplModules(v).forEach(function(m){ok[m[0]]=1;});Object.keys(d.perms).forEach(function(k){if(!ok[k])delete d.perms[k];});
@@ -7896,7 +7915,7 @@ GL.retailers.tabs=[{id:'stores',label:'Stores',html:function(r){
     +relList(['S.No','Store Name','QR Code','Image','Store Create Time','Location','Sub Domain'],list,function(st,i){
       var made=addD(DASH_TODAY,-((st.key*7)%200)),h=('0'+(st.key%12+8)).slice(-2),m=('0'+(st.key*13%60)).slice(-2);
       return '<tr>'+td(i+1)+'<td><b>'+esc(st.name)+'</b></td>'
-        +'<td><span class="sc-qr-mini" title="QR for '+esc(st.name)+'">'+qrSvg(st.key,36)+'</span></td>'
+        +'<td><button type="button" class="sc-qr-mini" title="View QR for '+esc(st.name)+'" onclick="scQrZoom('+st.key+',\''+esc(st.name).replace(/'/g,"\\'")+'\')">'+qrSvg(st.key,36)+'</button></td>'
         +'<td><span class="sc-thumb">'+ICO.store+'</span></td>'
         +td(isoDay(made)+' '+h+':'+m)
         +'<td class="sc-loc">'+esc((STORE_ADDR[st.city]||'Main Road')+', '+st.city+', '+st.state+', '+st.country)+'</td>'
@@ -8346,6 +8365,17 @@ var orderTabs=function(id){
     })
   ];
 };
+/* the strip an opened order row shows */
+function orderExpandHTML(o){
+  var item=function(ico,label,val){return '<div class="sc-exp-item"><span class="sc-exp-ico">'+ico+'</span><div><em>'+esc(label)+'</em><div class="sc-exp-val">'+val+'</div></div></div>';};
+  return '<div class="sc-exp-grid">'
+      +item(ICO.phone,'Mobile',esc(o.phone))+item(ICO.pin,'Location',esc(o.city))+item(ICO.money,'Order Amount','<b>'+inr(o.amount)+'</b>')
+      +item(ICO.globe,'Platform',platformChip(o.platform))+item(ICO.card,'Payment',orderTone(o.payment))+item(ICO.clock,'Updated On',esc(fmtDT(o.updated)))
+      +(o.slot?item(ICO.cal,'Scheduled For','<b>'+esc(fmtDate(o.slot.day))+'</b> · '+esc(o.slot.time)):'')
+    +'</div><div class="sc-exp-acts">'
+      +'<button class="btn-outline btn-sm" type="button" onclick="event.stopPropagation();scGlOpen(state.page,'+o.key+')">View Details</button>'
+      +'<button class="btn-outline btn-sm" type="button" onclick="event.stopPropagation();scRetailOrderTab('+o.key+',\'workflow\')">Workflow</button></div>';
+}
 function orderDetailFields(o){
   var x=orderExt(o);
   return [['Sales Order Id',o.key,ICO.hash],['Deal Id',x.dealId,ICO.hash],['Domain',x.domain,ICO.tag],['Category',x.category,ICO.tag],['Platform',platformChip(o.platform),ICO.globe],
@@ -8356,7 +8386,7 @@ function orderDetailFields(o){
 ['myorders','schedule','ipay','allorders'].forEach(function(id){
   var g=GL[id];if(!g)return;
   g.detailFields=orderDetailFields;g.tabs=orderTabs(id);
-  if(g.cols===ORDER_CARD_COLS)g.expandable=true;
+  if(g.cols===ORDER_CARD_COLS){g.expandable=true;g.expandHTML=orderExpandHTML;}
 });
 
 /* ── INSTANT PAYMENT ORDERS: their own panel; Payment Info in full ─────── */
@@ -9014,6 +9044,13 @@ GL.supteams.tabs=[wfTab('supteams'),
   {id:'saccess',label:'Access',html:function(t){return glHero('supteams',t,false)+secBlock('supteams',t,'supAccess');}},
   {id:'smembers',label:'Team Members',html:function(t){return glHero('supteams',t,false)+listBlock('supteams',t,'supMembers');}}].concat(_supTicketsTab);
 
+/* A QR thumbnail in any table opens the code full size, with Download. */
+function scQrZoom(seed,label){
+  document.getElementById('sc-modal-root').innerHTML=modalShell('QR Code',label||('QR '+seed),
+    '<div class="sc-qr-zoom">'+qrSvg(seed,260)+'</div>',
+    '<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Close</button>'
+    +'<button class="btn-primary" onclick="scQrDownload('+seed+')">'+ICO_DOWNLOAD+' Download QR</button></div>');
+}
 /* ══ BOOT ═════════════════════════════════════════════════════════════════  */
 [['ICO_DOWNLOAD','download'],['ICO_IMPORT','import'],['ICO_EXPAND','expand'],['ICO_COLLAPSE','collapse'],['ICO_PRINT','print'],
  ['ICO_DL','download'],['ICO_OUT','out'],['ICO_HOURGLASS','hourglass'],['ICO_DONE','done'],['ICO_REJECT','reject'],

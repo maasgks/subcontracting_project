@@ -1476,3 +1476,47 @@ textarea.ep-form-input.sc-notice-desc{border-radius:10px}
 .sc-gl-acts{justify-content:flex-start}
 .sc-gl-acts .sc-gl-actbtn,.sc-gl-cities .sc-gl-acts .sc-gl-actbtn,.sc-gl-sequence .sc-gl-acts .sc-gl-actbtn,.sc-gl-platforms .sc-gl-acts .sc-gl-actbtn,.sc-gl-supcats .sc-gl-acts .sc-gl-actbtn{width:88px;min-width:88px;max-width:88px;justify-content:space-between;padding:0 9px 0 11px}
 @media (max-width:1440px){.sc-gl-acts .sc-gl-actbtn{width:84px;min-width:84px;max-width:84px}}
+/* QR thumbnails open the code full size */
+button.sc-qr-mini{cursor:zoom-in;transition:border-color .15s,box-shadow .15s}
+button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0 2px 8px rgba(15,23,42,.12)}
+.sc-qr-btn{cursor:zoom-in}
+.sc-qr-zoom{display:flex;justify-content:center;padding:18px 0 8px}
+.sc-qr-zoom svg{width:260px;height:260px;padding:12px;border:1px solid var(--border);border-radius:14px;background:#fff}
+/* CREATE POPUPS (listings): a clear head, one light section heading, no double rule over the footer,
+   and on a short screen the popup keeps its margin and scrolls inside rather than touching the edges. */
+.ct-modal-overlay:has(.sc-gl-modal){padding:16px;align-items:center}
+.ct-modal.sc-gl-modal{max-height:calc(100vh - 32px);width:min(880px,calc(100vw - 32px))}
+.sc-gl-modal .sc-modal-head{padding:22px 28px 16px;border-bottom:1px solid var(--border)}
+.sc-gl-modal .ct-modal-sub{color:var(--gray);font-size:12.5px}
+.sc-gl-modal-body{padding:18px 0 16px}
+.sc-gl-modal-body .lp-sb-view-header{margin:0 0 14px}
+.sc-gl-modal .sc-modal-foot{border-top:1px solid var(--border);padding:14px 28px}
+/* Templates listing: permissions as a compact summary */
+.sc-tpl-sum{display:flex;flex-direction:column;gap:8px;min-width:0;max-width:560px}
+.sc-tpl-cov{display:flex;align-items:center;gap:10px}
+.sc-tpl-bar{flex-shrink:0;width:90px;height:6px;border-radius:99px;background:#eef2f7;overflow:hidden}
+.sc-tpl-bar i{display:block;height:100%;border-radius:99px;background:var(--orange)}
+.sc-tpl-covtxt{font-size:12px;color:var(--gray);white-space:nowrap}
+.sc-tpl-covtxt b{color:var(--navy)}
+.sc-tpl-pills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sc-tpl-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 4px 0 10px;border-radius:99px;background:#f1f5f9;color:var(--navy);font-size:12px;font-weight:500;white-space:nowrap}
+.sc-tpl-pill b{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:#fff;color:var(--navy);font-size:11px;font-weight:700}
+.sc-tpl-pill.is-full{background:var(--st-ok-bg);color:var(--st-ok-fg)}
+.sc-tpl-pill.is-full b{color:var(--st-ok-fg)}
+.sc-tpl-more{border:0;background:none;padding:0 4px;color:var(--st-info-fg);font:600 12px Inter,sans-serif;cursor:pointer}
+.sc-tpl-more:hover{text-decoration:underline}
+/* Order rows: the opened row stays one line; its extra details sit in one strip under it */
+.lp-row.is-expanded{background:#f8fafc}
+.lp-row.is-expanded td{border-bottom-color:transparent}
+.sc-exp-row td{padding:0 16px 14px!important;background:#f8fafc;border-bottom:1px solid var(--border)}
+.sc-exp-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.sc-exp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 20px;flex:1;min-width:0}
+.sc-exp-item{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.sc-exp-ico{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:#f1f5f9;color:#64748b}
+.sc-exp-ico svg{width:14px;height:14px}
+.sc-exp-item em{display:block;font-style:normal;font-size:11px;color:var(--gray);margin-bottom:2px}
+.sc-exp-val{font-size:13px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-exp-acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.sc-gl-actbtn-ph{display:inline-block;width:84px;flex-shrink:0}
+@media (min-width:1441px){.sc-gl-actbtn-ph{width:88px}}
+.lp-table tr.lp-row.is-expanded>td,.lp-table tr.lp-row.is-expanded>td:last-child{background:#f8fafc!important}
