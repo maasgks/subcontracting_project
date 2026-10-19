@@ -1343,18 +1343,13 @@ textarea.ep-form-input.sc-notice-desc{border-radius:10px}
 /* Panel field cards: a value's second line (an ID, a type) sits under it. */
 #sc-gl-sb .lp-sb-field-value .lp-c-sub{display:block;margin-top:2px;font-weight:500}
 #sc-gl-sb .lp-sb-field-value>div{display:block}
-/* The row's action dropdown on the listings - the Deals control. */
-.sc-gl-acts .sc-gl-actbtn{width:auto;min-width:96px;max-width:128px;justify-content:space-between;gap:6px}
-.sc-gl-acts .sc-gl-actbtn span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
 #sc-gl-sb .lp-sb-field-value:has(>div){flex-direction:column;align-items:flex-start}
 @media (max-width:1440px){
-  .sc-gl-acts .sc-gl-actbtn{min-width:0;max-width:104px;padding:0 8px 0 10px}
   .sc-gl-table th,.sc-gl-table td{padding-left:8px;padding-right:8px}
   .sc-gl-table .sc-person-txt{max-width:150px}
   .sc-gl-residents .sc-person-txt{max-width:130px}
   .sc-gl-table .lp-c-plain.sc-c-vendor{max-width:170px}
 }
-.sc-gl-cities .sc-gl-acts .sc-gl-actbtn,.sc-gl-sequence .sc-gl-acts .sc-gl-actbtn,.sc-gl-platforms .sc-gl-acts .sc-gl-actbtn,.sc-gl-supcats .sc-gl-acts .sc-gl-actbtn{max-width:150px}
 .sc-more-btn{display:inline-flex;align-items:center;gap:4px}
 .sc-gl-sa-pick{min-width:220px}
 .sc-pf-edit{margin-bottom:22px}
@@ -1472,10 +1467,8 @@ textarea.ep-form-input.sc-notice-desc{border-radius:10px}
 .sc-sec .sc-seq-row{display:grid;grid-template-columns:1fr 90px 160px;align-items:center}
 .sc-sec .sc-seq-row .sc-seq-no{justify-self:start}
 .sc-seq-st,.sc-sec .sc-seq-tools{justify-self:start}
-/* Row actions: the same-width Update control on every row, then View details - so the column lines up */
+/* Row actions: View details only - status changes live in the panel's Logs tab */
 .sc-gl-acts{justify-content:flex-start}
-.sc-gl-acts .sc-gl-actbtn,.sc-gl-cities .sc-gl-acts .sc-gl-actbtn,.sc-gl-sequence .sc-gl-acts .sc-gl-actbtn,.sc-gl-platforms .sc-gl-acts .sc-gl-actbtn,.sc-gl-supcats .sc-gl-acts .sc-gl-actbtn{width:88px;min-width:88px;max-width:88px;justify-content:space-between;padding:0 9px 0 11px}
-@media (max-width:1440px){.sc-gl-acts .sc-gl-actbtn{width:84px;min-width:84px;max-width:84px}}
 /* QR thumbnails open the code full size */
 button.sc-qr-mini{cursor:zoom-in;transition:border-color .15s,box-shadow .15s}
 button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0 2px 8px rgba(15,23,42,.12)}
@@ -1517,6 +1510,4 @@ button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0
 .sc-exp-item em{display:block;font-style:normal;font-size:11px;color:var(--gray);margin-bottom:2px}
 .sc-exp-val{font-size:13px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc-exp-acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
-.sc-gl-actbtn-ph{display:inline-block;width:84px;flex-shrink:0}
-@media (min-width:1441px){.sc-gl-actbtn-ph{width:88px}}
 .lp-table tr.lp-row.is-expanded>td,.lp-table tr.lp-row.is-expanded>td:last-child{background:#f8fafc!important}

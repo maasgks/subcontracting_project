@@ -5287,7 +5287,6 @@ function glPageHTML(id){
     return '<tr class="lp-row'+(open===r.key?' lp-row-selected':'')+(ex?' is-expanded':'')+'" data-id="'+r.key+'" style="cursor:pointer" onclick="scGlOpen(\''+id+'\','+r.key+')">'+sno+g.cols.map(function(c){return '<td'+(c.cls?' class="'+c.cls+'"':'')+'>'+(g.expandable&&c.brief&&(!ex||g.expandHTML)?c.brief(r):c.cell(r))+'</td>';}).join('')
       +'<td onclick="event.stopPropagation()"><div class="sc-gl-acts">'+(g.rowTools?g.rowTools(r):'')
         +(g.del?'<button class="lp-action-btn sc-del-btn" type="button" title="Delete" aria-label="Delete '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlDelete(\''+id+'\','+r.key+')">'+ICO_TRASH+'</button>':'')
-        +glActionBtn(id,r)
         +'<button class="lp-action-btn" type="button" title="View details" aria-label="View details of '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlOpen(\''+id+'\','+r.key+')">'+ICO.hamburger+'</button>'
         +'</div></td></tr>'
       /* an opened row shows its extra details as one strip under it */
@@ -7224,27 +7223,8 @@ function scGlEditSave(){
 }
 function glLogTone(t){return /^(Delete|Disable|Deactivate|Reject|Block|Revoke|Reverse|Cancel|Inactive|Removed|Mark Coming Soon|Escalate)/.test(t)?'unapproved'
   :/^(Enable|Activate|Approve|Active|Restore|Mark Live|Resolve|Close|Complete|Confirm|Accept|Unblock|.* Added)/.test(t)?'approved':'active';}
-/* the row's action dropdown: the record's status, its steps below */
-function glActionBtn(id,r){
-  /* no step open: keep the space, so View details lines up on every row */
-  if(!glActs(id,r).length)return GL[id].toggle||GL[id].menu?'<span class="sc-gl-actbtn-ph" aria-hidden="true"></span>':'';
-  /* one label and one width on every row - the Status column already says where the record stands */
-  var g=GL[id],cur=glStatusOf(r)||(g.toggle?r[g.toggle.k]:'');
-  return '<button class="ct-action-btn sc-gl-actbtn" type="button" title="Update'+(cur?' · now '+esc(cur):'')+'" aria-label="Update '+esc(g.title(r))+'" onclick="event.stopPropagation();scGlRowMenu(this,\''+id+'\','+r.key+')">'
-    +'<span>Update</span>'+ICO_DOWN+'</button>';
-}
-function scGlRowMenu(btn,id,key){
-  var r=glRow(id,key),m=rowMenuEl();if(!r)return;
-  if(m.classList.contains('open')&&m.dataset.id===id+':'+key){scCloseRowMenu();return;}
-  scCloseAllDD();
-  m.innerHTML=glActs(id,r).map(function(a){
-    return '<div class="ct-act-item sc-act-avail" onclick="scGlStartLog(\''+id+'\','+key+',\''+esc(a.label).replace(/'/g,"\\'")+'\')">'+esc(a.label)+'</div>';}).join('');
-  m.dataset.id=id+':'+key;m.classList.add('open');m.style.width='max-content';m.style.maxHeight='';
-  var rc=btn.getBoundingClientRect(),w=Math.ceil(m.getBoundingClientRect().width);
-  scPlaceMenu(m,{left:rc.right-w,right:rc.right,top:rc.top,bottom:rc.bottom,width:w});
-}
-/* THE DROPDOWN OPENS THE STEP IN LOGS - no popup: the record's panel opens on
-   Logs with the step's form open, as if it had been picked there. */
+/* Status changes are made only in the panel's Logs tab - the row has no
+   Update control. This opens the record's panel on Logs with the step's form open. */
 function scGlStartLog(id,key,action){
   scCloseRowMenu();
   state.glLogAdd={id:id,key:key,action:action,anim:true};
