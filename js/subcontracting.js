@@ -5196,7 +5196,11 @@ function scOpenTemplateForm(id){
 }
 function drawTemplateForm(){
   var d=tplDraft,acts=['View','Create','Update','Delete'];
-  var matrix=d.vertical?recTable(['Module'].concat(acts).concat(['More']),tplModules(d.vertical).map(function(m){
+  var matrix=d.vertical?'<div class="sc-tpl-formbar"><span id="tp-count">'+tplDraftCount()+'</span><div class="sc-tpl-presets">'
+      +'<button type="button" class="btn-outline btn-sm" onclick="scTplPreset(\'all\')">Select all</button>'
+      +'<button type="button" class="btn-outline btn-sm" onclick="scTplPreset(\'view\')">View on all</button>'
+      +'<button type="button" class="btn-outline btn-sm" onclick="scTplPreset(\'none\')">Clear</button></div></div>'
+    +recTable(['Module'].concat(acts).concat(['More','All']),tplModules(d.vertical).map(function(m){
     var have=d.perms[m[0]]||[];
     var box=function(a){
       if(m[2].indexOf(a)<0)return '<span class="lp-dash">—</span>';
@@ -5206,11 +5210,14 @@ function drawTemplateForm(){
     var extra=m[2].filter(function(a){return acts.indexOf(a)<0;});
     return '<tr><td><b>'+esc(m[1])+'</b></td>'+acts.map(function(a){return '<td>'+box(a)+'</td>';}).join('')
       +'<td>'+(extra.length?extra.map(function(a){return '<label class="sc-perm-check is-text"><input type="checkbox"'+(have.indexOf(a)>=0?' checked':'')
-        +' onchange="scTplToggle(\''+m[0]+'\',\''+a+'\',this.checked)"> '+esc(a)+'</label>';}).join(''):'<span class="lp-dash">—</span>')+'</td></tr>';
+        +' onchange="scTplToggle(\''+m[0]+'\',\''+a+'\',this.checked)"> '+esc(a)+'</label>';}).join(''):'<span class="lp-dash">—</span>')+'</td>'
+      +'<td><label class="sc-perm-check"><input type="checkbox" data-tpall="'+esc(m[0])+'"'+(have.length===m[2].length?' checked':'')
+        +' onchange="scTplModAll(\''+m[0]+'\',this.checked)"><span class="sr-only">All '+esc(m[1])+' actions</span></label></td></tr>';
   }).join('')):'<div class="lp-logs-empty">Select a vertical to choose its permissions.</div>';
   var body=section('Template','<div class="policy-form-grid">'
       +field('Role','<input class="ep-form-input" id="tp-role" value="'+esc(d.role)+'" placeholder="e.g. Manager" oninput="tplDraft.role=this.value">',true)
       +field('Vertical',csField('tp-vertical',VERTICALS,d.vertical,'Select vertical','scTplVertical'),true)
+      +(d.id?'':field('Copy Permissions From',csField('tp-from',TEMPLATES.map(tplFromLabel),d.from||'','Start blank','scTplFrom'),false))
     +'</div>')
     +section('Permissions',matrix);
   var foot='<div class="ct-modal-btns"><button class="btn-outline" onclick="scCloseModal()">Cancel</button>'
@@ -5230,7 +5237,36 @@ function scTplToggle(mod,act,on){
   var a=tplDraft.perms[mod]||(tplDraft.perms[mod]=[]),i=a.indexOf(act);
   if(on&&i<0)a.push(act);if(!on&&i>=0)a.splice(i,1);
   if(!a.length)delete tplDraft.perms[mod];
+  var m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0],box=document.querySelector('[data-tpall="'+mod+'"]');
+  if(box&&m)box.checked=(tplDraft.perms[mod]||[]).length===m[2].length;
+  var c=document.getElementById('tp-count');if(c)c.innerHTML=tplDraftCount();
 }
+function tplDraftCount(){
+  var d=tplDraft,n=permCount(d.perms),all=tplTotal(d.vertical);
+  return '<b>'+n+'</b> of '+all+' permissions selected';
+}
+/* the whole module at once, and three starting points for the matrix */
+function scTplModAll(mod,on){
+  var m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0];if(!m)return;
+  if(on)tplDraft.perms[mod]=m[2].slice();else delete tplDraft.perms[mod];
+  tplKeepRole();drawTemplateForm();
+}
+function scTplPreset(kind){
+  var p={};tplModules(tplDraft.vertical).forEach(function(m){
+    if(kind==='all')p[m[0]]=m[2].slice();else if(kind==='view'&&m[2].indexOf('View')>=0)p[m[0]]=['View'];});
+  tplDraft.perms=p;tplKeepRole();drawTemplateForm();
+}
+/* Start From copies an existing template's permissions - the ones its
+   vertical shares with the vertical picked here */
+function tplFromLabel(t){return t.role+' — '+t.vertical;}
+function scTplFrom(v){
+  var x=TEMPLATES.filter(function(t){return tplFromLabel(t)===v;})[0];if(!x)return;
+  tplKeepRole();tplDraft.from=v;
+  if(!tplDraft.vertical)tplDraft.vertical=x.vertical;
+  var p={};tplModules(tplDraft.vertical).forEach(function(m){if(x.perms[m[0]])p[m[0]]=x.perms[m[0]].slice();});
+  tplDraft.perms=p;drawTemplateForm();
+}
+function tplKeepRole(){var r=document.getElementById('tp-role');if(r)tplDraft.role=r.value;}
 function scSaveTemplate(){
   var d=tplDraft,role=((document.getElementById('tp-role')||{}).value||'').trim(),vertical=csValue('tp-vertical')||d.vertical;
   if(!role){scToast('Enter the role','error');return;}
@@ -5273,7 +5309,44 @@ function glRows(id){
     if(f.q2&&g.search2&&!matchQ(f.q2,g.search2.fields.map(function(k){return r[k];})))return false;
     return matchQ(f.q||'',g.search.fields.map(function(k){return r[k];}));
   });
+  if(f._stat){var i=g.stats(glSrc(g)).map(function(x){return x[0];}).indexOf(f._stat),hit=i<0?null:glStatMembers(g,i);
+    if(hit)rows=rows.filter(function(r){return hit.indexOf(r)>=0;});}
   return g.sortBy?rows.slice().sort(g.sortBy(f.sort)):rows;
+}
+/* STAT TILES FILTER THE LISTING. A tile can filter when its count is the
+   number of rows matching something - tested with the page's own stats: run
+   one row at a time, each counts 0 or 1, and together they make the tile's
+   count. Sums and distinct counts (Units Sold, Roles) stay as figures. */
+function glStatMembers(g,i){
+  var src=glSrc(g),total=(g.stats(src)[i]||[])[1],hit=[];
+  if(typeof total!=='number')return null;
+  for(var n=0;n<src.length;n++){var c=(g.stats([src[n]])[i]||[])[1];if(c!==0&&c!==1)return null;if(c)hit.push(src[n]);}
+  return hit.length===total?hit:null;
+}
+/* the dropdown that says exactly what a tile says (Status = Live), if any */
+function glStatFilter(g,label,hit){
+  var src=glSrc(g);
+  return g.filters.filter(function(fl){var o=typeof fl.opts==='function'?fl.opts():fl.opts;
+    return !fl.match&&o.indexOf(label)>=0&&hit.length===src.filter(function(r){return r[fl.k]===label;}).length&&hit.every(function(r){return r[fl.k]===label;});})[0];
+}
+/* which tile is on: the one picked, or the one its dropdown matches; else the all-rows tile */
+function glStatSelected(id,tiles){
+  var g=GL[id],f=glState(id).f,all=-1,on=-1;
+  tiles.forEach(function(x,i){var hit=glStatMembers(g,i);if(!hit)return;
+    if(hit.length===glSrc(g).length){if(all<0)all=i;return;}
+    if(f._stat===x[0]){on=i;return;}
+    var fl=glStatFilter(g,x[0],hit);if(fl&&f[fl.k]===x[0]&&on<0)on=i;});
+  return on>=0?on:all;
+}
+function scGlStat(id,i){
+  var g=GL[id],st=glState(id),f=st.f,tiles=g.stats(glSrc(g)),label=tiles[i][0],hit=glStatMembers(g,i);if(!hit)return;
+  var was=glStatSelected(id,tiles);
+  /* drop whatever tile was on - its own pick or the dropdown it set */
+  delete f._stat;
+  tiles.forEach(function(x,j){var h=glStatMembers(g,j),fl=h&&glStatFilter(g,x[0],h);if(fl&&f[fl.k]===x[0])f[fl.k]='';});
+  /* the all-rows tile, or the tile already on, goes back to everything */
+  if(hit.length<glSrc(g).length&&was!==i){var fl=glStatFilter(g,label,hit);if(fl)f[fl.k]=label;else f._stat=label;}
+  st.page=1;scRender();
 }
 function glActive(id){var f=glState(id).f;return Object.keys(f).some(function(k){return f[k];});}
 function glPageHTML(id){
@@ -5292,8 +5365,12 @@ function glPageHTML(id){
       /* an opened row shows its extra details as one strip under it */
       +(ex&&g.expandHTML?'<tr class="sc-exp-row"><td colspan="'+(g.cols.length+2)+'"><div class="sc-exp-strip">'+g.expandHTML(r)+'</div></td></tr>':'');
   }).join('')||emptyRow(g.cols.length+2,'No '+g.noun+' match','Change the search or filters, or Reset to see every '+g.one+'.');
-  var stats='<div class="listing-stats">'+g.stats(glSrc(g)).map(function(x){
-    return '<div class="listing-stat'+(x[2]?' '+x[2]:'')+'"><div class="listing-stat-count">'+x[1]+'</div><div class="listing-stat-label">'+esc(x[0])+'</div></div>';
+  var tiles=g.stats(glSrc(g)),sel=glStatSelected(id,tiles);
+  var stats='<div class="listing-stats">'+tiles.map(function(x,i){
+    var can=!!glStatMembers(g,i),go='scGlStat(\''+id+'\','+i+')';
+    return '<div class="listing-stat'+(x[2]?' '+x[2]:'')+(can?(sel===i?' stat-selected':''):' is-static')+'"'
+      +(can?' role="button" tabindex="0" aria-pressed="'+(sel===i)+'" onclick="'+go+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+go+'}"':'')
+      +'><div class="listing-stat-count">'+x[1]+'</div><div class="listing-stat-label">'+esc(x[0])+'</div></div>';
   }).join('')+'</div>';
   var sync='scGlSync(\''+id+'\')';
   return '<div class="listing-page">'
@@ -5330,7 +5407,7 @@ function scGlSearch(id){
   var g=GL[id],f={q:((document.getElementById('gl-q')||{}).value||'').trim()};
   if(g.search2)f.q2=((document.getElementById('gl-q2')||{}).value||'').trim();
   g.filters.forEach(function(fl){f[fl.k]=csValue('gl-f-'+fl.k);});
-  var st=glState(id);st.f=f;st.page=1;scRender();
+  var st=glState(id);if(st.f._stat)f._stat=st.f._stat;st.f=f;st.page=1;scRender();
 }
 function scGlReset(id){var st=glState(id);st.f={};st.page=1;scRender();}
 function scGlPageFor(n){glState(state.page).page=n;scRender();}
@@ -7061,8 +7138,15 @@ function glPanelHTML(id){
   var tabs=[{id:'details',label:g.detailsLabel||'Details'}].concat((g.tabs||[]).map(function(t){return {id:t.id,label:typeof t.label==='function'?t.label(r):t.label};}))
     .concat([{id:'logs',label:'Logs'}]);
   if(!tabs.some(function(t){return t.id===o.tab;}))o.tab='details';
-  var body=o.tab==='details'?glDetailsHTML(id,r):o.tab==='logs'?glLogsHTML(id,r)
-    :g.tabs.filter(function(t){return t.id===o.tab;})[0].html(r);
+  var draw=function(){return o.tab==='details'?glDetailsHTML(id,r):o.tab==='logs'?glLogsHTML(id,r)
+    :g.tabs.filter(function(t){return t.id===o.tab;})[0].html(r);};
+  /* a tab with sections gets the hero's Edit - known once drawn, so draw again */
+  state._tabEditable=false;state._secSeen=0;
+  var body=draw();
+  if(o.tab!=='logs'&&state._secSeen){state._tabEditable=true;body=draw();}
+  state._tabEditable=false;
+  if(tabDraftOn(id,r.key))body+='<div class="sc-edit-actions sc-tab-acts"><button class="btn-outline" onclick="scTabCancel()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scTabSave()">Save Changes</button></div>';
   return glExpHead(id,r)+tabBarHTML(tabs,o.tab,'scGlTab','scGlClose','sc-gl-tabs')+'<div class="lp-isb-body">'+body+'</div>';
 }
 function glExpHead(id,r){
@@ -7075,10 +7159,15 @@ function glExpHead(id,r){
       +'<button class="lp-isb-close" type="button" title="Close" aria-label="Close" onclick="scGlClose()">'+ICO.close+'</button>'
     +'</div></div>';
 }
+/* the hero's Edit is the tab's only Edit: on Details it opens the record's
+   form (and the tab's sections with it); on any other tab with sections it
+   opens those sections */
 function glHero(id,r,withEdit){
-  var g=GL[id],st=glStatusOf(r),e=state.glEdit,editing=!!(withEdit&&e&&e.id===id&&e.key===r.key);
-  return heroCard({icon:navIcon(id),name:g.title(r),meta:[glOneCap(g),'Key '+r.key,st],editing:editing,
-    edit:withEdit&&(g.form||g.editHTML)?"scGlEdit('"+id+"',"+r.key+")":'',expand:'scExpandTab()'});
+  var g=GL[id],st=glStatusOf(r),e=state.glEdit;
+  var formEdit=withEdit&&(g.form||g.editHTML);
+  var editing=!!(formEdit&&e&&e.id===id&&e.key===r.key)||tabDraftOn(id,r.key);
+  var edit=formEdit?"scGlEdit('"+id+"',"+r.key+")":state._tabEditable?"scTabEdit('"+id+"',"+r.key+")":'';
+  return heroCard({icon:navIcon(id),name:g.title(r),meta:[glOneCap(g),'Key '+r.key,st],editing:editing,edit:edit,expand:'scExpandTab()'});
 }
 /* the record's actions - what the row menu offered - as buttons */
 /* WHAT CAN BE DONE TO A RECORD. A change - activate, block, approve, mark
@@ -7113,7 +7202,12 @@ function glViewActsHTML(id,r){
 }
 function glDetailsHTML(id,r){
   var g=GL[id],seen={},e=state.glEdit;
-  if(e&&e.id===id&&e.key===r.key)return glHero(id,r,true)+(g.editHTML?g.editHTML(r):glEditFormHTML(id,r));
+  if(e&&e.id===id&&e.key===r.key){
+    /* the record's form, then the tab's sections - all in edit, one Save */
+    if(g.detailsExtra&&!g.editHTML&&!tabDraftOn(id,r.key))state.glDraft=tabDraft(id,r.key,'details');
+    return glHero(id,r,true)+(g.detailsTop&&tabDraftOn(id,r.key)?g.detailsTop(r):'')+(g.editHTML?g.editHTML(r):glEditFormHTML(id,r))
+      +(tabDraftOn(id,r.key)?g.detailsExtra(r):'');
+  }
   var cards=g.detailFields?g.detailFields(r).map(function(f){seen[f[0].toLowerCase()]=1;return fieldCard(f[2]||fieldIco(f[0]),f[0],f[1],f[3]);})
     :g.cols.filter(function(c){return !c.noDetail;}).map(function(c){seen[c.h.toLowerCase()]=1;return fieldCard(fieldIco(c.h),c.h,c.cell(r));});
   /* what the form holds but the table does not show (a notice's description...) */
@@ -7178,7 +7272,7 @@ function glLogsHTML(id,r){
 function scGlEdit(id,key){
   var g=GL[id],r=glRow(id,key);if(!r||!(g.form||g.editHTML))return;
   var vals={};(g.form||[]).forEach(function(fd){vals[fd.k]=r[fd.k]==null?'':String(r[fd.k]);});
-  if(g.editStart)g.editStart(r);state.glSub=null;
+  if(g.editStart)g.editStart(r);state.glSub=null;state.glDraft=g.detailsExtra&&!g.editHTML?tabDraft(id,key,'details'):null;
   state.glEdit={id:id,key:key,vals:vals};state.glLogAdd=null;
   var o=state.glOpen,sb=document.getElementById('sc-gl-sb');if(!sb)return;
   if(o&&o.id===id&&o.key===key){o.tab='details';refreshPanel('sc-gl-isb',glPanelHTML(id),true);}
@@ -7198,13 +7292,21 @@ function glEditFormHTML(id,r){
     else ctl='<input class="ep-form-input" type="'+(fd.type||'text')+'" value="'+esc(v)+'" placeholder="'+esc(fd.ph||'')+'" oninput="scGlEditInput(\''+fd.k+'\',this.value)">';
     return field(fd.label,ctl,fd.req,fd.full||fd.type==='textarea');
   }).join('');
+  /* what the tab shows but this form does not change - the record's ID and
+     its status - stays in view, read-only, saying where it is changed */
+  var ids=(g.roFields?g.roFields(r):[]).map(function(f){return field(f[0],'<div class="sc-ro-field"><b>'+esc(f[1])+'</b><span>'+esc(f[2]||'System generated')+'</span></div>');}).join('');
+  var states=(g.form||[]).filter(function(fd){return glEditFields(g).indexOf(fd)<0&&r[fd.k]!=null;}).map(function(fd){
+    return field(fd.label,'<div class="sc-ro-field">'+activeBadge(r[fd.k])
+      +'<span>Changed from <button type="button" class="sc-link" onclick="scGlEditCancel();scGlTab(\'logs\')">Logs</button></span></div>');}).join('');
+  cells=ids+cells+states;
+  /* with sections below, the tab's one Save sits under them instead */
   return '<div class="sc-edit-card"><div class="policy-form-grid">'+cells+'</div>'
-    +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
-    +'<button class="btn-primary" onclick="scGlEditSave()">Save Changes</button></div></div>';
+    +(tabDraftOn(id,r.key)?'':'<div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
+    +'<button class="btn-primary" onclick="scGlEditSave()">Save Changes</button></div>')+'</div>';
 }
 function scGlEditInput(k,v){if(state.glEdit)state.glEdit.vals[k]=v;}
 function scGlEditPick(v,csid){scGlEditInput(csid.replace(/^ge-/,''),v);}
-function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;state.permDraft=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
+function scGlEditCancel(){var e=state.glEdit;state.glEdit=null;state.permDraft=null;state.glDraft=null;if(e&&state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);}
 function scGlEditSave(){
   var e=state.glEdit;if(!e)return;var g=GL[e.id],r=glRow(e.id,e.key);if(!r){state.glEdit=null;scRender();return;}
   var vals={},ef=glEditFields(g);
@@ -7215,11 +7317,15 @@ function scGlEditSave(){
     vals[fd.k]=v;
   }
   if(g.check){var why=g.check(Object.assign({},r,vals),r.key);if(why){scToast(why,'error');return;}}
+  /* the tab's sections, edited with the form, are checked and saved with it */
+  var d=tabDraftOn(e.id,e.key)?state.glDraft:null;
+  if(d){var bad=tabSecsCheck(d);if(bad){scToast(bad,'error');return;}}
   var changed=ef.filter(function(fd){return String(r[fd.k]==null?'':r[fd.k])!==vals[fd.k];}).map(function(fd){return fd.label;});
-  if(!changed.length){state.glEdit=null;refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);scToast('No changes to save','info');return;}
-  Object.assign(r,vals);if(g.onSave)g.onSave(r);
-  glLog(e.id,e.key,'Updated '+changed.join(', '));
-  state.glEdit=null;scRender();scToast(g.title(r)+' updated','success');
+  if(changed.length){Object.assign(r,vals);if(g.onSave)g.onSave(r);}
+  var secs=d?tabSecsApply(r,d):{titles:[],comment:''},all=changed.concat(secs.titles);
+  if(!all.length){state.glEdit=null;state.glDraft=null;refreshPanel('sc-gl-isb',glPanelHTML(e.id),true);scToast('No changes to save','info');return;}
+  glLog(e.id,e.key,'Updated '+all.join(', '),secs.comment);
+  state.glEdit=null;state.glDraft=null;scRender();scToast(g.title(r)+' updated','success');
 }
 function glLogTone(t){return /^(Delete|Disable|Deactivate|Reject|Block|Revoke|Reverse|Cancel|Inactive|Removed|Mark Coming Soon|Escalate)/.test(t)?'unapproved'
   :/^(Enable|Activate|Approve|Active|Restore|Mark Live|Resolve|Close|Complete|Confirm|Accept|Unblock|.* Added)/.test(t)?'approved':'active';}
@@ -7659,69 +7765,182 @@ function permChipsHTML(vertical,perms){
       +perms[m[0]].map(function(a){return '<span class="sc-perm-chip">'+esc(permLabel(m[0],a))+'</span>';}).join('')+'</div></div>';
   }).join('')+'</div>';
 }
+/* THE PERMISSION EDITOR: a live summary (access level, coverage, presets) over
+   one row per module - its name and n/total, its actions as toggle chips
+   (Delete and Bank Update turn red when given) and an All switch. Every
+   change updates the summary and the row in place - no redraw, no jump. */
+var PERM_RISKY=['Delete','Bank Update'];
 function permEditorHTML(d){
   if(!d.vertical)return '<div class="lp-logs-empty">Select a vertical to allocate its permissions.</div>';
-  return '<div class="sc-perm-edit">'+tplModules(d.vertical).map(function(m){
-    var have=d.perms[m[0]]||[],all=have.length===m[2].length;
-    return '<div class="sc-perm-emod"><div class="sc-perm-ehead"><b>'+esc(m[1])+'</b>'
-        +'<label class="sc-perm-all"><input type="checkbox"'+(all?' checked':'')+' onchange="scPermAll(\''+m[0]+'\',this.checked)"> Select all</label></div>'
-      +'<div class="sc-perm-eopts">'+m[2].map(function(a){
-        return '<label class="sc-perm-opt"><input type="checkbox"'+(have.indexOf(a)>=0?' checked':'')+' onchange="scPermTog(\''+m[0]+'\',\''+a+'\',this.checked)"> '+esc(permLabel(m[0],a))+'</label>';
-      }).join('')+'</div></div>';
-  }).join('')+'</div>';
+  return '<div class="sc-pe"><div class="sc-pe-bar"><div class="sc-pe-sum">'+permSummaryHTML(d)+'</div>'
+      +'<div class="sc-pe-presets"><button type="button" class="btn-outline btn-sm" onclick="scPermPreset(\'all\')">Select all</button>'
+      +'<button type="button" class="btn-outline btn-sm" onclick="scPermPreset(\'view\')">View on all</button>'
+      +'<button type="button" class="btn-outline btn-sm" onclick="scPermPreset(\'none\')">Clear</button></div></div>'
+    +'<div class="sc-pe-list">'+tplModules(d.vertical).map(function(m){
+      var have=d.perms[m[0]]||[],full=have.length===m[2].length;
+      return '<div class="sc-pe-mod'+(full?' is-full':have.length?'':' is-none')+'" data-pemod="'+esc(m[0])+'">'
+        +'<div class="sc-pe-name"><b>'+esc(m[1])+'</b><span class="sc-pe-n">'+have.length+'/'+m[2].length+'</span></div>'
+        +'<div class="sc-pe-acts">'+m[2].map(function(a){
+          return '<label class="sc-pe-chip'+(PERM_RISKY.indexOf(a)>=0?' is-risk':'')+'" title="'+esc(permLabel(m[0],a))+'"><input type="checkbox" data-act="'+esc(a)+'"'+(have.indexOf(a)>=0?' checked':'')
+            +' onchange="scPermTog(\''+m[0]+'\',\''+a+'\',this.checked)"><span>'+esc(a)+'</span></label>';}).join('')+'</div>'
+        +'<label class="sc-pe-all" title="Every '+esc(m[1])+' action"><input type="checkbox" data-peall'+(full?' checked':'')+' onchange="scPermAll(\''+m[0]+'\',this.checked)"><i></i>All</label>'
+      +'</div>';
+    }).join('')+'</div></div>';
+}
+function permSummaryHTML(d){
+  var have=permCount(d.perms),all=tplTotal(d.vertical),mods=tplModules(d.vertical),given=mods.filter(function(m){return (d.perms[m[0]]||[]).length;}).length;
+  var risky=Object.keys(d.perms).reduce(function(s,k){return s+d.perms[k].filter(function(a){return PERM_RISKY.indexOf(a)>=0;}).length;},0);
+  var lv=have?tplLevel(d):null,pct=all?Math.round(have/all*100):0;
+  return (lv?'<span class="sc-tpl-lvl is-'+lv[0]+'">'+lv[1]+'</span>':'<span class="sc-tpl-lvl is-low">No access</span>')
+    +'<span class="sc-tpl-bar is-'+(lv?lv[0]:'low')+'"><i style="width:'+(have?Math.max(pct,4):0)+'%"></i></span>'
+    +'<span class="sc-pe-txt"><b>'+have+'</b> of '+all+' permissions<span class="hd-sb-dot">•</span><b>'+given+'</b> of '+mods.length+' modules'
+    +(risky?'<span class="hd-sb-dot">•</span><em title="Delete / Bank Update actions">'+risky+' high-risk</em>':'')+'</span>';
+}
+/* bring every row and the summary in line with the draft */
+function permEditorSync(){
+  var d=state.permDraft;if(!d)return;
+  document.querySelectorAll('.sc-pe-mod[data-pemod]').forEach(function(row){
+    var mod=row.getAttribute('data-pemod'),m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0],have=d.perms[mod]||[];if(!m)return;
+    row.querySelectorAll('input[data-act]').forEach(function(i){i.checked=have.indexOf(i.getAttribute('data-act'))>=0;});
+    var full=have.length===m[2].length;row.querySelector('input[data-peall]').checked=full;
+    row.querySelector('.sc-pe-n').textContent=have.length+'/'+m[2].length;
+    row.classList.toggle('is-full',full);row.classList.toggle('is-none',!have.length);
+  });
+  var s=document.querySelector('.sc-pe-sum');if(s)s.innerHTML=permSummaryHTML(d);
 }
 function scPermTog(mod,act,on){
   var d=state.permDraft;if(!d)return;var a=d.perms[mod]||(d.perms[mod]=[]),i=a.indexOf(act);
   if(on&&i<0)a.push(act);if(!on&&i>=0)a.splice(i,1);if(!a.length)delete d.perms[mod];
-  var m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0],box=document.querySelector('.sc-perm-all input[onchange*="\''+mod+'\'"]');
-  if(box&&m)box.checked=(d.perms[mod]||[]).length===m[2].length;
+  permEditorSync();
 }
 function scPermAll(mod,on){
   var d=state.permDraft,m=TPL_MODULES.filter(function(x){return x[0]===mod;})[0];if(!d||!m)return;
   if(on)d.perms[mod]=m[2].slice();else delete d.perms[mod];
-  if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));
+  permEditorSync();
+}
+function scPermPreset(kind){
+  var d=state.permDraft;if(!d)return;var p={};
+  tplModules(d.vertical).forEach(function(m){if(kind==='all')p[m[0]]=m[2].slice();else if(kind==='view'&&m[2].indexOf('View')>=0)p[m[0]]=['View'];});
+  d.perms=p;permEditorSync();
 }
 function permsOrdered(vertical,perms){var out={};tplModules(vertical).forEach(function(m){var a=perms[m[0]];if(a&&a.length)out[m[0]]=m[2].filter(function(x){return a.indexOf(x)>=0;});});return out;}
 function permCount(perms){return Object.keys(perms).reduce(function(s,k){return s+perms[k].length;},0);}
 
 /* ── TEMPLATES ──────────────────────────────────────────────────────────── */
+/* ACCESS LEVEL: what a template amounts to at a glance - Full Access (every
+   action the vertical offers), View Only (sees everything it has, changes
+   nothing), otherwise by its share of the vertical's actions. */
+var TPL_LEVELS=[['full','Full Access'],['high','Extended'],['mid','Standard'],['low','Limited'],['view','View Only']];
+function tplTotal(vertical){return tplModules(vertical).reduce(function(s,m){return s+m[2].length;},0);}
+function tplLevel(t){
+  var have=permCount(t.perms),all=tplTotal(t.vertical),share=all?have/all:0;
+  var viewOnly=Object.keys(t.perms).every(function(k){return t.perms[k].every(function(a){return a==='View';});});
+  var k=have&&have>=all?'full':have&&viewOnly?'view':share>=.4?'high':share>=.15?'mid':'low';
+  return TPL_LEVELS.filter(function(l){return l[0]===k;})[0];
+}
+function tplAccessHTML(t){
+  var lv=tplLevel(t),have=permCount(t.perms),all=tplTotal(t.vertical),pct=all?Math.round(have/all*100):0;
+  return '<div class="sc-tpl-acc"><span class="sc-tpl-lvl is-'+lv[0]+'">'+lv[1]+'</span>'
+    +'<div class="sc-tpl-cov" title="'+have+' of '+all+' permissions ('+pct+'%)"><span class="sc-tpl-bar is-'+lv[0]+'"><i style="width:'+(have?Math.max(pct,4):0)+'%"></i></span>'
+    +'<span class="sc-tpl-covtxt"><b>'+have+'</b>/'+all+'</span></div></div>';
+}
 TEMPLATES.forEach(function(t){t.key=t.id;});
 GL.templates={one:'template',noun:'templates',rows:TEMPLATES,
   title:function(t){return t.role;},
   search:{placeholder:'Search by role',fields:['role','vertical']},
-  filters:[{k:'vertical',label:'All Verticals',opts:VERTICALS}],
+  filters:[{k:'vertical',label:'All Verticals',opts:VERTICALS},
+    {k:'access',label:'All Access Levels',opts:TPL_LEVELS.map(function(l){return l[1];}),match:function(t,v){return tplLevel(t)[1]===v;}},
+    {k:'sort',label:'Sort by',opts:['Vertical','Role A–Z','Most access','Least access'],match:function(){return true;}}],
+  sortBy:function(v){var n=function(t){return permCount(t.perms)/tplTotal(t.vertical);};
+    return {'Role A–Z':function(a,b){return a.role.localeCompare(b.role)||a.vertical.localeCompare(b.vertical);},
+      'Most access':function(a,b){return n(b)-n(a);},'Least access':function(a,b){return n(a)-n(b);}}[v]||function(a,b){return a.key-b.key;};},
   stats:function(rows){var roles={};rows.forEach(function(t){roles[t.role]=1;});
     return [['Templates',rows.length,'active'],['Roles',Object.keys(roles).length,''],['Verticals',VERTICALS.filter(function(v){return rows.some(function(t){return t.vertical===v;});}).length,'']];},
   cols:[{h:'Role',cell:function(t){return mainTxt(t.role);}},
-    {h:'Vertical',cell:function(t){return plain(t.vertical);}},
+    {h:'Vertical',cell:function(t){return '<span class="sc-tpl-vert" data-v="'+esc(t.vertical)+'"><i></i>'+esc(t.vertical)+'</span>';}},
+    {h:'Access',cell:function(t){return tplAccessHTML(t);}},
     {h:'Permissions',noDetail:true,cell:function(t){return tplPermSummary(t);}}],
   del:true,
+  /* the chevron opens the row to every module and action, given or not */
+  expandable:true,
+  expandHTML:function(t){
+    var mods=tplModules(t.vertical),given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;}).length;
+    return '<div class="sc-tpl-exp"><div class="sc-tpl-exphead"><span><b>'+given+'</b> of '+mods.length+' modules<span class="hd-sb-dot">•</span><b>'+permCount(t.perms)+'</b> of '+tplTotal(t.vertical)+' permissions</span>'
+      +'<button class="btn-outline btn-sm" type="button" onclick="event.stopPropagation();scTplPermEdit('+t.key+')">'+ICO_EDIT+' Edit Permissions</button></div>'
+      +tplMatrixHTML(t)+'</div>';},
+  /* EDIT WHERE YOU LOOK: Details edits what the template is (name, vertical);
+     the Permissions tab edits what it gives, in place, with its own Save. */
   tabs:[{id:'perms',label:'Permissions',html:function(t){
-    return relHead('templates',t,'Permission Allocation',permCount(t.perms)+' permissions')+permChipsHTML(t.vertical,t.perms);}}],
-  /* edit = the permission allocation, in place */
+    var se=state.glSub,ed=!!(se&&se.kind==='perms'&&se.key===t.key&&state.permDraft);
+    /* the standard hero: Edit at its right, the Editing pill while editing */
+    var hero=heroCard({icon:navIcon('templates'),name:t.role,meta:['Template','Key '+t.key],editing:ed,edit:'scTplPermEdit('+t.key+')',expand:'scExpandTab()'});
+    if(ed)return hero+secHead('Permission Allocation')
+      +'<div class="sc-sub-edit">'+permEditorHTML(state.permDraft)
+        +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scSubCancel()">Cancel</button>'
+        +'<button class="btn-primary" onclick="scTplPermSave()">Save Changes</button></div></div>';
+    return hero+secHead('Permission Allocation','<span class="sc-act-count">'+permCount(t.perms)+' of '+tplTotal(t.vertical)+' permissions</span>')
+      +tplMatrixHTML(t);}}],
   editStart:function(t){state.permDraft={role:t.role,vertical:t.vertical,perms:JSON.parse(JSON.stringify(t.perms))};},
   editHTML:function(t){var d=state.permDraft;
     return '<div class="sc-edit-card"><div class="policy-form-grid">'
         +field('Template Name','<input class="ep-form-input" value="'+esc(d.role)+'" oninput="state.permDraft.role=this.value">',true)
         +field('Vertical',csField('tpe-vertical',VERTICALS,d.vertical,'Select vertical','scPermVertical'),true)
-        +'<div class="ep-form-group ep-form-full"><label class="ep-form-label">Permission Allocation <span class="req">*</span></label>'+permEditorHTML(d)+'</div>'
-      +'</div><div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
+      +'</div>'+tplVerticalNote(t,d.vertical)
+      +'<div class="sc-edit-actions"><button class="btn-outline" onclick="scGlEditCancel()">Cancel</button>'
       +'<button class="btn-primary" onclick="scTplEditSave()">Save Changes</button></div></div>';}};
-/* THE LISTING'S PERMISSIONS: a compact summary - coverage of what the
-   vertical offers, then the modules as count pills (the first few, then
-   "+N more"). Every action, module by module, is the template's
-   Permissions tab. */
-var TPL_PILLS=5;
+/* what moving a template to another vertical does to its permissions */
+function tplVerticalNote(t,v){
+  if(!v||v===t.vertical)return '<p class="sc-tpl-note">Permissions are edited in the <button type="button" class="sc-link" onclick="scGlEditCancel();scTplPermEdit('+t.key+')">Permissions</button> tab.</p>';
+  var ok={};tplModules(v).forEach(function(m){ok[m[0]]=1;});
+  var lost=tplModules(t.vertical).filter(function(m){return !ok[m[0]]&&(t.perms[m[0]]||[]).length;});
+  if(!lost.length)return '<p class="sc-tpl-note is-info">All '+permCount(t.perms)+' permissions carry over to '+esc(v)+'.</p>';
+  var n=lost.reduce(function(s,m){return s+t.perms[m[0]].length;},0);
+  return '<p class="sc-tpl-note is-warn"><b>'+n+' permission'+(n===1?'':'s')+' will be removed</b> — '+esc(lost.map(function(m){return m[1];}).join(', '))+(lost.length===1?' is':' are')+' not part of '+esc(v)+'.</p>';
+}
+/* open the template on its Permissions tab, editing */
+function scTplPermEdit(key){
+  var t=glRow('templates',key);if(!t)return;
+  var o=state.glOpen;if(!o||o.id!=='templates'||o.key!==key){state.glOpen=null;scGlOpen('templates',key);}
+  state.glEdit=null;state.glSub={kind:'perms',key:key};
+  state.permDraft={role:t.role,vertical:t.vertical,perms:JSON.parse(JSON.stringify(t.perms))};
+  scGlTab('perms');
+}
+function scTplPermSave(){
+  var se=state.glSub,d=state.permDraft,t=se&&glRow('templates',se.key);if(!t||!d)return;
+  if(!permCount(d.perms)){scToast('Give the role at least one permission','error');return;}
+  var before=permCount(t.perms);t.perms=permsOrdered(t.vertical,d.perms);
+  glLog('templates',t.key,'Updated permissions',before+' → '+permCount(t.perms)+' permissions');
+  state.glSub=null;state.permDraft=null;scRender();scToast(t.role+' permissions updated','success');
+}
+/* THE LISTING'S PERMISSIONS: each given module as a pill whose segments are
+   its actions (filled = given), the first few then "+N more", which opens the
+   row. A template with every action says so in one line instead. */
+var TPL_PILLS=4;
+function tplSegs(m,have){return '<span class="sc-tpl-segs" aria-hidden="true">'+m[2].map(function(a){return '<i'+(have.indexOf(a)>=0?' class="on"':'')+'></i>';}).join('')+'</span>';}
 function tplPermSummary(t){
-  var mods=tplModules(t.vertical),have=permCount(t.perms),all=mods.reduce(function(s,m){return s+m[2].length;},0);
-  var given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;}),pct=all?Math.round(have/all*100):0;
-  var pills=given.slice(0,TPL_PILLS).map(function(m){var n=t.perms[m[0]].length,full=n===m[2].length;
-    return '<span class="sc-tpl-pill'+(full?' is-full':'')+'" title="'+esc(t.perms[m[0]].map(function(a){return permLabel(m[0],a);}).join(', '))+'">'
-      +esc(m[1])+'<b>'+n+'</b></span>';}).join('');
-  var more=given.length>TPL_PILLS?'<button type="button" class="sc-tpl-more" onclick="event.stopPropagation();scGlOpen(\'templates\','+t.key+');scGlTab(\'perms\')">+'+(given.length-TPL_PILLS)+' more</button>':'';
-  return '<div class="sc-tpl-sum"><div class="sc-tpl-cov"><span class="sc-tpl-bar"><i style="width:'+pct+'%"></i></span>'
-    +'<span class="sc-tpl-covtxt"><b>'+have+'</b> of '+all+' permissions · '+given.length+' of '+mods.length+' modules</span></div>'
-    +'<div class="sc-tpl-pills">'+(pills||'<span class="lp-dash">No permissions</span>')+more+'</div></div>';
+  var mods=tplModules(t.vertical),given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;});
+  if(!given.length)return '<span class="lp-dash">No permissions</span>';
+  if(tplLevel(t)[0]==='full')return '<span class="sc-tpl-all">'+ICO.check+' Every action in all '+mods.length+' modules</span>';
+  var ex=!!(state.glExp||{})['templates:'+t.key],rest=given.length-TPL_PILLS;
+  var pills=given.slice(0,TPL_PILLS).map(function(m){
+    var have=t.perms[m[0]],miss=m[2].filter(function(a){return have.indexOf(a)<0;});
+    return '<span class="sc-tpl-pill'+(miss.length?'':' is-full')+'" title="'+esc(m[1]+': '+have.join(', ')+(miss.length?' — not given: '+miss.join(', '):''))+'">'
+      +esc(m[1])+tplSegs(m,have)+'</span>';}).join('');
+  return '<div class="sc-tpl-pills">'+pills
+    +(rest>0?'<button type="button" class="sc-tpl-more" aria-expanded="'+ex+'" onclick="event.stopPropagation();scGlExpand(\'templates\','+t.key+')">'+(ex?'Show less':'+'+rest+' more')+'</button>':'')+'</div>';
+}
+/* every module of the vertical: given ones as cards (missing actions muted),
+   then the modules the role cannot reach at all */
+function tplMatrixHTML(t){
+  var mods=tplModules(t.vertical),given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;}),none=mods.filter(function(m){return given.indexOf(m)<0;});
+  if(!given.length)return '<div class="lp-logs-empty">No permissions given.</div>';
+  return '<div class="sc-tpl-matrix">'+given.map(function(m){
+      var have=t.perms[m[0]],full=have.length===m[2].length;
+      return '<div class="sc-tpl-mcard'+(full?' is-full':'')+'"><div class="sc-tpl-mhead"><b>'+esc(m[1])+'</b><span>'+(full?'All':have.length+'/'+m[2].length)+'</span></div>'
+        +'<div class="sc-tpl-macts">'+m[2].map(function(a){var on=have.indexOf(a)>=0;
+          return '<span class="sc-tpl-act'+(on?' on':'')+'" title="'+esc(permLabel(m[0],a))+(on?'':' — not given')+'">'+esc(a)+'</span>';}).join('')+'</div></div>';
+    }).join('')+'</div>'
+    +(none.length?'<div class="sc-tpl-none"><b>No access</b>'+none.map(function(m){return '<span>'+esc(m[1])+'</span>';}).join('')+'</div>':'');
 }
 function scPermVertical(v){
   var d=state.permDraft;if(!d)return;d.vertical=v;
@@ -7733,10 +7952,11 @@ function scTplEditSave(){
   var role=String(d.role||'').trim();
   if(!role){scToast('Enter the template name','error');return;}
   if(!d.vertical){scToast('Select the vertical','error');return;}
-  if(!permCount(d.perms)){scToast('Give the role at least one permission','error');return;}
+  if(!permCount(d.perms)){scToast('No permissions would remain in '+d.vertical,'error','Add some from the Permissions tab first, or keep the vertical.');return;}
   if(TEMPLATES.some(function(x){return x.key!==t.key&&x.role.toLowerCase()===role.toLowerCase()&&x.vertical===d.vertical;})){scToast('A '+role+' template already exists for '+d.vertical,'error');return;}
-  var before=permCount(t.perms);t.role=role;t.vertical=d.vertical;t.perms=permsOrdered(d.vertical,d.perms);
-  glLog('templates',t.key,'Updated permissions',before+' → '+permCount(t.perms)+' permissions');
+  var was=t.role+' · '+t.vertical,before=permCount(t.perms);t.role=role;t.vertical=d.vertical;t.perms=permsOrdered(d.vertical,d.perms);
+  var lost=before-permCount(t.perms);
+  glLog('templates',t.key,'Updated details',was+' → '+role+' · '+d.vertical+(lost?' ('+lost+' permissions removed)':''));
   state.glEdit=null;state.permDraft=null;scRender();scToast(role+' template updated','success');
 }
 
@@ -7924,7 +8144,7 @@ function draftCtl(f,v){
   var k=f.k;
   if(f.type==='switch')return '<button type="button" role="switch" aria-checked="'+!!v+'" class="sc-switch'+(v?' is-on':'')+'" onclick="scDFlip(\''+k+'\',this)"><span></span></button>';
   if(f.type==='days')return '<span class="sc-days is-edit">'+DAY_ABBR.map(function(d,i){
-    return '<button type="button" class="sc-day'+((v||[]).indexOf(i)>=0?' is-on':'')+'" title="'+DAY_NAME[i]+'" aria-pressed="'+((v||[]).indexOf(i)>=0)+'" onclick="scDDay('+i+',this)">'+d+'</button>';}).join('')+'</span>';
+    return '<button type="button" class="sc-day'+((v||[]).indexOf(i)>=0?' is-on':'')+'" title="'+DAY_NAME[i]+'" aria-pressed="'+((v||[]).indexOf(i)>=0)+'" onclick="scDDay('+i+',this,\''+k+'\')">'+d+'</button>';}).join('')+'</span>';
   if(f.type==='select'){var o=typeof f.opts==='function'?f.opts():f.opts;return csField('dr-'+k,o,v==null?'':String(v),'Select '+f.label.toLowerCase(),'scDPick');}
   if(f.type==='textarea')return '<textarea class="ep-form-input" oninput="scDInput(\''+k+'\',this.value)">'+esc(v||'')+'</textarea>';
   if(f.type==='file')return '<input class="ep-form-input sc-file-input" type="file" onchange="scDFile(\''+k+'\',this)"'+(f.accept?' accept="'+f.accept+'"':'')+'>';
@@ -7933,7 +8153,7 @@ function draftCtl(f,v){
 function scDInput(k,v){if(state.glDraft)state.glDraft.vals[k]=v;}
 function scDPick(v,csid){scDInput(csid.replace(/^dr-/,''),v);}
 function scDFlip(k,btn){var d=state.glDraft;if(!d)return;d.vals[k]=!d.vals[k];btn.classList.toggle('is-on',d.vals[k]);btn.setAttribute('aria-checked',d.vals[k]);}
-function scDDay(i,btn){var d=state.glDraft;if(!d)return;var a=d.vals.days||(d.vals.days=[]),j=a.indexOf(i);if(j<0)a.push(i);else a.splice(j,1);
+function scDDay(i,btn,k){var d=state.glDraft;if(!d)return;k=k||'days';var a=d.vals[k]||(d.vals[k]=[]),j=a.indexOf(i);if(j<0)a.push(i);else a.splice(j,1);
   btn.classList.toggle('is-on',j<0);btn.setAttribute('aria-pressed',j<0);}
 function scDFile(k,inp){var f=inp.files&&inp.files[0],d=state.glDraft;if(!f||!d)return;
   if(f.size>2048*1024){scToast(f.name+' is over 2048 KB','error');inp.value='';return;}d.vals[k]={name:f.name,size:f.size,url:URL.createObjectURL(f)};}
@@ -7941,10 +8161,17 @@ function secFields(def){return def.fields||[].concat.apply([],def.groups.map(fun
 function glPanelRefresh(){if(state.glOpen)refreshPanel('sc-gl-isb',glPanelHTML(state.glOpen.id));}
 
 /* ── a section: view or edit ────────────────────────────────────────────── */
+/* ONE EDIT PER TAB. A section has no Edit of its own: the hero's Edit puts
+   every section on the tab into edit at once (state.glDraft, mode 'tab', its
+   values keyed section|field), with one Cancel / Save Changes for the tab.
+   On Details the same Edit also opens the record's own form, saved together. */
 function secBlock(id,r,sec){
-  var def=SEC_DEF[sec],obj=def.get(r),d=state.glDraft,editing=!!(d&&d.mode==='sec'&&d.sec===sec&&d.key===r.key);
-  var src=editing?d.vals:obj;
-  var cell=function(f){return editing?draftCtl(f,src[f.k]):secFmt(f,src[f.k]);};
+  var def=SEC_DEF[sec],obj=def.get(r),d=state.glDraft;
+  state._secSeen=(state._secSeen||0)+1;
+  var editing=tabDraftOn(id,r.key);
+  if(editing&&d.secs.indexOf(sec)<0){d.secs.push(sec);
+    secFields(def).forEach(function(f){d.vals[sec+'|'+f.k]=f.type==='days'?(obj[f.k]||[]).slice():obj[f.k];});}
+  var cell=function(f){return editing?draftCtl(Object.assign({},f,{k:sec+'|'+f.k}),d.vals[sec+'|'+f.k]):secFmt(f,obj[f.k]);};
   var body;
   if(def.groups){
     body='<div class="sc-set">'+def.groups.map(function(g){
@@ -7954,30 +8181,49 @@ function secBlock(id,r,sec){
   }else if(editing){
     body='<div class="policy-form-grid">'+def.fields.map(function(f){return field(f.label,cell(f),f.req,f.full||f.type==='textarea'||f.type==='days');}).join('')+'</div>';
   }else body='<div class="lp-sb-detail-grid">'+def.fields.filter(function(f){return !f.editOnly;}).map(function(f){return fieldCard(fieldIco(f.label),f.label,cell(f),f.full);}).join('')+'</div>';
-  var edit=editing?'':'<button class="lp-sb-view-edit-btn" type="button" onclick="scSecEdit(\''+id+'\','+r.key+',\''+sec+'\')">'+ICO_EDIT+' Edit</button>';
-  return '<div class="sc-sec">'+secHead(def.title,editing?'<span class="sc-editing-pill">'+ICO_EDIT+' Editing</span>':edit)
-    +(editing?'<div class="sc-edit-card">'+body+'<div class="sc-edit-actions"><button class="btn-outline" onclick="scDraftCancel()">Cancel</button>'
-      +'<button class="btn-primary" onclick="scSecSave()">Save Changes</button></div></div>':body)+'</div>';
+  return '<div class="sc-sec">'+secHead(def.title)+(editing?'<div class="sc-edit-card">'+body+'</div>':body)+'</div>';
 }
-function scSecEdit(id,key,sec){
-  var r=glRow(id,key),def=SEC_DEF[sec];if(!r)return;var obj=def.get(r),vals={};
-  secFields(def).forEach(function(f){vals[f.k]=f.type==='days'?(obj[f.k]||[]).slice():obj[f.k];});
-  state.glDraft={mode:'sec',id:id,key:key,sec:sec,vals:vals};glPanelRefresh();
+function tabDraft(id,key,tab){return {mode:'tab',id:id,key:key,tab:tab,secs:[],vals:{}};}
+function tabDraftOn(id,key){var d=state.glDraft,o=state.glOpen;return !!(d&&d.mode==='tab'&&d.id===id&&d.key===key&&o&&d.tab===o.tab);}
+function scTabEdit(id,key){
+  if(!state.glOpen)return;
+  state.glSub=null;state.glLogAdd=null;state.glDraft=tabDraft(id,key,state.glOpen.tab);glPanelRefresh();
 }
 function scDraftCancel(){state.glDraft=null;glPanelRefresh();}
-function scSecSave(){
-  var d=state.glDraft;if(!d||d.mode!=='sec')return;var r=glRow(d.id,d.key),def=SEC_DEF[d.sec];if(!r)return;
-  var fs=secFields(def),obj=def.get(r);
-  for(var i=0;i<fs.length;i++){var f=fs[i],v=d.vals[f.k];
-    if(f.req&&(v===''||v==null)){scToast('Enter the '+f.label.toLowerCase(),'error');return;}
-    if(f.pattern&&v&&!f.pattern.test(String(v))){scToast(f.label+' is not valid','error');return;}}
-  if(fs.some(function(f){return f.type==='days';})&&!(d.vals.days||[]).length){scToast('Pick at least one day','error');return;}
-  if(def.check){var why=def.check(d.vals);if(why){scToast(why,'error');return;}}
-  var changed=fs.filter(function(f){return !f.editOnly&&JSON.stringify(String(obj[f.k]==null?'':obj[f.k]))!==JSON.stringify(String(d.vals[f.k]==null?'':d.vals[f.k]));});
-  if(!changed.length){state.glDraft=null;glPanelRefresh();scToast('No changes to save','info');return;}
-  fs.forEach(function(f){if(f.editOnly)return;var v=d.vals[f.k];obj[f.k]=f.type==='number'&&v!==''?+v:v;});
-  if(def.after)def.after(r);
-  glLog(d.id,d.key,'Updated '+def.title,def.commentKey?String(d.vals[def.commentKey]||'').trim():'');state.glDraft=null;scRender();scToast(def.title+' saved','success');
+function scTabCancel(){state.glEdit=null;state.glDraft=null;state.permDraft=null;glPanelRefresh();}
+function scTabSave(){
+  var e=state.glEdit,o=state.glOpen;if(e&&o&&o.tab==='details'&&e.id===o.id&&e.key===o.key){scGlEditSave();return;}
+  var d=state.glDraft;if(!d||d.mode!=='tab')return;var r=glRow(d.id,d.key);if(!r)return;
+  var why=tabSecsCheck(d);if(why){scToast(why,'error');return;}
+  var done=tabSecsApply(r,d);
+  if(!done.titles.length){state.glDraft=null;glPanelRefresh();scToast('No changes to save','info');return;}
+  glLog(d.id,d.key,'Updated '+done.titles.join(', '),done.comment);state.glDraft=null;scRender();scToast(done.titles.join(', ')+' saved','success');
+}
+function secPlain(d,sec){var o={};secFields(SEC_DEF[sec]).forEach(function(f){o[f.k]=d.vals[sec+'|'+f.k];});return o;}
+/* the first problem in the tab's sections, or '' */
+function tabSecsCheck(d){
+  for(var s=0;s<d.secs.length;s++){
+    var def=SEC_DEF[d.secs[s]],fs=secFields(def),v=secPlain(d,d.secs[s]);
+    for(var i=0;i<fs.length;i++){var f=fs[i],x=v[f.k];
+      if(f.req&&(x===''||x==null))return 'Enter the '+f.label.toLowerCase();
+      if(f.pattern&&x&&!f.pattern.test(String(x)))return f.label+' is not valid';}
+    if(fs.some(function(f){return f.type==='days';})&&!(v.days||[]).length)return 'Pick at least one day';
+    if(def.check){var why=def.check(v);if(why)return why;}
+  }
+  return '';
+}
+/* write the changed sections back; their titles and any comment, for the log */
+function tabSecsApply(r,d){
+  var titles=[],comment='';
+  d.secs.forEach(function(sec){
+    var def=SEC_DEF[sec],obj=def.get(r),fs=secFields(def),v=secPlain(d,sec);
+    var changed=fs.filter(function(f){return !f.editOnly&&JSON.stringify(String(obj[f.k]==null?'':obj[f.k]))!==JSON.stringify(String(v[f.k]==null?'':v[f.k]));});
+    if(!changed.length)return;
+    fs.forEach(function(f){if(f.editOnly)return;var x=v[f.k];obj[f.k]=f.type==='number'&&x!==''?+x:x;});
+    if(def.after)def.after(r);titles.push(def.title);
+    if(def.commentKey&&!comment)comment=String(v[def.commentKey]||'').trim();
+  });
+  return {titles:titles,comment:comment};
 }
 
 /* ── a list: table, + Add form, remove ──────────────────────────────────── */
@@ -8142,7 +8388,13 @@ LIST_DEF.storeAgents={title:'Agent Details',one:'agent',addLabel:'Add Agent',emp
 /* Basic Details: the store's images, its gallery, then the store's details */
 function storeImagesHTML(st){
   var x=storeExt(st);
-  var tile=function(k,label){return '<div class="sc-img-slot"><span class="sc-img-label">'+esc(label)+'</span><span class="sc-img-box'+(x.images[k]?' is-set':'')+'">'+(x.images[k]?ICO.store:ICO.noimg)+'</span></div>';};
+  /* each slot takes an image - click to upload or replace */
+  var tile=function(k,label){var im=x.images[k],url=im&&im.url;
+    return '<div class="sc-img-slot"><span class="sc-img-label">'+esc(label)+'</span>'
+      +'<label class="sc-img-box'+(im?' is-set':'')+(url?' has-img':'')+'" title="'+(im?'Replace ':'Upload ')+esc(label.toLowerCase())+'">'
+        +(url?'<img src="'+url+'" alt="'+esc(label)+'">':im?ICO.store:ICO.noimg)
+        +'<span class="sc-img-hover">'+ATT_ICO.upload+(im?'Replace':'Upload')+'</span>'
+        +'<input type="file" accept="image/*" hidden onchange="scStoreImg('+st.key+',\''+k+'\',\''+esc(label)+'\',this.files);this.value=\'\'"></label></div>';};
   var gal=x.gallery.map(function(g,i){return '<div class="sc-gal-item"><img src="'+g.url+'" alt="'+esc(g.name)+'"><button type="button" class="sc-gal-x" title="Remove" aria-label="Remove '+esc(g.name)+'" onclick="scGalDel('+st.key+','+i+')">'+ICO.close+'</button></div>';}).join('');
   return '<div class="sc-sec">'+secHead('Store Images')
     +'<div class="sc-img-row">'+tile('listing','Listing Image')+tile('front','Front Image')+tile('nearby','Nearby Image')+tile('discounts','Discounts Image')+'</div>'
@@ -8155,6 +8407,13 @@ function scGalAdd(key,files){
   [].forEach.call(files||[],function(f){if(!/^image\//.test(f.type)||f.size>2048*1024){bad++;return;}x.gallery.push({name:f.name,url:URL.createObjectURL(f)});n++;});
   if(n)glLog('stores',key,'Added '+n+(n===1?' gallery image':' gallery images'));
   scRender();if(bad)scToast(bad+(bad===1?' file was':' files were')+' not added','error','Images only, up to 2048 KB each.');
+}
+function scStoreImg(key,k,label,files){
+  var st=glRow('stores',key),f=files&&files[0];if(!st||!f)return;
+  if(!/^image\//.test(f.type)||f.size>2048*1024){scToast(label+' not changed','error','Images only, up to 2048 KB.');return;}
+  var x=storeExt(st),old=x.images[k];if(old&&old.url)URL.revokeObjectURL(old.url);
+  x.images[k]={name:f.name,url:URL.createObjectURL(f)};glLog('stores',key,(old?'Replaced ':'Added ')+label);
+  scRender();scToast(label+(old?' replaced':' added'),'success');
 }
 function scGalDel(key,i){var st=glRow('stores',key),x=st&&storeExt(st),g=x&&x.gallery.splice(i,1)[0];if(!g)return;URL.revokeObjectURL(g.url);glLog('stores',key,'Removed gallery image');scRender();}
 
@@ -8224,6 +8483,7 @@ GL.storecats.tabs=[{id:'workflow',label:'Workflow',html:function(c){
 }}];
 
 GL.stores.detailsLabel='Basic Details';
+GL.stores.roFields=function(st){return [['Store ID',st.key]];};
 /* the listing's report links and Login are row actions, not details */
 GL.stores.cols.forEach(function(c){if(/^(Reports|Activity)$/.test(c.h))c.noDetail=true;});
 /* ── TAGS: the tag's image above its details, and its Workflow ─────────── */
