@@ -1521,9 +1521,11 @@ button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0
 .sc-gl-modal-body{padding:18px 0 16px}
 .sc-gl-modal-body .lp-sb-view-header{margin:0 0 14px}
 .sc-gl-modal .sc-modal-foot{border-top:1px solid var(--border);padding:14px 28px}
-/* Templates listing. Access: a level badge over a coverage bar in the same tone.
-   Permissions: module pills whose segments are its actions (filled = given). */
-.sc-tpl-lvl,.sc-tpl-bar{--lv-full:var(--st-ok-fg);--lv-high:var(--st-info-fg);--lv-mid:#7c3aed;--lv-low:#64748b;--lv-view:#0e7490}
+/* Templates listing. Access: a level badge over a coverage bar. The levels are
+   a ranked scale, so they use one ink at falling strengths (solid, outlined,
+   light, dashed) - not green/blue/purple, where green would read as "good" on
+   the riskiest template. Permissions: module names, Manage then View only. */
+.sc-tpl-lvl,.sc-tpl-bar{--lv-full:var(--navy);--lv-high:var(--navy);--lv-mid:#64748b;--lv-low:#94a3b8;--lv-view:#94a3b8}
 .sc-tpl-vert{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--navy);white-space:nowrap}
 .sc-tpl-vert i{width:8px;height:8px;border-radius:50%;background:#94a3b8;flex-shrink:0}
 .sc-tpl-vert[data-v="Grocery Retail"] i{background:#16a34a}
@@ -1533,6 +1535,11 @@ button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0
 .sc-tpl-acc{display:flex;flex-direction:column;gap:7px;min-width:118px}
 .sc-tpl-lvl{align-self:flex-start;display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;
   color:var(--lv);background:color-mix(in srgb,var(--lv) 10%,#fff);border:1px solid color-mix(in srgb,var(--lv) 28%,#fff)}
+.sc-tpl-lvl.is-full{color:#fff;background:var(--navy);border-color:var(--navy)}
+.sc-tpl-lvl.is-high{color:var(--navy);background:#fff;border-color:var(--navy)}
+.sc-tpl-lvl.is-mid{color:var(--navy);background:#e2e8f0;border-color:#cbd5e1}
+.sc-tpl-lvl.is-low{color:var(--gray);background:#fff;border:1px dashed #cbd5e1}
+.sc-tpl-lvl.is-view{color:var(--gray);background:#f8fafc;border-color:#e2e8f0}
 .sc-tpl-lvl.is-full,.sc-tpl-bar.is-full{--lv:var(--lv-full)}
 .sc-tpl-lvl.is-high,.sc-tpl-bar.is-high{--lv:var(--lv-high)}
 .sc-tpl-lvl.is-mid,.sc-tpl-bar.is-mid{--lv:var(--lv-mid)}
@@ -1543,29 +1550,37 @@ button.sc-qr-mini:hover,.sc-qr-btn:hover{border-color:var(--orange);box-shadow:0
 .sc-tpl-bar i{display:block;height:100%;border-radius:99px;background:var(--lv,var(--navy));transition:width .3s ease}
 .sc-tpl-covtxt{font-size:12px;color:var(--gray);white-space:nowrap;font-variant-numeric:tabular-nums}
 .sc-tpl-covtxt b{color:var(--navy)}
-.sc-tpl-pills{display:flex;flex-wrap:wrap;gap:6px;align-items:center;max-width:560px}
-.sc-tpl-pill{display:inline-flex;align-items:center;gap:8px;height:26px;padding:0 10px;border-radius:8px;background:#fff;border:1px solid var(--border);color:var(--navy);font-size:12px;font-weight:500;white-space:nowrap}
-.sc-tpl-pill.is-full{border-color:var(--st-ok-bd);background:color-mix(in srgb,var(--st-ok-bg) 45%,#fff)}
-.sc-tpl-segs{display:inline-flex;gap:2px}
-.sc-tpl-segs i{width:5px;height:10px;border-radius:2px;background:#e2e8f0}
-.sc-tpl-segs i.on{background:var(--navy)}
-.sc-tpl-pill.is-full .sc-tpl-segs i.on{background:var(--st-ok-fg)}
-.sc-tpl-all{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--st-ok-fg)}
-.sc-tpl-all svg{width:15px;height:15px}
-.sc-tpl-more{border:0;background:none;padding:0 4px;color:var(--st-info-fg);font:600 12px Inter,sans-serif;cursor:pointer;white-space:nowrap}
-.sc-tpl-more:hover{text-decoration:underline}
+/* permissions in words: a muted label, then module names */
+.sc-tpl-sum{display:flex;flex-direction:column;gap:4px}
+.sc-tpl-line{display:flex;align-items:baseline;gap:10px;font-size:12.5px;line-height:1.4;min-width:0}
+.sc-tpl-lbl{flex:0 0 64px;font-size:11.5px;color:var(--gray)}
+.sc-tpl-names{color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sc-tpl-names em{font-style:normal;color:var(--gray)}
 /* opened row / Permissions tab: every given module with its actions, then the unreachable ones */
 .sc-gl-templates .sc-exp-strip{display:block}
+/* the open row and its panel read as one: a navy bar runs down the row and
+   the panel, and the panel's header names the role, level and vertical */
+.sc-gl-templates tr.lp-row.is-expanded>td:first-child,.sc-gl-templates tr.sc-exp-row>td{box-shadow:inset 3px 0 0 var(--navy)}
+.sc-gl-templates tr.sc-exp-row .sc-exp-strip{border-color:#cbd5e1;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+.sc-tpl-exphead{padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sc-tpl-expwho{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sc-tpl-exptitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sc-tpl-exptitle>b{font-size:15px;font-weight:600;color:var(--navy)}
+.sc-tpl-exptitle .sc-tpl-vert{font-size:12.5px;color:var(--gray)}
+.sc-tpl-expsub{font-size:12px;color:var(--gray)}
 .sc-tpl-exphead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:12.5px;color:var(--gray)}
 .sc-tpl-exphead b{color:var(--navy)}
-.sc-tpl-matrix{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-.sc-tpl-mcard{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff}
-.sc-tpl-mcard.is-full{border-color:var(--st-ok-bd)}
-.sc-tpl-mhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:12.5px;color:var(--navy)}
+/* every module card is one fixed size on every template: compact chips keep the
+   longest module (Store Settings, 6 actions) in two lines at the 220px minimum */
+.sc-tpl-matrix{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));grid-auto-rows:82px;gap:14px}
+.sc-tpl-mcard{overflow:hidden;min-width:0}
+.sc-tpl-mcard{padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:#fff}
+/* one size and one border for every module card, wherever the grid shows; "All" in the header marks a full module */
+.sc-tpl-mhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:12.5px;line-height:16px;color:var(--navy)}
 .sc-tpl-mhead span{font-size:11px;font-weight:600;color:var(--gray)}
-.sc-tpl-mcard.is-full .sc-tpl-mhead span{color:var(--st-ok-fg)}
-.sc-tpl-macts{display:flex;flex-wrap:wrap;gap:4px}
-.sc-tpl-act{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font-size:11px;color:#94a3b8;border:1px dashed #cbd5e1;text-decoration:line-through;text-decoration-color:#cbd5e1}
+.sc-tpl-mcard.is-full .sc-tpl-mhead span{color:var(--navy)}
+.sc-tpl-macts{display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px}
+.sc-tpl-act{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:5px;font-size:10.5px;color:#94a3b8;border:1px dashed #cbd5e1;text-decoration:line-through;text-decoration-color:#cbd5e1}
 .sc-tpl-act.on{color:var(--navy);background:#f1f5f9;border:1px solid transparent;text-decoration:none;font-weight:500}
 .sc-tpl-none{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:#94a3b8}
 .sc-tpl-none b{color:var(--gray);font-weight:600;margin-right:4px}

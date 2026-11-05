@@ -5081,9 +5081,11 @@ var TPL_MODULES=[
   ['Product','Product',['View','Create','Update','Delete']],['Inventory','Inventory',['View','Create','Update','Delete']],
   ['Order','Order',['View','Create','Update','Delete']],['Discount','Discount & Offers',['View','Create','Update','Delete']],
   ['Store','Store Settings',['View','Create','Update','Delete','Bank View','Bank Update']],['Staff','Staff & Roles',['View','Create','Update','Delete']],
-  ['Support','Support',['View','Create']],['Partner','Logistic Partner',['View']],['Category','Category',['View']],['Tax','Tax',['View']],
-  ['HSN','HSN/SAC Master',['View']],['Brand','Brand',['View']],['Buyer','Buyer / Customer',['View']],['Analytics','Analytics / Settlement',['View']],
-  ['Variants','Product Variants',['View','Create','Update']],['Bulk Upload','Bulk Upload',['Create']],['QR','Payment QR',['View','Create']],
+  ['Support','Support',['View','Create','Update']],['Partner','Logistic Partner',['View','Create','Update','Delete']],
+  ['Category','Category',['View','Create','Update','Delete']],['Tax','Tax',['View','Create','Update','Delete']],
+  ['HSN','HSN/SAC Master',['View','Create','Update','Delete']],['Brand','Brand',['View','Create','Update','Delete']],
+  ['Buyer','Buyer / Customer',['View','Create','Update','Delete']],['Analytics','Analytics / Settlement',['View','Export']],
+  ['Variants','Product Variants',['View','Create','Update','Delete']],['Bulk Upload','Bulk Upload',['View','Create']],['QR','Payment QR',['View','Create','Update','Delete']],
   ['Medicine','Medicines',['View','Create','Update','Delete'],'Dispensary'],['Prescription','Prescriptions',['View','Create','Update','Delete'],'Dispensary']
 ];
 function tplModules(vertical){return TPL_MODULES.filter(function(m){return !m[3]||m[3]===vertical;});}
@@ -7865,7 +7867,12 @@ GL.templates={one:'template',noun:'templates',rows:TEMPLATES,
   expandable:true,
   expandHTML:function(t){
     var mods=tplModules(t.vertical),given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;}).length;
-    return '<div class="sc-tpl-exp"><div class="sc-tpl-exphead"><span><b>'+given+'</b> of '+mods.length+' modules<span class="hd-sb-dot">•</span><b>'+permCount(t.perms)+'</b> of '+tplTotal(t.vertical)+' permissions</span>'
+    var lv=tplLevel(t);
+    /* the panel says whose it is: role, level and vertical, then the counts */
+    return '<div class="sc-tpl-exp"><div class="sc-tpl-exphead"><div class="sc-tpl-expwho">'
+      +'<div class="sc-tpl-exptitle"><b>'+esc(t.role)+'</b><span class="sc-tpl-lvl is-'+lv[0]+'">'+lv[1]+'</span>'
+      +'<span class="sc-tpl-vert" data-v="'+esc(t.vertical)+'"><i></i>'+esc(t.vertical)+'</span></div>'
+      +'<span class="sc-tpl-expsub">Permissions<span class="hd-sb-dot">•</span><b>'+given+'</b> of '+mods.length+' modules<span class="hd-sb-dot">•</span><b>'+permCount(t.perms)+'</b> of '+tplTotal(t.vertical)+' permissions</span></div>'
       +'<button class="btn-outline btn-sm" type="button" onclick="event.stopPropagation();scTplPermEdit('+t.key+')">'+ICO_EDIT+' Edit Permissions</button></div>'
       +tplMatrixHTML(t)+'</div>';},
   /* EDIT WHERE YOU LOOK: Details edits what the template is (name, vertical);
@@ -7912,22 +7919,24 @@ function scTplPermSave(){
   glLog('templates',t.key,'Updated permissions',before+' → '+permCount(t.perms)+' permissions');
   state.glSub=null;state.permDraft=null;scRender();scToast(t.role+' permissions updated','success');
 }
-/* THE LISTING'S PERMISSIONS: each given module as a pill whose segments are
-   its actions (filled = given), the first few then "+N more", which opens the
-   row. A template with every action says so in one line instead. */
-var TPL_PILLS=4;
-function tplSegs(m,have){return '<span class="sc-tpl-segs" aria-hidden="true">'+m[2].map(function(a){return '<i'+(have.indexOf(a)>=0?' class="on"':'')+'></i>';}).join('')+'</span>';}
+/* THE LISTING'S PERMISSIONS, in words: what the role can change (any action
+   beyond View), then what it can only see - module names, a few then "+N",
+   the full list on hover. Every action of every module says so in one line.
+   The chevron opens the module-by-action detail. */
+var TPL_NAMES=4;
+function tplPermLine(label,mods){
+  if(!mods.length)return '';
+  var names=mods.map(function(m){return m[1];}),rest=names.length-TPL_NAMES;
+  return '<div class="sc-tpl-line"><span class="sc-tpl-lbl">'+label+'</span><span class="sc-tpl-names" title="'+esc(names.join(', '))+'">'
+    +esc(names.slice(0,TPL_NAMES).join(', '))+(rest>0?' <em>+'+rest+'</em>':'')+'</span></div>';
+}
 function tplPermSummary(t){
   var mods=tplModules(t.vertical),given=mods.filter(function(m){return (t.perms[m[0]]||[]).length;});
   if(!given.length)return '<span class="lp-dash">No permissions</span>';
-  if(tplLevel(t)[0]==='full')return '<span class="sc-tpl-all">'+ICO.check+' Every action in all '+mods.length+' modules</span>';
-  var ex=!!(state.glExp||{})['templates:'+t.key],rest=given.length-TPL_PILLS;
-  var pills=given.slice(0,TPL_PILLS).map(function(m){
-    var have=t.perms[m[0]],miss=m[2].filter(function(a){return have.indexOf(a)<0;});
-    return '<span class="sc-tpl-pill'+(miss.length?'':' is-full')+'" title="'+esc(m[1]+': '+have.join(', ')+(miss.length?' — not given: '+miss.join(', '):''))+'">'
-      +esc(m[1])+tplSegs(m,have)+'</span>';}).join('');
-  return '<div class="sc-tpl-pills">'+pills
-    +(rest>0?'<button type="button" class="sc-tpl-more" aria-expanded="'+ex+'" onclick="event.stopPropagation();scGlExpand(\'templates\','+t.key+')">'+(ex?'Show less':'+'+rest+' more')+'</button>':'')+'</div>';
+  if(tplLevel(t)[0]==='full')return '<div class="sc-tpl-line"><span class="sc-tpl-names">Everything in all '+mods.length+' modules</span></div>';
+  var view=given.filter(function(m){return t.perms[m[0]].every(function(a){return a==='View';});});
+  var edit=given.filter(function(m){return view.indexOf(m)<0;});
+  return '<div class="sc-tpl-sum">'+tplPermLine('Manage',edit)+tplPermLine('View only',view)+'</div>';
 }
 /* every module of the vertical: given ones as cards (missing actions muted),
    then the modules the role cannot reach at all */
